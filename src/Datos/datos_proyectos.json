@@ -22,8 +22,8 @@
         "isBlog": false,
         "title": "JCMS",
         "description": "Portfolio de Juan Carlos Macías, residente en la Comunidad de Madrid, realizado integramente con React ",
-        "ghLink": "",
-        "demoLink": "http://www.juacarlosmacias.es/"
+        "ghLink": "https://github.com/juancmacias/Portfolio",
+        "demoLink": "http://www.juancarlosmacias.es/"
     },
     {
         "id": 4,

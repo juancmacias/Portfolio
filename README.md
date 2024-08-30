@@ -1,6 +1,6 @@
 <h2>
   Porfolio personal - Juan Carlos Macías<br/>
-  <a href="https://juancarlosmacias.com/" target="_blank">juancarlosmacias.com</a>
+  <a href="https://juancarlosmacias.es/" target="_blank">juancarlosmacias.com</a>
 </h2>
 
 
@@ -35,7 +35,7 @@ Este proyecto utiliza tecnologías.
 - Express.js
 - CSS3
 - VsCode
-- Vercel
+
 
 
 ## Para empezar
