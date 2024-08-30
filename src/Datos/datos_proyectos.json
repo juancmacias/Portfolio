@@ -1,0 +1,37 @@
+[
+    {
+        "id": 1,
+        "imgPath": "../../Assets/Projects/colegio.png",
+        "isBlog": true,
+        "title": "Colegio de Educación infantil y primaria Barcelona de la Comunidad de Madrid",
+        "description": "Página web corporativa de CEIP Barcelona de la Comunidad de Madrid, realizado con PHP, MySQL, JavaScript. Dispone de un calendario dinamincon donde se publican noticias en el tablon de anuncios.",
+        "ghLink": "",
+        "demoLink": "https://www.ceipbarcelonamadrid.org/"
+    },
+    {
+        "id": 2,
+        "imgPath": "../../Assets/Projects/donde-reparar.png",
+        "isBlog": true,
+        "title": "donde-reparar",
+        "description": "Pagina de servicio técnico de reparación de televisores en la Comunidad de Madrid, desarrollado con PHP, MySQL, JavaScript. Dispone de un entorno privado para la gesión de clientes.",
+        "demoLink": "https://www.donde-reparar.com/"
+    },
+    {
+        "id": 3,
+        "imgPath": "../../Assets/Projects/portfolio.png",
+        "isBlog": false,
+        "title": "JCMS",
+        "description": "Portfolio de Juan Carlos Macías, residente en la Comunidad de Madrid, realizado integramente con React ",
+        "ghLink": "",
+        "demoLink": "http://www.juacarlosmacias.es/"
+    },
+    {
+        "id": 4,
+        "imgPath": "../../Assets/Projects/thinkingwithyou.png",
+        "isBlog": false,
+        "title": "Thinking with you",
+        "description": "La empresa Thinking With You quiere transmitir sus valores a la sociedad de una manera moderna y actual. La idea es emular el Libro blanco de Thinking With You con experiencias inmersiva, nesitan también un formulario de contacto y zona de administración para actualizar la información de la presentación.",
+        "ghLink": "https://github.com/juancmacias/alma",
+        "demoLink": "https://alma-i7tu.vercel.app/"
+    }
+]
