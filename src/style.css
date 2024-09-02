@@ -466,7 +466,7 @@ button:focus {
   /*background-color: transparent !important;*/
   opacity: 0.9 !important;
   transition: all 0.5s ease 0s !important;
-  height: 100% !important;
+  height: 105% !important;
 }
 .project-card-view:hover {
   transform: scale(1.02) !important;

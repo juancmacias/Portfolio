@@ -15,12 +15,14 @@ function ProjectCards(props) {
           {props.description}
         </Card.Text>
         <div className="card-dow" >
-          <Button variant="primary" href={props.isBlog ? props.demoLink : props.ghLink} title={props.title} target="_blank">
-            {props.isBlog ? (<CgWebsite />) : (<BsGithub />)}
-            {props.isBlog ? (" Demo") : (" GitHub")}
-            onClick={() => {
+          <Button variant="primary" href={props.isBlog ? props.demoLink : props.ghLink} title={props.title} target="_blank" 
+          onClick={() => {
                   Analytics(props.isBlog ? props.demoLink : props.ghLink)
                 }}
+                >
+            {props.isBlog ? (<CgWebsite />) : (<BsGithub />)}
+            {props.isBlog ? (" Demo") : (" GitHub")}
+            
           </Button>
         
         {"\n"}

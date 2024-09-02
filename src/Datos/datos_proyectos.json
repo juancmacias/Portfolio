@@ -34,4 +34,14 @@
         "ghLink": "https://github.com/juancmacias/alma",
         "demoLink": "https://alma-i7tu.vercel.app/"
     }
+    ,
+    {
+        "id": 5,
+        "imgPath": "../../Assets/Projects/errorhttp.png",
+        "isBlog": false,
+        "title": "Gestión errores HTTP",
+        "description": "Gestión simple y funcional para manejar de forma autonoma los posibles errores que se puedan ocasionar en el servidor.",
+        "ghLink": "https://github.com/juancmacias/gestionerrorHTTP",
+        "demoLink": "http://www.juancarlosmacias.es/error/?error=400"
+    }
 ]
