@@ -5,8 +5,10 @@ import Techstack from "./Techstack";
 import Aboutcard from "./AboutCard";
 import laptopImg from "../../Assets/about.png";
 import Toolstack from "./Toolstack";
+import Analytics from "../Analytics";
 
 function About() {
+  Analytics("Sobre mí")
   return (
     <Container fluid className="about-section">
 

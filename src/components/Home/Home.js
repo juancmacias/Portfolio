@@ -3,10 +3,15 @@ import { Container, Row, Col } from "react-bootstrap";
 import homeLogo from "../../Assets/home-main.svg";
 import Home2 from "./Home2";
 import Type from "./Type";
+import Analytics from "../Analytics";
+
 
 function Home() {
+  Analytics("Inicio")
   return (
+    
     <section>
+      
       <Container fluid className="home-section" id="home">
 
         <Container className="home-content">

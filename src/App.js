@@ -8,6 +8,7 @@ import Projects from "./components/Projects/Projects";
 import Footer from "./components/Footer";
 import Resume from "./components/Resume/ResumeNew";
 import Usocookies from "./components/Politics/usocookies";
+import Analytics from "./components/Analytics";
 
 import {
   BrowserRouter as Router,
@@ -21,7 +22,7 @@ import "./App.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 
 function App() {
-  
+  Analytics("Principal")
   const prefersColorScheme = usePrefersColorScheme();
   const [ theme, setTheme] = useState(localStorage.getItem('preferencia')=== null? prefersColorScheme:localStorage.getItem('preferencia'));
 

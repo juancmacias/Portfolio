@@ -3,6 +3,7 @@ import Card from "react-bootstrap/Card";
 import Button from "react-bootstrap/Button";
 import { CgWebsite } from "react-icons/cg";
 import { BsGithub } from "react-icons/bs";
+import Analytics from "../Analytics";
 
 function ProjectCards(props) {
   return (
@@ -17,6 +18,9 @@ function ProjectCards(props) {
           <Button variant="primary" href={props.isBlog ? props.demoLink : props.ghLink} title={props.title} target="_blank">
             {props.isBlog ? (<CgWebsite />) : (<BsGithub />)}
             {props.isBlog ? (" Demo") : (" GitHub")}
+            onClick={() => {
+                  Analytics(props.isBlog ? props.demoLink : props.ghLink)
+                }}
           </Button>
         
         {"\n"}
@@ -30,6 +34,9 @@ function ProjectCards(props) {
             href={props.demoLink}
             target="_blank"
             style={{ marginLeft: "10px" }}
+            onClick={() => {
+              Analytics(props.demoLink)
+            }}
           >
             <CgWebsite /> &nbsp;
             {"Demo"}
