@@ -45,3 +45,7 @@ body {
 .card-dow{
  position: absolute; bottom:2px; left:0; right:0; ;
 }
+.pdfcss{
+  
+  height: 750px;
+}
