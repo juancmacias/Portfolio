@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { Container, Row } from "react-bootstrap";
 import Button from "react-bootstrap/Button";
-import pdf from "../../Assets/CV_JCMS_v4.pdf";
+import pdf from "../../Assets/pdf/cv.pdf";
 import Analytics from "../Analytics";
+import LoadingSpinner from "../Loading/LoadingSpinner";
 import { AiOutlineDownload } from "react-icons/ai";
 import { Document, Page, pdfjs } from "react-pdf";
 import "react-pdf/dist/esm/Page/AnnotationLayer.css";
@@ -11,15 +12,15 @@ pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/$
 function ResumeNew() {
   Analytics("CV")
   const [width, setWidth] = useState(1200);
+  const [ isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
     setWidth(window.innerWidth);
+    setIsLoading(false)
   }, []);
-
-  return (
+  const renderCV = (
     <div>
-      <Container fluid className="resume-section">
-        <Row style={{ justifyContent: "center", position: "relative" }}>
+      <Row style={{ justifyContent: "center", position: "relative" }}>
           <Button
             variant="primary"
             href={pdf}
@@ -48,8 +49,14 @@ function ResumeNew() {
             &nbsp;Descargar CV
           </Button>
         </Row>
-      </Container>
     </div>
+  )
+  return (
+
+      <Container fluid className="resume-section">
+        {isLoading ? <LoadingSpinner /> : renderCV}
+      </Container>
+
   );
 }
 

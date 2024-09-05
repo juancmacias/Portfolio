@@ -1,0 +1,59 @@
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+  RewriteRule ^index\.html$ - [L]
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteCond %{REQUEST_FILENAME} !-l
+  RewriteRule . /index.html [L]
+ 
+</IfModule>
+ErrorDocument 400 http://www.juancarlosmacias.es/error/?error=400
+ErrorDocument 401 http://www.juancarlosmacias.es/error/?error=401
+ErrorDocument 403 http://www.juancarlosmacias.es/error/?error=403
+ErrorDocument 404 http://www.juancarlosmacias.es/error/?error=404
+ErrorDocument 500 http://www.juancarlosmacias.es/error/?error=500
+ErrorDocument 502 http://www.juancarlosmacias.es/error/?error=502
+ErrorDocument 503 http://www.juancarlosmacias.es/error/?error=503
+ErrorDocument 504 http://www.juancarlosmacias.es/error/?error=504
+ErrorDocument 505 http://www.juancarlosmacias.es/error/?error=505
+ErrorDocument 507 http://www.juancarlosmacias.es/error/?error=507
+
+# 
+# associate .js with "text/javascript" type (if not present in mime.conf)
+# 
+
+AddType text/javascript .js
+
+# 
+# configure mod_expires
+# 
+# URL: http://httpd.apache.org/docs/2.2/mod/mod_expires.html
+# 
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresDefault "access plus 1 seconds"
+    ExpiresByType image/x-icon "access plus 2692000 seconds"
+    ExpiresByType image/jpeg "access plus 0 seconds"
+    ExpiresByType image/png "access plus 0 seconds"
+    ExpiresByType image/gif "access plus 0 seconds"
+    ExpiresByType application/x-shockwave-flash "access plus 2692000 seconds"
+    ExpiresByType text/css "access plus 0 seconds"
+    ExpiresByType text/javascript "access plus 0 seconds"
+    ExpiresByType application/x-javascript "access plus 0 seconds"
+    ExpiresByType text/php "access plus 0 seconds" 
+   ExpiresByType text/html "access plus 0 seconds"
+    ExpiresByType application/xhtml+xml "access plus 0 seconds"
+</IfModule>
+
+# 
+# configure mod_headers
+# 
+# URL: http://httpd.apache.org/docs/2.2/mod/mod_headers.html
+# 
+<IfModule mod_headers.c>
+    Header unset ETag
+    Header unset Last-Modified
+</IfModule>
+AddDefaultCharset UTF-8
+AddLanguage es-ES .html .htm .php .css .js

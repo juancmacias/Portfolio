@@ -28,7 +28,7 @@ Puedes modificar el código de la forma y manera que te apetezca, eres libre de 
 
 Mi portafolio personal <a href="https://juancarlosmacias.com/" target="_blank">juancarlosmacias.com</a> presenta algunos de mis proyectos en Github, así como mi currículum y habilidades técnicas.<br/>
 
-Este proyecto utiliza tecnologías para el `frontend`.
+Este proyecto utiliza tecnologías.
 
 - React.js
 - Node.js
@@ -36,9 +36,6 @@ Este proyecto utiliza tecnologías para el `frontend`.
 - CSS3
 - VsCode
 
-Para el `backend`:
-- php
-- json
 
 
 ## Para empezar
@@ -54,7 +51,6 @@ Clona este repositorio. Necesitaras `node.js` y `git` instalados globalmente en 
 Ejecuta la aplicación en modo de desarrollo.
 Abre [http://localhost:3000](http://localhost:3000) para verlo en el navegador.
 La página se recargará si realiza modificaciones.
-Recuerda que debes tener tu servidor local php para hacer la petición a backend.
 
 ## Instrucciones de uso
 
