@@ -5,6 +5,7 @@ import ProjectCard from "./ProjectCards";
 import { urlApi } from "../../Services/urls";
 import Analytics from "../Analytics";
 import LoadingSpinner from "../Loading/LoadingSpinner"
+import MetaData from "../../Services/MetaData";
 
 function Projects() {
   const [proyectos, setProyectos] = useState([])
@@ -25,6 +26,12 @@ function Projects() {
 
   const renderProyectos = (
     <div>
+      <MetaData
+         _title={'Porfolio de Juan Carlos Macías, mis proyectos.'}
+         _descr={'Soluciones digitales para distintas entidades, usando PHP, SQL, Java, React, JavaScript, Symfony'}
+         _url={'http://www.juancarlosmacias.es/project'}
+         _img={'https://www.juancarlosmacias.es/Assets/Projects/portfolio.png'}
+      />
       <h2 className="project-heading">
         Últimos <strong className="purple">trabajos</strong>
       </h2>

@@ -36,7 +36,13 @@ function App() {
       
     }, 1200);
 
-    return () => clearTimeout(timer);
+    return () =>{
+      const metaTag = document.querySelector(`meta`);
+        if (metaTag) {
+            metaTag.remove();
+        }
+      clearTimeout(timer); 
+    } 
   }, []);
   function handleAction(event) {
     setTheme(event);

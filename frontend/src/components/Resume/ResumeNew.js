@@ -16,6 +16,8 @@ pdfjs.GlobalWorkerOptions.workerSrc = new URL(
   import.meta.url,
 ).toString();
 */
+import MetaData from "../../Services/MetaData";
+
 function ResumeNew() {
   Analytics("CV")
   const [width, setWidth] = useState(1200);
@@ -27,6 +29,12 @@ function ResumeNew() {
   }, []);
   const renderCV = (
     <div>
+      <MetaData
+         _title={'Porfolio de Juan Carlos Macías, mi CV.'}
+         _descr={'Aquí tienes mi CV, puedes descargalo para valorarlo más detenidamente.'}
+         _url={'http://www.juancarlosmacias.es/resume'}
+         _img={'https://www.juancarlosmacias.es/Assets/Projects/portfolio.png'}
+      />
       <Row style={{ justifyContent: "center", position: "relative" }}>
           <Button
             variant="primary"
