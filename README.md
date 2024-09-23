@@ -61,6 +61,10 @@ Recuerda que debes tener tu servidor local php para hacer la petición a backend
 Abre la carpeta del proyecto y vaya hasta `/src/components/`. <br/>
 Encontraras todos los componentes utilizados y podrás editar el contenido a tu atojo.
 
+## Stats
+ 
+![Alt](https://repobeats.axiom.co/api/embed/0cba6738361413e81d5f8270161155fe9d9385fd.svg "Repobeats analytics image")
+
 ### Muestra tu apoyo
 
 Si te gusto dale una estrella y puede invitarme a un café.
