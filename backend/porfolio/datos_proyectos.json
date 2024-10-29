@@ -43,5 +43,14 @@
         "description": "Gestión simple y funcional para manejar de forma autonoma los posibles errores que se puedan ocasionar en el servidor.",
         "ghLink": "https://github.com/juancmacias/gestionerrorHTTP",
         "demoLink": "http://www.juancarlosmacias.es/error/?error=400"
+    },
+    {
+        "id": 6,
+        "imgPath": "../../reviews_google/Captura de pantalla 2024-10-29 102808.JPG",
+        "isBlog": false,
+        "title": "Mostrar reseñas de Google map en la web",
+        "description": "Una forma de mostrar las reseña de google en tu web, en este caso en con php, pero una vez construida la url podemos usa el lenguaje que más nos guste",
+        "ghLink": "https://github.com/juancmacias/reviews_google",
+        "demoLink": "http://www.juancarlosmacias.es/reviews_google"
     }
 ]
