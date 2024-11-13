@@ -11,7 +11,7 @@ function MetaData(props) {
             <meta property="og:type" content="porfolio" />
             <meta property="og:url" content={props._url} />
             <meta property="og:image" content={props._img} />
-            <link rel="canonical" href="http://www.juancarlosmacias.es" />
+            <link rel="canonical" href={props._url} />
         </MetaTags>
     )
 }

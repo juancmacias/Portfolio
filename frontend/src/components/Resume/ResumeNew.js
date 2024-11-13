@@ -30,10 +30,10 @@ function ResumeNew() {
   const renderCV = (
     <div>
       <MetaData
-         _title={'Porfolio de Juan Carlos Macías, mi CV.'}
+         _title={'Porfolio de Juan Carlos Macías, mi CV | Desarrollo web jcms'}
          _descr={'Aquí tienes mi CV, puedes descargalo para valorarlo más detenidamente.'}
          _url={'http://www.juancarlosmacias.es/resume'}
-         _img={'https://www.juancarlosmacias.es/Assets/Projects/portfolio.png'}
+         _img={'http://www.juancarlosmacias.es/Assets/Projects/portfolio.png'}
       />
       <Row style={{ justifyContent: "center", position: "relative" }}>
           <Button

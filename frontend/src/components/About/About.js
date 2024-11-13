@@ -13,10 +13,10 @@ function About() {
   return (
     <Container fluid className="about-section">
       <MetaData
-         _title={'Porfolio de Juan Carlos Macías de Madrid'}
-         _descr={'Hola, soy Juan Carlos Macías y vivo en Madrid, España. Me encuentro en busqueda activa de empleo, reorganizando mi mundo laboral. Dispongo de de cursos de formación profesional relacionados con el desarrollo de sofware.'}
+         _title={'Porfolio de Juan Carlos Macías de Madrid | Desarrollo web jcms'}
+         _descr={'Hola, soy Juan Carlos Macías y vivo en Madrid, España. Me encuentro en busqueda activa de empleo, reorganizando mi mundo laboral. Dispongo de cursos de formación profesional relacionados con el desarrollo de sofware.'}
          _url={'http://www.juancarlosmacias.es/about'}
-         _img={'https://www.juancarlosmacias.es/Assets/Projects/portfolio.png'}
+         _img={'http://www.juancarlosmacias.es/Assets/Projects/portfolio.png'}
       />
       <Container>
         <Row style={{ justifyContent: "center", padding: "10px" }}>
