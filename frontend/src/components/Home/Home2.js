@@ -1,6 +1,6 @@
 import React from "react";
 import { Container, Row, Col } from "react-bootstrap";
-import myImg from "../../Assets/b1.png";
+import myImg from "../../Assets/home-main.svg";
 import Tilt from "react-parallax-tilt";
 import {
   AiFillGithub,
@@ -17,9 +17,9 @@ function Home2() {
       <Container>
         <Row>
           <Col md={8} className="home-about-description">
-            <h1 style={{ fontSize: "2.6em" }}>
+            <h3 style={{ fontSize: "2.6em" }}>
               Permiteme <span className="purple"> Presentarme </span> 
-            </h1>
+            </h3>
             <p className="home-about-body">
             He aprendido mucho desde que empecé a programar hace ya bastante tiempo. 
               <br />
@@ -59,7 +59,7 @@ function Home2() {
         <Row style={{ paddingTop: 40 }}>
           <Col md={12} className="home-about-social">
 
-            <h1>Puedes encontrarme en:</h1>
+            <h3>Puedes encontrarme en:</h3>
             <ul className="home-about-social-links">
             <li className="social-icons">
                 <a
@@ -67,6 +67,7 @@ function Home2() {
                   target="_blank"
                   rel="noreferrer"
                   className="icon-colour home-social-icons"
+                  aria-label="Mira mis apliaciones en Google Play"
                 >
                   <FaGooglePlay />
                 </a>
@@ -77,6 +78,7 @@ function Home2() {
                   target="_blank"
                   rel="noreferrer"
                   className="icon-colour  home-social-icons"
+                  aria-label="Colabora en mi repositorio de GitHub"
                 >
                   <AiFillGithub />
                 </a>
@@ -88,6 +90,7 @@ function Home2() {
                   target="_blank"
                   rel="noreferrer"
                   className="icon-colour  home-social-icons"
+                  aria-label="Sigueme por LinkedIn"
                 >
                   <FaLinkedinIn />
                 </a>
@@ -98,6 +101,7 @@ function Home2() {
                   target="_blank"
                   rel="noreferrer"
                   className="icon-colour home-social-icons"
+                  aria-label="Es mi Instagram"
                 >
                   <AiFillInstagram />
                 </a>

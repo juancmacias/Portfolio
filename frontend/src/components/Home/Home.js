@@ -1,6 +1,6 @@
 import React from "react"
 import { Container, Row, Col } from "react-bootstrap"
-import homeLogo from "../../Assets/home-main.svg"
+import homeLogo from "../../Assets/b1.png"
 import Home2 from "./Home2"
 import Type from "./Type"
 import Analytics from "../Analytics"
@@ -23,20 +23,19 @@ function Home() {
         <Container className="home-content">
           <Row>
             <Col md={7} className="home-header">
-              <h1 style={{ paddingBottom: 15 }} className="heading">
+              <h2 style={{ paddingBottom: 15 }} className="heading">
                 Hola, bienvenid@{" "}
                 <span className="wave" role="img" aria-labelledby="wave">
                   👋🏻
                 </span>
-              </h1>
-
+              </h2>
+              <strong className="heading">Soy</strong>
               <h1 className="heading-name">
-                Soy
-                <strong className="main-name"> Juan Carlos Macías</strong>
+                <strong className="main-name">Juan Carlos Macías</strong>
               </h1>
 
               <div style={{ padding: 50, textAlign: "left" }}>
-                <Type />
+                <h3><Type /></h3>
               </div>
             </Col>
 

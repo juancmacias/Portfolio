@@ -52,5 +52,24 @@
         "description": "Una forma de mostrar las reseña de google en tu web, en este caso en con php, pero una vez construida la url podemos usa el lenguaje que más nos guste",
         "ghLink": "https://github.com/juancmacias/reviews_google",
         "demoLink": "http://www.juancarlosmacias.es/reviews_google"
+    },
+    {
+        "id": 7,
+        "imgPath": "Assets/Projects/co2.png",
+        "isBlog": false,
+        "title": "Huella de carbono de servidor",
+        "description": "¿Comprobar si tu dominio está alojado en un servidor ecológico?",
+        "ghLink": "https://github.com/juancmacias/co2",
+        "demoLink": "http://www.juancarlosmacias.es/co2"
+    }
+    ,
+    {
+        "id": 8,
+        "imgPath": "Assets/Projects/grupogestorhv.png",
+        "isBlog": true,
+        "title": "Grupo gestor HV S.L.",
+        "description": "Herencias. Gestión de herencias. Gestión integral de empresas. Gestión de empresas. Gestión de autónomos. Jubilaciones. ",
+        "ghLink": "",
+        "demoLink": "https://www.grupogestorhv.es/"
     }
 ]

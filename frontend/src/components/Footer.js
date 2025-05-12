@@ -19,9 +19,10 @@ function Footer() {
           <ul className="footer-icons">
           <li className="social-icons">
               <a
-                href="https://g.page/r/CYPtLCmjboCHEBM/review"
+                href="https://maps.app.goo.gl/eb43KR6oPFGrNgAn9"
                 target="_blank"
                 rel="noreferrer"
+                aria-label="Mira donde me encuentro"
               >
                 <FaMapMarkedAlt />
               </a>
@@ -31,6 +32,7 @@ function Footer() {
                 href="https://play.google.com/store/apps/dev?id=7098282899285176966"
                 target="_blank"
                 rel="noreferrer"
+                aria-label="Mira mi perfil de Google Play"
               >
                 <FaGooglePlay />
               </a>
@@ -40,6 +42,7 @@ function Footer() {
                 href="https://github.com/juancmacias"
                 target="_blank"
                 rel="noreferrer"
+                aria-label="Visita mi repositorio en GitHub"
               >
                 <AiFillGithub />
               </a>
@@ -50,6 +53,7 @@ function Footer() {
                 href="https://www.linkedin.com/in/juancarlosmacias/"
                 target="_blank"
                 rel="noreferrer"
+                aria-label="Sigueme por LinkedIn"
               >
                 <FaLinkedinIn />
               </a>
@@ -59,6 +63,7 @@ function Footer() {
                 href="https://www.instagram.com/jcms_madrid/"
                 target="_blank"
                 rel="noreferrer"
+                aria-label="Es mi instagram"
               >
                 <AiFillInstagram />
               </a>
