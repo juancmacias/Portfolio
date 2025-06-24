@@ -1,7 +1,8 @@
 {
   "name": "portfolio",
-  "homepage": "http://www.juancarlosmacias.es/",
+  "homepage": "https://www.juancarlosmacias.es/",
   "version": "0.1.4",
+  
   "private": true,
   "dependencies": {
     "@react-pdf/renderer": "^2.2.0",
@@ -28,6 +29,9 @@
     "typewriter-effect": "^2.18.2",
     "use-prefers-color-scheme": "^1.1.3",
     "web-vitals": "^2.1.4"
+  },
+  "config": {
+    "githubApiBaseUrl": "https://api.github.com/repos/juancmacias/Portfolio"
   },
   "scripts": {
     "start": "react-scripts start",

@@ -5,22 +5,22 @@
       xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
             http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
       <url>
-            <loc>http://www.juancarlosmacias.es/</loc>
+            <loc>https://www.juancarlosmacias.es/</loc>
       </url>
       <url>
-            <loc>http://www.juancarlosmacias.es/about</loc>
+            <loc>https://www.juancarlosmacias.es/about</loc>
       </url>
       <url>
-            <loc>http://www.juancarlosmacias.es/project</loc>
+            <loc>https://www.juancarlosmacias.es/project</loc>
       </url>
       <url>
-            <loc>http://www.juancarlosmacias.es/resume</loc>
+            <loc>https://www.juancarlosmacias.es/resume</loc>
       </url>
       <url>
-            <loc>http://www.juancarlosmacias.es/reviews_google</loc>
+            <loc>https://www.juancarlosmacias.es/reviews_google</loc>
       </url>
       <url>
-            <loc>http://www.juancarlosmacias.es/error/?error=400</loc>
+            <loc>https://www.juancarlosmacias.es/error/?error=400</loc>
       </url>
       <url>
             <loc>https://alma-i7tu.vercel.app/</loc>

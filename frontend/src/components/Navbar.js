@@ -97,10 +97,10 @@ function NavBar({ onAction }) {
             <Nav.Item>
               <Nav.Link
                 as={Link}
-                to="/contact"
+                to="/politics"
                 onClick={() => updateExpanded(false)}
               >
-                 Contactar
+                 Políticas de Privacidad
               </Nav.Link>
             </Nav.Item>
 

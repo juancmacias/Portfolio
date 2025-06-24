@@ -1,6 +1,5 @@
-import React from "react";
 import { Container, Row, Col } from "react-bootstrap";
-import myImg from "../../Assets/home-main.svg";
+//import myImg from "../../Assets/home.png";
 import Tilt from "react-parallax-tilt";
 import {
   AiFillGithub,
@@ -25,7 +24,7 @@ function Home2() {
               <br />
               <br />Tengo una gran pasión por la programación, especialmente en
               <i>
-                <b className="purple"> Java para Android, JavaScript. </b>
+                <b className="purple"> Java para Android, JavaScript Python.</b>
               </i>
               <br />
               <br />
@@ -35,7 +34,7 @@ function Home2() {
               </i>
               <br />
               <br />
-              Siempre que tengo la oportunidad, aplico mis conocimientos en la creación de entornos <b className="purple">3D</b> en
+              Siempre que tengo la oportunidad, aplico mis conocimientos en la creación de entornos <b className="purple">3D</b> 
               <i>
                 <b className="purple">
                   {" "}
@@ -46,11 +45,26 @@ function Home2() {
               <i>
                 <b className="purple">React.js.</b>
               </i>
+              <br />
+              <br />
+              Me encanta aprender y mejorar mis habilidades, y siempre estoy buscando nuevos retos y oportunidades para crecer como desarrollador.
+              <br />
+              <br />
+                En estos ultimos meses he creado soluciónes muy 
+              
+              <i>
+                <b className="purple">
+                {" "}
+                dinámicas y descentralizadas con Python </b>
+              </i>
+               para la creación de "End Point".
+               <br/>
+               <br/>
             </p>
           </Col>
           <Col md={4} className="myAvtar">
             <Tilt>
-              <img src={myImg} className="img-fluid" alt="avatar" />
+              <img src="../../Assets/home.png" className="img-fluid" alt="avatar" />
             </Tilt>
           </Col>
         </Row>

@@ -94,7 +94,11 @@ Si te gusto dale una estrella y puedes invitarme a un café.
 
 
 ```bash
+
 git tag -a v1.0.0 -m "Release: versión inicial"
 git push origin v1.0.0
+
+# para obtener la última versión
+git describe
 
 ```

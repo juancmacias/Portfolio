@@ -32,15 +32,21 @@ function ResumeNew() {
       <MetaData
          _title={'Porfolio de Juan Carlos Macías, mi CV | Desarrollo web jcms'}
          _descr={'Aquí tienes mi CV, puedes descargalo para valorarlo más detenidamente.'}
-         _url={'http://www.juancarlosmacias.es/resume'}
-         _img={'http://www.juancarlosmacias.es/Assets/Projects/portfolio.png'}
+         _url={'https://www.juancarlosmacias.es/resume'}
+         _img={'https://www.juancarlosmacias.es/Assets/Projects/portfolio.png'}
       />
       <Row style={{ justifyContent: "center", position: "relative" }}>
           <Button
             variant="primary"
-            href={pdf}
-            target="_blank"
             style={{ maxWidth: "250px" }}
+            onClick={() => {
+              const link = document.createElement('a');
+              link.href = require("../../Assets/pdf/cv.pdf");
+              link.download = "cv.pdf";
+              document.body.appendChild(link);
+              link.click();
+              document.body.removeChild(link);
+            }}
           >
             <AiOutlineDownload />
             &nbsp;Descargar CV
@@ -58,10 +64,17 @@ function ResumeNew() {
         <Row style={{ justifyContent: "center", position: "relative" }}>
           <Button
             variant="primary"
-            href={pdf}
-            target="_blank"
             style={{ maxWidth: "250px" }}
+            onClick={() => {
+              const link = document.createElement('a');
+              link.href = require("../../Assets/pdf/cv.pdf");
+              link.download = "cv.pdf";
+              document.body.appendChild(link);
+              link.click();
+              document.body.removeChild(link);
+            }}
           >
+
             <AiOutlineDownload />
             &nbsp;Descargar CV
           </Button>

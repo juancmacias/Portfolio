@@ -29,8 +29,8 @@ function Projects() {
       <MetaData
          _title={'Porfolio de Juan Carlos Macías, proyectos desarrollados | Desarrollo web jcms'}
          _descr={'Soluciones digitales para distintas entidades, usando PHP, SQL, Java, React, JavaScript, Symfony'}
-         _url={'http://www.juancarlosmacias.es/project'}
-         _img={'http://www.juancarlosmacias.es/Assets/Projects/portfolio.png'}
+         _url={'https://www.juancarlosmacias.es/project'}
+         _img={'https://www.juancarlosmacias.es/Assets/Projects/portfolio.png'}
          
       />
       <h2 className="project-heading">

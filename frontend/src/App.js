@@ -7,7 +7,8 @@ import About from "./components/About/About";
 import Projects from "./components/Projects/Projects";
 import Footer from "./components/Footer";
 import Resume from "./components/Resume/ResumeNew";
-import Usocookies from "./components/Politics/usocookies";
+//import Usocookies from "./components/Politics/usocookies";
+import Politicas from "./components/Politics/politica";
 import Analytics from "./components/Analytics";
 
 import {
@@ -60,7 +61,7 @@ function App() {
           <Route path="/project" element={<Projects />} />
           <Route path="/about" element={<About />} />
           <Route path="/resume" element={<Resume />} />
-          <Route path="/politics" element={<Usocookies />} />
+          <Route path="/politics" element={<Politicas />} />
           <Route path="*" element={<Navigate to="/"/>} />
         </Routes>
         <Footer />

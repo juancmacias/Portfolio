@@ -7,7 +7,8 @@ import {
   SiPostman,
   SiSlack,
   SiVercel,
-  SiEclipseide 
+  SiRender,
+  SiEclipseide,
 } from "react-icons/si";
 
 function Toolstack() {
@@ -16,8 +17,9 @@ function Toolstack() {
       <Col xs={4} md={2} className="tech-icons">
         <SiAndroidstudio title="Android Studio"/>
       </Col>
+      
       <Col xs={4} md={2} className="tech-icons">
-        <SiVisualstudiocode title="visual Studio Code"/>
+        <SiVisualstudiocode title="Visual Studio Code"/>
       </Col>
       <Col xs={4} md={2} className="tech-icons">
         <SiPostman title="Postman"/>
@@ -29,11 +31,15 @@ function Toolstack() {
         <SiVercel title="Vercel"/>
       </Col>
       <Col xs={4} md={2} className="tech-icons">
+        <SiRender title="Render"/>
+      </Col>
+      <Col xs={4} md={2} className="tech-icons">
         <SiIntellijidea title="InetlliJ"/>
       </Col>
       <Col xs={4} md={2} className="tech-icons">
         <SiEclipseide title="Eclipse"/>
       </Col>
+      
     </Row>
   );
 }

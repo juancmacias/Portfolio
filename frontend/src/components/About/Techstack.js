@@ -6,7 +6,14 @@ import {
   DiNodejs,
   DiMongodb,
   DiJava,
+  DiPython,
+  DiDocker,
+  DiSqllite,
+  DiPostgresql,
+  DiMysql,
+  DiPhp
 } from "react-icons/di";
+
 import {
   SiFirebase,
   SiNextdotjs,
@@ -20,10 +27,28 @@ function Techstack() {
         <DiJavascript1 title="JavaScript" />
       </Col>
       <Col xs={4} md={2} className="tech-icons">
+        <DiPhp title="PHP" />
+      </Col>
+      <Col xs={4} md={2} className="tech-icons">
+        <DiPython title="Python"/>
+      </Col>
+      <Col xs={4} md={2} className="tech-icons">
+        <DiDocker title="Docker"/>
+      </Col>
+      <Col xs={4} md={2} className="tech-icons">
         <DiNodejs title="Node.js" />
       </Col>
       <Col xs={4} md={2} className="tech-icons">
         <DiReact title="React.js" />
+      </Col>
+      <Col xs={4} md={2} className="tech-icons">
+        <DiMysql title="MySQL" />
+      </Col>
+      <Col xs={4} md={2} className="tech-icons">
+        <DiPostgresql title="PostgreSQL" />
+      </Col>
+      <Col xs={4} md={2} className="tech-icons">
+        <DiSqllite title="SQLite" />
       </Col>
 
       <Col xs={4} md={2} className="tech-icons">

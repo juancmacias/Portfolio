@@ -36,6 +36,7 @@ body {
   color: #000000;
   text-align: center;
 }
+.poli{ text-align: left;}
 .light .navbar-nav .nav-link {
   color: rgb(0, 0, 0) !important;
 }
