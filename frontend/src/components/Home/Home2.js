@@ -19,48 +19,59 @@ function Home2() {
             <h3 style={{ fontSize: "2.6em" }}>
               Permiteme <span className="purple"> Presentarme </span> 
             </h3>
-            <p className="home-about-body">
-            He aprendido mucho desde que empecé a programar hace ya bastante tiempo. 
-              <br />
-              <br />Tengo una gran pasión por la programación, especialmente en
-              <i>
-                <b className="purple"> Java para Android, JavaScript Python.</b>
-              </i>
-              <br />
-              <br />
-              Me interesa particularmente el uso de la tecnología en sectores como 
-              <i>
-                <b className="purple">la sanidad, la educación y la electrónica. </b>
-              </i>
-              <br />
-              <br />
-              Siempre que tengo la oportunidad, aplico mis conocimientos en la creación de entornos <b className="purple">3D</b> 
-              <i>
-                <b className="purple">
-                  {" "}
-                  utilizando librerías y frameworks modernos de JavaScript, 
-                </b>
-              </i>
-              &nbsp;como
-              <i>
-                <b className="purple">React.js.</b>
-              </i>
-              <br />
-              <br />
-              Me encanta aprender y mejorar mis habilidades, y siempre estoy buscando nuevos retos y oportunidades para crecer como desarrollador.
-              <br />
-              <br />
-                En estos ultimos meses he creado soluciónes muy 
-              
-              <i>
-                <b className="purple">
-                {" "}
-                dinámicas y descentralizadas con Python </b>
-              </i>
-               para la creación de "End Point".
-               <br/>
-               <br/>
-            </p>
+<p className="home-about-body">
+  Desde que comencé a programar he recorrido un camino lleno de aprendizaje, curiosidad y crecimiento constante.
+  <br />
+  <br />
+  Soy <i><b className="purple">desarrollador full stack especializado en inteligencia artificial</b></i>, 
+  y recientemente he completado un <i><b className="purple">bootcamp intensivo</b></i> 
+  que me ha permitido consolidar mis conocimientos en el desarrollo de aplicaciones web completas e integradas con IA.
+  <br />
+  <br />
+  Tengo una gran pasión por la programación, especialmente en 
+  <i>
+    <b className="purple"> Java para Android, JavaScript y Python.</b>
+  </i>
+  <br />
+  <br />
+  Me interesa particularmente el uso de la tecnología en sectores como 
+  <i>
+    <b className="purple"> la sanidad, la educación y la electrónica,</b>
+  </i> 
+  donde la innovación puede marcar una verdadera diferencia.
+  <br />
+  <br />
+  Siempre que tengo la oportunidad, aplico mis conocimientos en la creación de entornos 
+  <b className="purple"> 3D </b>
+  <i>
+    <b className="purple">
+      utilizando librerías y frameworks modernos de JavaScript,
+    </b>
+  </i>
+  &nbsp;como 
+  <i>
+    <b className="purple"> React.js</b>
+  </i>
+  &nbsp;y&nbsp;
+  <i>
+    <b className="purple"> Next.js.</b>
+  </i>
+  <br />
+  <br />
+  En los últimos meses he desarrollado soluciones 
+  <i>
+    <b className="purple"> dinámicas y descentralizadas con Python</b>
+  </i>
+  &nbsp;enfocadas en la creación de 
+  <i>
+    <b className="purple"> endpoints automatizados e inteligentes.</b>
+  </i>
+  <br />
+  <br />
+  Me encanta aprender y seguir mejorando mis habilidades, siempre buscando nuevos retos y oportunidades para crecer como desarrollador.
+  <br />
+  <br />
+</p>
           </Col>
           <Col md={4} className="myAvtar">
             <Tilt>

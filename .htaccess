@@ -1,0 +1,198 @@
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+  
+  # Manejo de preflight OPTIONS requests (debe ir ANTES de las redirecciones)
+  RewriteCond %{REQUEST_METHOD} OPTIONS
+  RewriteRule ^(.*)$ $1 [R=200,L]
+  
+  
+  # Redirección forzada de HTTP a HTTPS (DESPUÉS de API)
+  RewriteCond %{HTTPS} off
+  RewriteCond %{HTTP:X-Forwarded-Proto} !https
+  RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+  
+  # Redirección de www a no-www (DESPUÉS de API)
+  RewriteCond %{HTTP_HOST} ^www\.(.*)$ [NC]
+  RewriteRule ^(.*)$ https://%1%{REQUEST_URI} [R=301,L]
+  
+  # Excluir rutas de API de la redirección SPA
+  RewriteCond %{REQUEST_URI} !^/api/portfolio/
+
+  
+  # Reglas para SPA (Single Page Application)
+  RewriteRule ^index\.html$ - [L]
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteCond %{REQUEST_FILENAME} !-l
+  RewriteRule . /index.html [L]
+</IfModule>
+
+# 
+# Configuración CORS - Headers globales
+# 
+<IfModule mod_headers.c>
+    # CORS - Limpiar headers existentes para evitar duplicados
+    Header unset Access-Control-Allow-Origin
+    Header unset Access-Control-Allow-Methods
+    Header unset Access-Control-Allow-Headers
+    
+    # CORS - Establecer headers únicos
+    Header always set Access-Control-Allow-Origin "*"
+    Header always set Access-Control-Allow-Methods "GET, POST, OPTIONS, HEAD"
+    Header always set Access-Control-Allow-Headers "Origin, X-Requested-With, Content-Type, Accept, Authorization"
+    Header always set Access-Control-Max-Age "3600"
+</IfModule>
+
+# 
+# Configuración de tipos MIME para imágenes
+# 
+<IfModule mod_mime.c>
+    # Configurar tipos MIME correctos
+    AddType image/png .png
+    AddType image/jpeg .jpg .jpeg
+    AddType image/gif .gif
+    AddType image/webp .webp
+    AddType image/svg+xml .svg
+    AddType application/json .json
+</IfModule>
+ErrorDocument 400 https://juancarlosmacias.es/error/?error=400
+ErrorDocument 401 https://juancarlosmacias.es/error/?error=401
+ErrorDocument 403 https://juancarlosmacias.es/error/?error=403
+ErrorDocument 404 https://juancarlosmacias.es/error/?error=404
+ErrorDocument 500 https://juancarlosmacias.es/error/?error=500
+ErrorDocument 502 https://juancarlosmacias.es/error/?error=502
+ErrorDocument 503 https://juancarlosmacias.es/error/?error=503
+ErrorDocument 504 https://juancarlosmacias.es/error/?error=504
+ErrorDocument 505 https://juancarlosmacias.es/error/?error=505
+ErrorDocument 507 https://juancarlosmacias.es/error/?error=507
+
+# 
+# associate .js with "text/javascript" type (if not present in mime.conf)
+# 
+
+AddType text/javascript .js
+
+# 
+# configure mod_expires - Configuración optimizada de caché
+# 
+# URL: http://httpd.apache.org/docs/2.2/mod/mod_expires.html
+# 
+<IfModule mod_expires.c>
+    ExpiresActive On
+    
+    # Configuración por defecto
+    ExpiresDefault "access plus 1 hour"
+    
+    # Imágenes - Caché largo (1 semana)
+    ExpiresByType image/x-icon "access plus 1 week"
+    ExpiresByType image/jpeg "access plus 1 week"
+    ExpiresByType image/jpg "access plus 1 week"
+    ExpiresByType image/png "access plus 1 week"
+    ExpiresByType image/gif "access plus 1 week"
+    ExpiresByType image/webp "access plus 1 week"
+    ExpiresByType image/svg+xml "access plus 1 week"
+    
+    # Archivos estáticos - Caché medio (1 día)
+    ExpiresByType text/css "access plus 1 day"
+    ExpiresByType text/javascript "access plus 1 day"
+    ExpiresByType application/javascript "access plus 1 day"
+    ExpiresByType application/x-javascript "access plus 1 day"
+    
+    # Archivos de fuentes - Caché largo (1 mes)
+    ExpiresByType font/woff "access plus 1 month"
+    ExpiresByType font/woff2 "access plus 1 month"
+    ExpiresByType application/font-woff "access plus 1 month"
+    ExpiresByType application/font-woff2 "access plus 1 month"
+    
+    # Archivos multimedia - Caché largo (1 semana)
+    ExpiresByType video/mp4 "access plus 1 week"
+    ExpiresByType audio/mpeg "access plus 1 week"
+    
+    # PDFs - Caché medio (1 día)
+    ExpiresByType application/pdf "access plus 1 day"
+    
+    # HTML y PHP - Sin caché para contenido dinámico
+    ExpiresByType text/html "access plus 0 seconds"
+    ExpiresByType text/php "access plus 0 seconds"
+    ExpiresByType application/xhtml+xml "access plus 0 seconds"
+    
+    # JSON - Caché corto (1 hora)
+    ExpiresByType application/json "access plus 1 hour"
+    
+    # Flash (legacy)
+    ExpiresByType application/x-shockwave-flash "access plus 1 month"
+</IfModule>
+
+# 
+# configure mod_headers - Headers adicionales (no conflicto con CORS)
+# 
+# URL: http://httpd.apache.org/docs/2.2/mod/mod_headers.html
+# 
+<IfModule mod_headers.c>
+    # Remover headers innecesarios para optimización
+    Header unset ETag
+    Header unset Last-Modified
+    
+    # Headers de seguridad (compatibles con CORS)
+    Header always set X-Content-Type-Options nosniff
+    Header always set X-XSS-Protection "1; mode=block"
+    
+    # Headers de seguridad HTTPS
+    Header always set Strict-Transport-Security "max-age=63072000; includeSubDomains; preload"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+    
+    # Cache-Control para archivos estáticos
+    <FilesMatch "\.(css|js|png|jpe?g|gif|ico|svg|webp|woff2?|ttf|eot)$">
+        Header set Cache-Control "public, max-age=604800, immutable"
+    </FilesMatch>
+    
+    # Cache-Control para archivos PHP/API (sin duplicar CORS)
+    <FilesMatch "\.php$">
+        Header always set Cache-Control "no-cache, no-store, must-revalidate"
+        Header always set Pragma "no-cache"
+        Header always set Expires "0"
+    </FilesMatch>
+    
+    # Cache-Control para HTML
+    <FilesMatch "\.(html|htm)$">
+        Header set Cache-Control "no-cache, no-store, must-revalidate"
+        Header set Pragma "no-cache"
+        Header set Expires "0"
+    </FilesMatch>
+</IfModule>
+# 
+# Configuración de compresión GZIP
+# 
+<IfModule mod_deflate.c>
+    # Comprimir texto, HTML, JavaScript, CSS, XML:
+    AddOutputFilterByType DEFLATE text/plain
+    AddOutputFilterByType DEFLATE text/html
+    AddOutputFilterByType DEFLATE text/xml
+    AddOutputFilterByType DEFLATE text/css
+    AddOutputFilterByType DEFLATE text/javascript
+    AddOutputFilterByType DEFLATE application/xml
+    AddOutputFilterByType DEFLATE application/xhtml+xml
+    AddOutputFilterByType DEFLATE application/rss+xml
+    AddOutputFilterByType DEFLATE application/javascript
+    AddOutputFilterByType DEFLATE application/x-javascript
+    AddOutputFilterByType DEFLATE application/x-httpd-php
+    AddOutputFilterByType DEFLATE application/x-httpd-fastphp
+    AddOutputFilterByType DEFLATE application/json
+    AddOutputFilterByType DEFLATE image/svg+xml
+    
+    # Excluir archivos ya comprimidos
+    SetEnvIfNoCase Request_URI \
+        \.(?:gif|jpe?g|png|rar|zip|exe|flv|mov|wma|mp3|avi|swf|mp4|webm|webp|pdf|ico)$ no-gzip dont-vary
+    
+    # Excluir navegadores antiguos
+    BrowserMatch ^Mozilla/4 gzip-only-text/html
+    BrowserMatch ^Mozilla/4\.0[678] no-gzip
+    BrowserMatch \bMSIE !no-gzip !gzip-only-text/html
+    
+    # Headers para proxies
+    Header append Vary User-Agent env=!dont-vary
+</IfModule>
+
+AddDefaultCharset UTF-8
+AddLanguage es-ES .html .htm .php .css .js

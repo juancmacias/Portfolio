@@ -1,6 +1,7 @@
 import React from "react";
 import MetaTags from 'react-meta-tags';
 
+
 function MetaData(props) {
     return (
         <MetaTags>

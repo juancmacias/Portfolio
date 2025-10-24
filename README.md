@@ -1,6 +1,6 @@
 <h2>
   Porfolio personal - Juan Carlos Macías<br/>
-  <a href="https://juancarlosmacias.es/" target="_blank">juancarlosmacias.com</a>
+  <a href="https://juancarlosmacias.es/" target="_blank">juancarlosmacias.es</a>
 </h2>
 
 

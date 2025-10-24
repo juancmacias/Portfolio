@@ -1,6 +1,6 @@
 import React from "react"
 import { Container, Row, Col } from "react-bootstrap"
-import homeLogo from "../../Assets/b1.png"
+//import homeLogo from "../../Assets/b1.png"
 import Home2 from "./Home2"
 import Type from "./Type"
 import Analytics from "../Analytics"
@@ -41,10 +41,11 @@ function Home() {
 
             <Col md={5} style={{ paddingBottom: 20 }}>
               <img
-                src={homeLogo}
-                alt="home pic"
+                src="Assets/b1.png"
+                alt="JCMS"
+                aria-label="Juan Carlos Macías"
                 className="img-fluid"
-                style={{ maxHeight: "450px" }}
+                style={{ maxHeight: "450px", borderRadius: "120px" }}
               />
             </Col>
           </Row>
