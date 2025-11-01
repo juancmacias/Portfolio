@@ -1,5 +1,8 @@
 # Archivos de configuración sensibles
 admin/config/config.local.php
+/admin/config/config.local.php
+**/config.local.php
+config.local.php
 
 # Archivos del sistema
 .DS_Store
