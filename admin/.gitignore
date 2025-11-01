@@ -1,0 +1,9 @@
+# Archivos de configuración local sensibles
+config/config.local.php
+
+# Logs del admin
+*.log
+
+# Archivos temporales del admin
+*.tmp
+*.backup
