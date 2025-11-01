@@ -3,8 +3,10 @@ import { Container, Row, Col } from "react-bootstrap"
 //import homeLogo from "../../Assets/b1.png"
 import Home2 from "./Home2"
 import Type from "./Type"
+import RecentArticles from "./RecentArticles"
 import Analytics from "../Analytics"
 import MetaData from "../../Services/MetaData";
+import { urlApi } from "../../Services/urls";
 
 
 function Home() {
@@ -15,8 +17,8 @@ function Home() {
       <MetaData
          _title={'Portafolio de Juan Carlos Macías, creador de soluciones únicas | Desarrollo web jcms'}
          _descr={'Página de Juan Carlos Macias, Tu aplicación única en web o móvil. Desarrollador Web y creador de contenido. Especializado en crear aplicaciones.'}
-         _url={'https://www.juancarlosmacias.es'}
-         _img={'https://www.juancarlosmacias.es/Assets/Projects/portfolio.png'}
+         _url={urlApi}
+         _img={`${urlApi}Assets/Projects/portfolio.png`}
       />
       <Container fluid className="home-section" id="home">
 
@@ -51,6 +53,7 @@ function Home() {
           </Row>
         </Container>
       </Container>
+      <RecentArticles />
       <Home2 />
     </section>
   );

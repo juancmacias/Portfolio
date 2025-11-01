@@ -742,3 +742,342 @@ button:focus {
 .fork-btn-inner::after {
   display: none !important;
 }
+
+/* ===== ARTICLES STYLES ===== */
+
+.articles-section {
+  padding-top: 2rem;
+  padding-bottom: 2rem;
+  min-height: 100vh;
+  padding-top: 150px !important;
+}
+
+.articles-header {
+  margin-bottom: 2rem;
+}
+
+.filters-section {
+  background: rgba(138, 43, 226, 0.1);
+  border-radius: 10px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+/* Article Cards */
+.article-card {
+  border: none;
+  border-radius: 15px;
+  transition: all 0.3s ease;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.article-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(138, 43, 226, 0.3);
+}
+
+.article-featured-image {
+  border-radius: 15px 15px 0 0;
+  transition: transform 0.3s ease;
+}
+
+.article-card:hover .article-featured-image {
+  transform: scale(1.05);
+}
+
+.article-image-container {
+  overflow: hidden;
+  border-radius: 15px 15px 0 0;
+}
+
+.article-title a {
+  color: inherit;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 1.1rem;
+  line-height: 1.4;
+}
+
+.article-title a:hover {
+  color: #8a2be2;
+}
+
+.article-excerpt {
+  color: #666;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  text-align: left;
+}
+
+.article-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.article-tags .badge {
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.article-footer {
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+  padding-top: 0.75rem;
+  margin-top: auto;
+}
+
+/* Article View Page */
+.article-view-section {
+  padding-top: 2rem;
+  padding-bottom: 2rem;
+  min-height: 100vh;
+}
+
+.article-title {
+  color: #2c3e50;
+  font-weight: 700;
+  line-height: 1.3;
+  margin-bottom: 1rem;
+  text-align: left;
+}
+
+.article-view-section .article-excerpt {
+  font-size: 1.1rem;
+  color: #7f8c8d;
+  font-style: italic;
+  border-left: 4px solid #8a2be2;
+  padding-left: 1rem;
+  margin: 1.5rem 0;
+  text-align: left;
+}
+
+.article-content {
+  font-size: 1rem;
+  line-height: 1.8;
+  color: #2c3e50;
+  text-align: left;
+}
+
+.article-content h2,
+.article-content h3,
+.article-content h4 {
+  color: #8a2be2;
+  font-weight: 600;
+  text-align: left;
+}
+
+.article-content p {
+  text-align: left;
+  margin-bottom: 1.5rem;
+}
+
+.article-content blockquote {
+  font-style: italic;
+  border-left: 4px solid #8a2be2;
+  margin: 1.5rem 0;
+  padding: 1rem 1.5rem;
+  background: rgba(138, 43, 226, 0.05);
+  border-radius: 0 10px 10px 0;
+}
+
+.article-content pre {
+  margin: 1.5rem 0;
+  border-radius: 10px;
+  border: 1px solid #e1e8ed;
+}
+
+.article-content code {
+  font-family: 'Fira Code', 'Monaco', 'Consolas', monospace;
+  font-size: 0.9rem;
+}
+
+.article-content a {
+  color: #8a2be2;
+  text-decoration: underline;
+  font-weight: 500;
+}
+
+.article-content a:hover {
+  color: #6a1b9a;
+  text-decoration: none;
+}
+
+.article-content img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 10px;
+  margin: 1rem 0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Recent Articles Section */
+.recent-articles-section {
+  background: rgba(138, 43, 226, 0.05);
+  border-radius: 20px;
+  margin: 2rem 0;
+}
+
+/* View toggle buttons */
+.view-toggle .btn {
+  border-radius: 8px;
+}
+
+/* Pagination */
+.pagination-controls {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  justify-content: center;
+  margin: 2rem 0;
+}
+
+.pagination-controls .btn {
+  border-radius: 8px;
+  font-weight: 500;
+}
+
+/* Loading states */
+.article-card-container {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Articles Responsive */
+@media (max-width: 768px) {
+  .article-card {
+    margin-bottom: 1rem;
+  }
+  
+  .filters-section {
+    padding: 1rem;
+  }
+  
+  .article-title {
+    font-size: 1.5rem;
+  }
+  
+  .article-content {
+    font-size: 0.95rem;
+  }
+}
+
+/* Articles Dark mode support */
+.dark .article-card {
+  background: rgba(45, 55, 72, 0.95);
+  color: #e2e8f0;
+}
+
+.dark .article-title {
+  color: #e2e8f0;
+}
+
+.dark .article-excerpt {
+  color: #a0aec0;
+}
+
+.dark .article-content {
+  color: #e2e8f0;
+}
+
+.dark .article-content blockquote {
+  background: rgba(138, 43, 226, 0.2);
+  color: #cbd5e0;
+}
+
+.dark .filters-section {
+  background: rgba(138, 43, 226, 0.2);
+}
+
+.dark .recent-articles-section {
+  background: rgba(138, 43, 226, 0.1);
+}
+
+/* --------- */
+/* Pagination Styles */
+/* --------- */
+.custom-pagination {
+  justify-content: center;
+}
+
+.custom-pagination .page-link {
+  background-color: transparent;
+  border: 1px solid var(--imp-text-color);
+  color: var(--imp-text-color);
+  margin: 0 2px;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  padding: 8px 12px;
+  font-weight: 500;
+}
+
+.custom-pagination .page-link:hover {
+  background-color: var(--imp-text-color);
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(116, 112, 240, 0.3);
+}
+
+.custom-pagination .page-item.active .page-link {
+  background-color: var(--imp-text-color);
+  border-color: var(--imp-text-color);
+  color: white;
+  box-shadow: 0 4px 8px rgba(116, 112, 240, 0.4);
+}
+
+.custom-pagination .page-item.disabled .page-link {
+  background-color: transparent;
+  border-color: #6c757d;
+  color: #6c757d;
+  opacity: 0.5;
+}
+
+.custom-pagination .page-item.disabled .page-link:hover {
+  background-color: transparent;
+  color: #6c757d;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Responsive pagination */
+@media (max-width: 768px) {
+  .custom-pagination {
+    flex-wrap: wrap;
+    gap: 5px;
+  }
+  
+  .custom-pagination .page-link {
+    padding: 6px 10px;
+    font-size: 0.875rem;
+    margin: 0 1px;
+  }
+}
+
+/* Animation for pagination container */
+.pagination-container {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

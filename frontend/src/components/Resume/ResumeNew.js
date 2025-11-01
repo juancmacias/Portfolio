@@ -1,22 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { Container, Row } from "react-bootstrap";
 import Button from "react-bootstrap/Button";
-//import pdf from "../../Assets/cv.pdf";
 import Analytics from "../Analytics";
 import LoadingSpinner from "../Loading/LoadingSpinner";
 import { AiOutlineDownload } from "react-icons/ai";
-//import { Document, Page, pdfjs } from "react-pdf";
-//import "react-pdf/dist/esm/Page/AnnotationLayer.css";
-//pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
-//pdfjs.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
-//pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/legacy/build/pdf.worker.min.mjs`;
-/*
-pdfjs.GlobalWorkerOptions.workerSrc = new URL(
-  'pdfjs-dist/build/pdf.worker.min.mjs',
-  import.meta.url,
-).toString();
-*/
 import MetaData from "../../Services/MetaData";
+import { urlApi } from "../../Services/urls";
 
 function ResumeNew() {
   Analytics("CV")
@@ -32,8 +21,8 @@ function ResumeNew() {
       <MetaData
          _title={'Porfolio de Juan Carlos Macías, mi CV | Desarrollo web jcms'}
          _descr={'Aquí tienes mi CV, puedes descargalo para valorarlo más detenidamente.'}
-         _url={'https://www.juancarlosmacias.es/resume'}
-         _img={'https://www.juancarlosmacias.es/Assets/Projects/portfolio.png'}
+         _url={`${urlApi}resume`}
+         _img={`${urlApi}Assets/Projects/portfolio.png`}
       />
       <Row style={{ justifyContent: "center", position: "relative" }}>
           <Button

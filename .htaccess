@@ -2,46 +2,37 @@
   RewriteEngine On
   RewriteBase /
   
-  # Manejo de preflight OPTIONS requests (debe ir ANTES de las redirecciones)
+  # REGLA ESPECÍFICA PARA ADMIN - DEBE IR PRIMERO
+  # Si la URL empieza con /admin/ NO hacer NADA más
+  RewriteRule ^admin/ - [L]
+  
+  # REGLA ESPECÍFICA PARA API - NO REDIRIGIR
+  # Si la URL empieza con /api/ NO hacer redirección www
+  RewriteRule ^api/ - [L]
+  
+  # Manejo de preflight OPTIONS requests
   RewriteCond %{REQUEST_METHOD} OPTIONS
   RewriteRule ^(.*)$ $1 [R=200,L]
   
-  
-  # Redirección forzada de HTTP a HTTPS (DESPUÉS de API)
+  # Redirección forzada de HTTP a HTTPS
   RewriteCond %{HTTPS} off
   RewriteCond %{HTTP:X-Forwarded-Proto} !https
   RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
   
-  # Redirección de www a no-www (DESPUÉS de API)
+  # Redirección de www a no-www SOLO para páginas (NO para API)
   RewriteCond %{HTTP_HOST} ^www\.(.*)$ [NC]
+  RewriteCond %{REQUEST_URI} !^/api/
+  RewriteCond %{REQUEST_URI} !^/admin/
   RewriteRule ^(.*)$ https://%1%{REQUEST_URI} [R=301,L]
   
-  # Excluir rutas de API de la redirección SPA
-  RewriteCond %{REQUEST_URI} !^/api/portfolio/
-
-  
-  # Reglas para SPA (Single Page Application)
+  # SPA fallback - redirigir todo lo demás a index.html
   RewriteRule ^index\.html$ - [L]
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteCond %{REQUEST_FILENAME} !-d
   RewriteCond %{REQUEST_FILENAME} !-l
+  RewriteCond %{REQUEST_URI} !^/admin/
+  RewriteCond %{REQUEST_URI} !^/api/
   RewriteRule . /index.html [L]
-</IfModule>
-
-# 
-# Configuración CORS - Headers globales
-# 
-<IfModule mod_headers.c>
-    # CORS - Limpiar headers existentes para evitar duplicados
-    Header unset Access-Control-Allow-Origin
-    Header unset Access-Control-Allow-Methods
-    Header unset Access-Control-Allow-Headers
-    
-    # CORS - Establecer headers únicos
-    Header always set Access-Control-Allow-Origin "*"
-    Header always set Access-Control-Allow-Methods "GET, POST, OPTIONS, HEAD"
-    Header always set Access-Control-Allow-Headers "Origin, X-Requested-With, Content-Type, Accept, Authorization"
-    Header always set Access-Control-Max-Age "3600"
 </IfModule>
 
 # 
@@ -56,16 +47,16 @@
     AddType image/svg+xml .svg
     AddType application/json .json
 </IfModule>
-ErrorDocument 400 https://juancarlosmacias.es/error/?error=400
-ErrorDocument 401 https://juancarlosmacias.es/error/?error=401
-ErrorDocument 403 https://juancarlosmacias.es/error/?error=403
-ErrorDocument 404 https://juancarlosmacias.es/error/?error=404
-ErrorDocument 500 https://juancarlosmacias.es/error/?error=500
-ErrorDocument 502 https://juancarlosmacias.es/error/?error=502
-ErrorDocument 503 https://juancarlosmacias.es/error/?error=503
-ErrorDocument 504 https://juancarlosmacias.es/error/?error=504
-ErrorDocument 505 https://juancarlosmacias.es/error/?error=505
-ErrorDocument 507 https://juancarlosmacias.es/error/?error=507
+# ErrorDocument 400 https://juancarlosmacias.es/error/?error=400
+# ErrorDocument 401 https://juancarlosmacias.es/error/?error=401
+# ErrorDocument 403 https://juancarlosmacias.es/error/?error=403
+# ErrorDocument 404 https://juancarlosmacias.es/error/?error=404
+# ErrorDocument 500 https://juancarlosmacias.es/error/?error=500
+# ErrorDocument 502 https://juancarlosmacias.es/error/?error=502
+# ErrorDocument 503 https://juancarlosmacias.es/error/?error=503
+# ErrorDocument 504 https://juancarlosmacias.es/error/?error=504
+# ErrorDocument 505 https://juancarlosmacias.es/error/?error=505
+# ErrorDocument 507 https://juancarlosmacias.es/error/?error=507
 
 # 
 # associate .js with "text/javascript" type (if not present in mime.conf)

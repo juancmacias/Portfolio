@@ -7,6 +7,8 @@ import About from "./components/About/About";
 import Projects from "./components/Projects/Projects";
 import Footer from "./components/Footer";
 import Resume from "./components/Resume/ResumeNew";
+import ArticlesPage from "./components/Articles/ArticlesPage";
+import ArticleView from "./components/Articles/ArticleView";
 //import Usocookies from "./components/Politics/usocookies";
 import Politicas from "./components/Politics/politica";
 import Analytics from "./components/Analytics";
@@ -61,6 +63,8 @@ function App() {
           <Route path="/project" element={<Projects />} />
           <Route path="/about" element={<About />} />
           <Route path="/resume" element={<Resume />} />
+          <Route path="/articles" element={<ArticlesPage />} />
+          <Route path="/article/:slug" element={<ArticleView />} />
           <Route path="/politics" element={<Politicas />} />
           <Route path="*" element={<Navigate to="/"/>} />
         </Routes>

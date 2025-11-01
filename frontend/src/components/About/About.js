@@ -7,6 +7,7 @@ import laptopImg from "../../Assets/about.png";
 import Toolstack from "./Toolstack";
 import Analytics from "../Analytics";
 import MetaData from "../../Services/MetaData";
+import { urlApi } from "../../Services/urls";
 
 function About() {
   Analytics("Sobre mí")
@@ -15,8 +16,8 @@ function About() {
       <MetaData
          _title={'Portafolio de Juan Carlos Macías de Madrid | Desarrollo web jcms'}
          _descr={'Hola, soy Juan Carlos Macías y vivo en Madrid, España. Me encuentro en busqueda activa de empleo, reorganizando mi mundo laboral. Dispongo de cursos de formación profesional relacionados con el desarrollo de sofware.'}
-         _url={'https://www.juancarlosmacias.es/about'}
-         _img={'https://www.juancarlosmacias.es/Assets/Projects/portfolio.png'}
+         _url={`${urlApi}about`}
+         _img={`${urlApi}Assets/Projects/portfolio.png`}
       />
       <Container>
         <Row style={{ justifyContent: "center", padding: "10px" }}>

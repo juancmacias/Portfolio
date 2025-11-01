@@ -12,8 +12,8 @@ import {
   AiOutlineUser,
 } from "react-icons/ai";
 
-
 import { CgFileDocument } from "react-icons/cg";
+import { HiOutlineDocumentText } from "react-icons/hi";
 
 function NavBar({ onAction }) {
   const prefersColorScheme = usePrefersColorScheme();
@@ -81,6 +81,16 @@ function NavBar({ onAction }) {
                 onClick={() => updateExpanded(false)}
               >
                 <AiOutlineFundProjectionScreen style={{ marginBottom: "2px" }} /> Proyectos
+              </Nav.Link>
+            </Nav.Item>
+
+            <Nav.Item>
+              <Nav.Link
+                as={Link}
+                to="/articles"
+                onClick={() => updateExpanded(false)}
+              >
+                <HiOutlineDocumentText style={{ marginBottom: "2px" }} /> Artículos
               </Nav.Link>
             </Nav.Item>
 
