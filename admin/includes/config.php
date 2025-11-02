@@ -92,10 +92,14 @@ function jsonResponse($success, $message, $data = null) {
 // Configuración de rutas
 $routes = [
     'dashboard' => '/pages/dashboard.php',
+    'projects' => '/pages/projects.php',
+    'project-create' => '/pages/project-create.php',
+    'project-edit' => '/pages/project-edit.php',
     'articles' => '/pages/articles.php',
     'article-create' => '/pages/article-create.php',
     'article-edit' => '/pages/article-create.php',
     'article-view' => '/pages/article-view.php',
+    'sitemap-manager' => '/pages/sitemap-manager.php',
     'settings' => '/pages/settings.php',
     'login' => '/pages/login.php',
     'logout' => '/pages/logout.php'
