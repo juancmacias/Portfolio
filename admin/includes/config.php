@@ -126,6 +126,12 @@ $navigationMenu = [
         'active' => ['dashboard']
     ],
     [
+        'title' => 'Proyectos',
+        'url' => getRoute('projects'),
+        'icon' => '💼',
+        'active' => ['projects', 'project-create', 'project-edit']
+    ],
+    [
         'title' => 'Artículos',
         'icon' => '📝',
         'children' => [
@@ -138,6 +144,17 @@ $navigationMenu = [
                 'title' => 'Crear artículo',
                 'url' => getRoute('article-create'),
                 'active' => ['article-create', 'article-edit']
+            ]
+        ]
+    ],
+    [
+        'title' => 'Herramientas SEO',
+        'icon' => '🔍',
+        'children' => [
+            [
+                'title' => 'Generador de Sitemap',
+                'url' => getRoute('sitemap-manager'),
+                'active' => ['sitemap-manager']
             ]
         ]
     ],
