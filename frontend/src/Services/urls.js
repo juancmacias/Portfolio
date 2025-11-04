@@ -38,7 +38,8 @@ export const API_ENDPOINTS = {
     metadata: `${urlApi}api/portfolio/metadata.php`,
     version: `${urlApi}api/portfolio/version.php`,
     projects: `${urlApi}api/portfolio/projects.php`,
-    articles: `${urlApi}api/portfolio/articles.php`
+    articles: `${urlApi}api/portfolio/articles.php`,
+    viewArticle: `${urlApi}api/portfolio/view-article.php`
   }
 };
 

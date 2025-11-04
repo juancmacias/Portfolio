@@ -89,6 +89,8 @@ function ArticlesPage() {
         _descr={'Reflexiones, tutoriales y experiencias en desarrollo web, tecnología y proyectos personales'}
         _url={`${urlApi}articles`}
         _img={`${urlApi}Assets/Projects/portfolio.png`}
+        _type="website"
+        _author="Juan Carlos Macías"
       />
 
       <Container>

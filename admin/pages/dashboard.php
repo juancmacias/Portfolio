@@ -123,6 +123,12 @@ try {
                 <a href="settings.php#ai" class="btn btn-info">🤖 Configurar IA</a>
             </div>
 
+            <div class="action-card">
+                <h3>🔍 Herramientas SEO</h3>
+                <a href="sitemap-manager.php" class="btn">🗺️ Generador de Sitemap</a>
+                <a href="sitemap-manager.php?action=info" class="btn btn-info">📊 Estado del Sitemap</a>
+            </div>
+
         </div>
     </div>
 </body>

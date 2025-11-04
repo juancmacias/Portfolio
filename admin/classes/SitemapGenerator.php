@@ -43,6 +43,15 @@ class SitemapGenerator
         '.js'
     ];
 
+    // URLs conocidas para sitios React/SPA
+    private $knownReactRoutes = [
+        '/about',
+        '/project',  // Lista de proyectos
+        '/resume',
+        '/articles', // Lista de artículos
+        '/politics'  // Política de privacidad
+    ];
+
     public function __construct($baseUrl, $maxDepth = 3) 
     {
         $this->baseUrl = rtrim($baseUrl, '/');
@@ -64,8 +73,17 @@ class SitemapGenerator
             $this->validUrls = [];
             $this->currentDepth = 0;
             
-            // Analizar sitio web
+            // Analizar sitio web principal
             $this->crawlUrl($this->baseUrl);
+            
+            // Buscar URLs adicionales en robots.txt y sitemap.xml
+            $this->discoverFromSiteFiles();
+            
+            // Buscar URLs dinámicas en APIs
+            $this->discoverFromAPIs();
+            
+            // Agregar rutas conocidas de React/SPA
+            $this->addKnownReactRoutes();
             
             // Generar XML
             $xmlContent = $this->generateXML();
@@ -359,6 +377,271 @@ class SitemapGenerator
             'url_count' => $urlCount,
             'is_recent' => (time() - $lastModified) < 86400 // Menos de 24 horas
         ];
+    }
+
+    /**
+     * Agrega rutas conocidas de React/SPA al sitemap
+     * Estas rutas no se pueden descubrir mediante scraping tradicional
+     */
+    private function addKnownReactRoutes() 
+    {
+        foreach ($this->knownReactRoutes as $route) {
+            $fullUrl = $this->baseUrl . $route;
+            
+            // Verificar que la ruta responde correctamente
+            if ($this->isUrlAccessible($fullUrl)) {
+                $this->addValidUrl($fullUrl);
+            }
+        }
+    }
+
+    /**
+     * Busca URLs adicionales en archivos del sitio (robots.txt, sitemap.xml)
+     */
+    private function discoverFromSiteFiles() 
+    {
+        // Buscar en robots.txt
+        $robotsUrl = $this->baseUrl . '/robots.txt';
+        $robotsContent = @file_get_contents($robotsUrl);
+        
+        if ($robotsContent) {
+            // Buscar Sitemap: directives
+            preg_match_all('/Sitemap:\s*(.+)/i', $robotsContent, $matches);
+            foreach ($matches[1] ?? [] as $sitemapUrl) {
+                $this->parseExistingSitemap(trim($sitemapUrl));
+            }
+        }
+
+        // Buscar sitemap.xml en la raíz
+        $sitemapUrl = $this->baseUrl . '/sitemap.xml';
+        $this->parseExistingSitemap($sitemapUrl);
+    }
+
+    /**
+     * Busca URLs dinámicas consultando APIs del portfolio
+     */
+    private function discoverFromAPIs() 
+    {
+        // Consultar API de artículos
+        $articlesUrl = $this->baseUrl . '/api/portfolio/articles.php';
+        $articlesData = $this->fetchAPIData($articlesUrl);
+        
+        if ($articlesData && isset($articlesData['data']['articles'])) {
+            foreach ($articlesData['data']['articles'] as $article) {
+                if (isset($article['slug'])) {
+                    $articleUrl = $this->baseUrl . '/article/' . $article['slug'];
+                    $this->addValidUrl($articleUrl);
+                }
+            }
+        }
+
+        // Consultar API de proyectos
+        $projectsUrl = $this->baseUrl . '/api/portfolio/projects.php';
+        $projectsData = $this->fetchAPIData($projectsUrl);
+        
+        if ($projectsData && isset($projectsData['data'])) {
+            foreach ($projectsData['data'] as $project) {
+                // Los proyectos en React no tienen páginas individuales aparentemente
+                // Solo agregamos si tienen un patrón específico que usemos
+                if (isset($project['id']) && isset($project['title'])) {
+                    // Verificar si hay rutas dinámicas para proyectos individuales
+                    // Por ahora comentado hasta confirmar el patrón de URLs
+                    // $projectUrl = $this->baseUrl . '/project/' . $project['id'];
+                    // $this->addValidUrl($projectUrl);
+                }
+            }
+        }
+
+        // También intentar leer datos_proyectos.json directamente
+        $this->discoverFromProjectsJSON();
+    }
+
+    /**
+     * Obtiene datos de un endpoint API
+     * @param string $url URL del API
+     * @return array|null Datos del API o null si falla
+     */
+    private function fetchAPIData($url) 
+    {
+        $context = stream_context_create([
+            'http' => [
+                'timeout' => 15,
+                'user_agent' => 'SitemapGenerator/1.0 (Portfolio JCMS)',
+                'follow_location' => true
+            ]
+        ]);
+
+        $response = @file_get_contents($url, false, $context);
+        
+        if ($response === false) {
+            return null;
+        }
+
+        $data = json_decode($response, true);
+        return $data ?: null;
+    }
+
+    /**
+     * Lee proyectos directamente desde datos_proyectos.json
+     */
+    private function discoverFromProjectsJSON() 
+    {
+        $jsonUrl = $this->baseUrl . '/api/portfolio/datos_proyectos.json';
+        $jsonData = $this->fetchAPIData($jsonUrl);
+        
+        if ($jsonData && is_array($jsonData)) {
+            foreach ($jsonData as $project) {
+                // Verificar si existen páginas individuales para proyectos
+                // Por ahora solo registramos que hay X proyectos disponibles
+                // Las URLs individuales dependen de cómo esté configurado React
+                
+                // Si hay slugs o IDs que se usen en rutas, agregar aquí
+                if (isset($project['id'])) {
+                    // Ejemplo: si hubiera rutas como /project/view/1, /project/view/2, etc.
+                    // $projectUrl = $this->baseUrl . '/project/view/' . $project['id'];
+                    // $this->addValidUrl($projectUrl);
+                }
+            }
+        }
+    }
+
+    /**
+     * Parsea un sitemap existente para encontrar URLs
+     * @param string $sitemapUrl URL del sitemap a parsear
+     */
+    private function parseExistingSitemap($sitemapUrl) 
+    {
+        $content = @file_get_contents($sitemapUrl);
+        if (!$content) return;
+
+        // Parsear XML del sitemap
+        $xml = @simplexml_load_string($content);
+        if (!$xml) return;
+
+        foreach ($xml->url ?? [] as $urlElement) {
+            $url = (string)$urlElement->loc;
+            if ($this->isValidUrl($url) && !in_array($url, $this->visitedUrls)) {
+                $this->addValidUrl($url);
+            }
+        }
+    }
+
+    /**
+     * Verifica si una URL es accesible (responde 200)
+     * @param string $url URL a verificar
+     * @return bool True si es accesible
+     */
+    private function isUrlAccessible($url) 
+    {
+        $context = stream_context_create([
+            'http' => [
+                'method' => 'HEAD',
+                'timeout' => 10,
+                'user_agent' => 'SitemapGenerator/1.0 (Portfolio JCMS)',
+                'follow_location' => true,
+                'max_redirects' => 3
+            ]
+        ]);
+
+        $headers = @get_headers($url, 0, $context);
+        
+        if ($headers && strpos($headers[0], '200') !== false) {
+            return true;
+        }
+        
+        // Si HEAD falla, intentar GET
+        $response = @file_get_contents($url, false, $context);
+        return $response !== false;
+    }
+
+    /**
+     * Notifica a los buscadores sobre la actualización del sitemap
+     * @param string $sitemapUrl URL completa del sitemap
+     * @return array Resultado de las notificaciones
+     */
+    public function notifySearchEngines($sitemapUrl = null) 
+    {
+        if (!$sitemapUrl) {
+            $sitemapUrl = $this->baseUrl . '/sitemap.xml';
+        }
+
+        $searchEngines = [
+            'Google' => 'http://www.google.com/ping?sitemap=' . urlencode($sitemapUrl),
+            'Bing' => 'http://www.bing.com/ping?sitemap=' . urlencode($sitemapUrl),
+            'Yandex' => 'http://webmaster.yandex.com/ping?sitemap=' . urlencode($sitemapUrl),
+        ];
+
+        $results = [];
+        $totalSuccess = 0;
+
+        foreach ($searchEngines as $engine => $pingUrl) {
+            try {
+                $context = stream_context_create([
+                    'http' => [
+                        'timeout' => 10,
+                        'user_agent' => 'SitemapGenerator/1.0 (Portfolio JCMS)',
+                        'follow_location' => true,
+                        'max_redirects' => 3
+                    ]
+                ]);
+
+                $response = @file_get_contents($pingUrl, false, $context);
+                
+                // Verificar headers de respuesta
+                $headers = $http_response_header ?? [];
+                $statusCode = $this->extractStatusCode($headers);
+                
+                if ($response !== false && ($statusCode >= 200 && $statusCode < 300)) {
+                    $results[$engine] = [
+                        'success' => true,
+                        'message' => 'Notificación enviada correctamente',
+                        'status_code' => $statusCode,
+                        'response_size' => strlen($response)
+                    ];
+                    $totalSuccess++;
+                } else {
+                    $results[$engine] = [
+                        'success' => false,
+                        'message' => 'Error en la respuesta del servidor',
+                        'status_code' => $statusCode ?: 'Error de conexión'
+                    ];
+                }
+
+                // Pausa pequeña entre requests para ser respetuosos
+                usleep(500000); // 0.5 segundos
+
+            } catch (Exception $e) {
+                $results[$engine] = [
+                    'success' => false,
+                    'message' => 'Error: ' . $e->getMessage(),
+                    'status_code' => 'Exception'
+                ];
+            }
+        }
+
+        return [
+            'total_engines' => count($searchEngines),
+            'successful_notifications' => $totalSuccess,
+            'results' => $results,
+            'sitemap_url' => $sitemapUrl
+        ];
+    }
+
+    /**
+     * Extrae el código de estado HTTP de los headers
+     * @param array $headers Headers HTTP
+     * @return int|null Código de estado
+     */
+    private function extractStatusCode($headers) 
+    {
+        if (empty($headers)) return null;
+        
+        $statusLine = $headers[0] ?? '';
+        if (preg_match('/HTTP\/\d\.\d\s+(\d+)/', $statusLine, $matches)) {
+            return (int)$matches[1];
+        }
+        
+        return null;
     }
 }
 ?>

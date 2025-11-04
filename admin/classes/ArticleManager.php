@@ -420,5 +420,59 @@ class ArticleManager {
     private function generateMetaDescription($content, $length = 155) {
         return $this->generateExcerpt($content, $length);
     }
+    
+    /**
+     * Inicializar vistas en artículos existentes
+     */
+    public function initializeViews() {
+        try {
+            // Actualizar artículos con views NULL a 0
+            $this->db->query("UPDATE articles SET views = 0 WHERE views IS NULL");
+            
+            // Obtener estadísticas
+            $nullCount = $this->db->fetchOne("SELECT COUNT(*) as count FROM articles WHERE views IS NULL")['count'];
+            $totalViews = $this->db->fetchOne("SELECT SUM(views) as total FROM articles")['total'] ?? 0;
+            
+            return [
+                'success' => true,
+                'message' => 'Vistas inicializadas correctamente',
+                'null_updated' => $nullCount,
+                'total_views' => $totalViews
+            ];
+        } catch (Exception $e) {
+            return [
+                'success' => false,
+                'message' => 'Error al inicializar vistas: ' . $e->getMessage()
+            ];
+        }
+    }
+    
+    /**
+     * Incrementar vista de un artículo
+     */
+    public function incrementView($articleId) {
+        try {
+            $this->db->query(
+                "UPDATE articles SET views = COALESCE(views, 0) + 1 WHERE id = ? AND status = 'published'",
+                [$articleId]
+            );
+            
+            // Obtener el nuevo número de vistas
+            $article = $this->db->fetchOne(
+                "SELECT views FROM articles WHERE id = ?",
+                [$articleId]
+            );
+            
+            return [
+                'success' => true,
+                'views' => $article['views'] ?? 0
+            ];
+        } catch (Exception $e) {
+            return [
+                'success' => false,
+                'message' => 'Error al incrementar vista: ' . $e->getMessage()
+            ];
+        }
+    }
 }
 ?>

@@ -453,6 +453,39 @@ $pageTitle = $isEdit ? "Editar Artículo" : "Nuevo Artículo";
         .image-modal-close:hover {
             color: #333;
         }
+        
+        /* ===== ESTILOS PARA IMAGEN DESTACADA ===== */
+        #image-preview {
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            border: 1px solid #e9ecef;
+        }
+        
+        #image-preview img {
+            border: 2px solid #dee2e6;
+            border-radius: 4px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .input-group .btn {
+            white-space: nowrap;
+        }
+        
+        .form-text {
+            font-size: 0.875em;
+            color: #6c757d;
+            margin-top: 0.25rem;
+        }
+        
+        /* Mejorar apariencia del campo URL */
+        #featured_image:valid {
+            border-color: #28a745;
+        }
+        
+        #featured_image:invalid:not(:placeholder-shown) {
+            border-color: #dc3545;
+        }
     </style>
 </head>
 <body>
@@ -580,18 +613,37 @@ $pageTitle = $isEdit ? "Editar Artículo" : "Nuevo Artículo";
                     <!-- Imagen destacada y Tags -->
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="featured_image">Imagen Destacada (URL)</label>
-                            <input type="url" id="featured_image" name="featured_image" class="form-control" 
-                                   value="<?= htmlspecialchars($article['featured_image'] ?? '') ?>" 
-                                   maxlength="500">
+                            <label for="featured_image">🖼️ Imagen Destacada</label>
+                            <div class="input-group">
+                                <input type="url" id="featured_image" name="featured_image" class="form-control" 
+                                       value="<?= htmlspecialchars($article['featured_image'] ?? '') ?>" 
+                                       placeholder="https://www.juancarlosmacias.es/Assets/Projects/imagen.jpg"
+                                       maxlength="500">
+                                <div class="input-group-append">
+                                    <button type="button" class="btn btn-outline-primary" onclick="showImageSelector()">
+                                        📁 Seleccionar
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="form-text">
+                                URL completa de la imagen. Tamaño recomendado: 1200x630px para redes sociales
+                            </div>
+                            
+                            <!-- Vista previa de la imagen -->
+                            <div id="image-preview" class="mt-2" style="display: none;">
+                                <img id="preview-img" src="" alt="Vista previa" class="img-thumbnail" style="max-width: 300px; max-height: 200px;">
+                                <button type="button" class="btn btn-sm btn-outline-danger ms-2" onclick="clearImage()">
+                                    ❌ Quitar imagen
+                                </button>
+                            </div>
                         </div>
                         
                         <div class="form-group">
-                            <label for="tags">Tags</label>
+                            <label for="tags">🏷️ Tags</label>
                             <input type="text" id="tags" name="tags" class="form-control" 
                                    value="<?= htmlspecialchars($article['tags'] ?? '') ?>" 
-                                   placeholder="react, javascript, desarrollo">
-                            <div class="form-text">Separar con comas</div>
+                                   placeholder="react, javascript, desarrollo, tecnología">
+                            <div class="form-text">Separar con comas. Ejemplo: desarrollo, web, tecnología</div>
                         </div>
                     </div>
                     
@@ -1488,6 +1540,95 @@ $pageTitle = $isEdit ? "Editar Artículo" : "Nuevo Artículo";
                     return;
                 }
             }
+        });
+
+        // ============================================
+        // FUNCIONALIDAD DE IMAGEN DESTACADA
+        // ============================================
+        
+        // Vista previa de imagen
+        function updateImagePreview() {
+            const imageUrl = document.getElementById('featured_image').value.trim();
+            const preview = document.getElementById('image-preview');
+            const previewImg = document.getElementById('preview-img');
+            
+            if (imageUrl) {
+                previewImg.src = imageUrl;
+                previewImg.onerror = function() {
+                    preview.style.display = 'none';
+                    showNotification('error', 'No se pudo cargar la imagen desde esa URL');
+                };
+                previewImg.onload = function() {
+                    preview.style.display = 'block';
+                };
+            } else {
+                preview.style.display = 'none';
+            }
+        }
+        
+        // Limpiar imagen
+        function clearImage() {
+            document.getElementById('featured_image').value = '';
+            document.getElementById('image-preview').style.display = 'none';
+        }
+        
+        // Selector de imágenes (modal simple)
+        function showImageSelector() {
+            const commonImages = [
+                'https://www.juancarlosmacias.es/Assets/Projects/portfolio.png',
+                'https://www.juancarlosmacias.es/Assets/Projects/ChatGPT_Image_28_oct_2025__05_56_29.png',
+                'https://www.juancarlosmacias.es/Assets/Projects/admin-preview.png',
+                'https://www.juancarlosmacias.es/Assets/Projects/blog-preview.png'
+            ];
+            
+            let html = '<div style="max-height: 400px; overflow-y: auto;">';
+            html += '<h5>🖼️ Seleccionar imagen común:</h5>';
+            html += '<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; margin-bottom: 20px;">';
+            
+            commonImages.forEach(url => {
+                const filename = url.split('/').pop();
+                html += `
+                    <div style="border: 1px solid #ddd; padding: 10px; border-radius: 6px; cursor: pointer; text-align: center;" 
+                         onclick="selectImage('${url}')">
+                        <img src="${url}" style="width: 100%; height: 100px; object-fit: cover; border-radius: 4px;" 
+                             onerror="this.style.display='none'">
+                        <div style="font-size: 12px; margin-top: 5px; word-break: break-all;">${filename}</div>
+                    </div>
+                `;
+            });
+            
+            html += '</div>';
+            html += '<hr><h6>📝 O ingresa URL personalizada:</h6>';
+            html += '<input type="url" id="custom-image-url" class="form-control" placeholder="https://ejemplo.com/imagen.jpg">';
+            html += '<button type="button" class="btn btn-primary mt-2" onclick="selectCustomImage()">Usar esta URL</button>';
+            html += '</div>';
+            
+            if (confirm('¿Quieres seleccionar una imagen?\n\n[OK] Ver selector\n[Cancelar] Cerrar')) {
+                // Crear modal simple con prompt
+                const customUrl = prompt('Ingresa la URL de la imagen:\n\nEjemplos:\n• https://www.juancarlosmacias.es/Assets/Projects/imagen.jpg\n• URL de imagen externa', 
+                                       'https://www.juancarlosmacias.es/Assets/Projects/');
+                if (customUrl && customUrl.trim()) {
+                    selectImage(customUrl.trim());
+                }
+            }
+        }
+        
+        // Seleccionar imagen
+        function selectImage(url) {
+            document.getElementById('featured_image').value = url;
+            updateImagePreview();
+        }
+        
+        // Event listeners para imagen
+        document.addEventListener('DOMContentLoaded', function() {
+            const featuredImageInput = document.getElementById('featured_image');
+            
+            // Vista previa automática al cambiar URL
+            featuredImageInput.addEventListener('input', updateImagePreview);
+            featuredImageInput.addEventListener('blur', updateImagePreview);
+            
+            // Cargar vista previa inicial si hay valor
+            updateImagePreview();
         });
     </script>
 </body>

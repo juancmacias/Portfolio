@@ -13,6 +13,13 @@ if (!$auth->isLoggedIn()) {
 
 $articleManager = new ArticleManager();
 
+// Manejar acción de inicializar vistas
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'init_views') {
+    $initResult = $articleManager->initializeViews();
+    $initMessage = $initResult['message'];
+    $initSuccess = $initResult['success'];
+}
+
 // Procesar filtros
 $filters = [];
 $page = (int)($_GET['page'] ?? 1);
@@ -324,6 +331,12 @@ $pageTitle = "Gestión de Artículos";
             </div>
         <?php endif; ?>
         
+        <?php if (isset($initMessage)): ?>
+            <div class="alert alert-<?= $initSuccess ? 'success' : 'danger' ?>">
+                <?= $initSuccess ? '✅' : '❌' ?> <?= htmlspecialchars($initMessage) ?>
+            </div>
+        <?php endif; ?>
+
         <!-- Estadísticas -->
         <?php if ($stats): ?>
             <div class="stats-grid">
@@ -346,6 +359,13 @@ $pageTitle = "Gestión de Artículos";
                 <div class="stat-card">
                     <h3><?= number_format($stats['total_views']) ?></h3>
                     <p>Total de Vistas</p>
+                    <form method="POST" style="margin-top: 10px;">
+                        <input type="hidden" name="action" value="init_views">
+                        <button type="submit" class="btn btn-sm btn-outline" 
+                                onclick="return confirm('¿Inicializar vistas en artículos? Esto pondrá en 0 las vistas NULL.')">
+                            🔄 Inicializar Vistas
+                        </button>
+                    </form>
                 </div>
             </div>
         <?php endif; ?>

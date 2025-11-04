@@ -15,7 +15,39 @@
     <a href="https://github.com/juancmacias/Portfolio/issues">Algún bug, dimelo aquí.
 </h3>
 
-## 🚀 Nuevas Funcionalidades v1.0.6
+## 🚀 Nuevas Funcionalidades v1.0.7
+
+### 🔄 Sistema de Vistas de Artículos
+- **📊 Contador de visualizaciones**: Registra automáticamente las vistas de cada artículo
+- **📈 Estadísticas en tiempo real**: Panel de administración muestra estadísticas de visualizaciones
+- **🔄 Inicialización de vistas**: Botón para inicializar vistas en artículos existentes
+- **🌐 Detección de entorno**: Funciona correctamente en local y producción
+
+### 🎨 Metadatos SEO Avanzados
+- **🏷️ Meta tags completos**: Metadatos de autor, fechas de publicación y modificación
+- **📋 Structured data**: JSON-LD para mejor indexación en Google
+- **🔗 Open Graph mejorado**: Metadatos específicos para artículos en redes sociales
+- **📝 Twitter Cards**: Optimización para compartir en Twitter
+- **⚖️ Licencias**: Metadatos de copyright y licencias Creative Commons
+
+### 🖼️ Imagen Destacada Mejorada
+- **🎯 Selector visual**: Interfaz mejorada para seleccionar imágenes destacadas
+- **👁️ Vista previa**: Previsualización automática de la imagen seleccionada
+- **🔧 Validación URL**: Verificación automática de URLs de imágenes
+- **📐 Recomendaciones**: Guías de tamaño óptimo para redes sociales
+
+### 🗺️ Generador de Sitemap Automático
+- **🤖 Generación automática**: Crea sitemaps XML automáticamente desde el panel admin
+- **🔍 Detección React SPA**: Descubre rutas de aplicaciones React automáticamente
+- **🌐 Multi-entorno**: Funciona en local y producción con detección automática
+- **⚡ Tiempo real**: Actualización instantánea del sitemap
+
+### 🐛 Correcciones y Mejoras
+- **🏷️ Tags de artículos**: Corregido problema de formato CSV vs JSON en tags
+- **🔗 URLs consistentes**: Mejorada detección de entorno local vs producción
+- **🛡️ Validaciones**: Mejoras en validación de datos y manejo de errores
+
+## 📚 Funcionalidades v1.0.6
 
 ### ✨ Sistema de Artículos y Blog
 - **📝 Gestión completa de artículos**: Crea, edita y publica artículos desde un panel de administración intuitivo

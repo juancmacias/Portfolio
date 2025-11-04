@@ -15,6 +15,29 @@ function ArticleView() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // Registrar vista de artículo
+  const registerArticleView = async (articleId) => {
+    try {
+      const response = await fetch(API_ENDPOINTS.portfolio.viewArticle, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          article_id: articleId
+        })
+      });
+      
+      if (response.ok) {
+        const result = await response.json();
+        console.log('📊 Vista registrada:', result);
+      }
+    } catch (error) {
+      console.warn('No se pudo registrar la vista:', error);
+      // No mostrar error al usuario, es funcionalidad secundaria
+    }
+  };
+
   // Cargar artículo por slug
   const fetchArticle = async () => {
     try {
@@ -54,6 +77,10 @@ function ArticleView() {
       if (result.success) {
         setArticle(result.data);
         Analytics(`Article View: ${result.data.title}`);
+        
+        // Registrar vista del artículo
+        registerArticleView(result.data.id);
+        
         setError(null);
       } else {
         setError(result.message || 'Error al cargar el artículo');

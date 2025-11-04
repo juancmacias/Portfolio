@@ -139,9 +139,29 @@ function handle_get_articles() {
         
         $articles = $db->fetchAll($articles_sql, $query_params);
         
-        // Procesar tags (JSON a array)
+        // Procesar tags - Manejar tanto formato JSON como CSV
         foreach ($articles as &$article) {
-            $article['tags'] = json_decode($article['tags'] ?? '[]', true);
+            $tags = $article['tags'] ?? '';
+            
+            if (empty($tags)) {
+                $article['tags'] = [];
+            } else {
+                // Intentar decodificar como JSON primero
+                $decoded = json_decode($tags, true);
+                if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+                    // Es JSON válido
+                    $article['tags'] = $decoded;
+                } else {
+                    // Es formato CSV (separado por comas)
+                    $article['tags'] = array_map('trim', explode(',', $tags));
+                    // Filtrar elementos vacíos
+                    $article['tags'] = array_filter($article['tags'], function($tag) {
+                        return !empty($tag);
+                    });
+                    // Reindexar el array
+                    $article['tags'] = array_values($article['tags']);
+                }
+            }
         }
         
         // Información de paginación

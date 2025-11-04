@@ -37,7 +37,7 @@ function RecentArticles() {
         <Row>
           <Col>
             <h2 className="project-heading">
-              Últimos <strong className="purple">Artículos</strong>
+              Últimos <strong className="purple">artículos</strong>
             </h2>
             <p className="text-muted mb-4">
               Reflexiones y experiencias recientes en desarrollo
