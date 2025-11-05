@@ -29,9 +29,13 @@ try {
     
     // Auth
     session_start();
+    
+    // Debug session
+    error_log("AI API - Session data: " . print_r($_SESSION, true));
+    
     if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== true) {
         http_response_code(401);
-        echo json_encode(['success' => false, 'error' => 'No autenticado']);
+        echo json_encode(['success' => false, 'error' => 'No autenticado', 'session_debug' => $_SESSION]);
         exit;
     }
     
@@ -39,12 +43,23 @@ try {
     $aiGenerator = new AIContentGenerator();
     
     // Obtener datos
-    $input = json_decode(file_get_contents('php://input'), true);
+    $rawInput = file_get_contents('php://input');
+    $input = json_decode($rawInput, true);
     if (!$input) {
         $input = $_POST;
     }
     
+    // Log de depuración (solo en desarrollo)
+    error_log("AI API - Raw input: " . $rawInput);
+    error_log("AI API - Parsed input: " . print_r($input, true));
+    
     $action = $input['action'] ?? '';
+    
+    // Verificar si hay action
+    if (empty($action)) {
+        echo json_encode(['success' => false, 'error' => 'No action specified', 'debug' => $input]);
+        exit;
+    }
     
     // Test endpoint
     if ($action === 'test') {
@@ -77,16 +92,29 @@ try {
             break;
             
         case 'generate_article':
-            $title = $input['title'] ?? '';
-            $keywords = $input['keywords'] ?? '';
-            $wordCount = $input['word_count'] ?? 800;
-            
-            if (empty($title)) {
-                echo json_encode(['success' => false, 'error' => 'El título es requerido']);
+            try {
+                $title = $input['title'] ?? '';
+                $keywords = $input['keywords'] ?? '';
+                $wordCount = $input['word_count'] ?? 800;
+                $tone = $input['tone'] ?? 'professional';
+                $existingContent = $input['existing_content'] ?? '';
+                
+                error_log("AI API - Generate article params: title=$title, keywords=$keywords, wordCount=$wordCount, tone=$tone");
+                
+                if (empty($title)) {
+                    echo json_encode(['success' => false, 'error' => 'El título es requerido']);
+                    exit;
+                }
+                
+                $result = $aiGenerator->generateArticle($title, $keywords, $wordCount, $tone, $existingContent);
+                
+                error_log("AI API - Generate article result: " . print_r($result, true));
+                
+            } catch (Exception $e) {
+                error_log("AI API - Error in generate_article: " . $e->getMessage());
+                echo json_encode(['success' => false, 'error' => 'Error interno: ' . $e->getMessage()]);
                 exit;
             }
-            
-            $result = $aiGenerator->generateArticle($title, $keywords, $wordCount);
             break;
             
         case 'generate_excerpt':

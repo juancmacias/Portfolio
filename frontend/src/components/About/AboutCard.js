@@ -20,6 +20,9 @@ function AboutCard() {
           </p>
           <ul>
             <li className="about-activity">
+              <ImPointRight /> Estar con mi familia y amigos
+            </li>
+            <li className="about-activity">
               <ImPointRight /> Senderismo
             </li>
             <li className="about-activity">
@@ -32,7 +35,7 @@ function AboutCard() {
               <ImPointRight /> Deporte: tenis, carrera 10K, bicicleta
             </li>
             <li className="about-activity">
-              <ImPointRight /> Electrónica: Aurdino,  Raspberry Pi, Lego
+              <ImPointRight /> Electrónica: IoT, Arduino, Raspberry Pi, Lego
             </li>
           </ul>
 

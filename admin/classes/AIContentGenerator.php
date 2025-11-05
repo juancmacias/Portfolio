@@ -119,8 +119,17 @@ class AIContentGenerator {
     /**
      * Generar contenido completo de artículo
      */
-    public function generateArticle($title, $keywords = '', $wordCount = 800, $tone = 'professional') {
+    public function generateArticle($title, $keywords = '', $wordCount = 800, $tone = 'professional', $existingContent = '') {
         $prompt = "Escribe un artículo completo sobre: {$title}\n\n";
+        
+        // Si hay contenido existente, usarlo como contexto
+        if (!empty($existingContent)) {
+            $prompt .= "CONTEXTO EXISTENTE:\n";
+            $prompt .= "Utiliza el siguiente contenido como base y contexto para crear un artículo más completo y coherente:\n";
+            $prompt .= "```\n{$existingContent}\n```\n\n";
+            $prompt .= "INSTRUCCIONES: Expande, mejora y estructura este contenido existente manteniendo la coherencia temática.\n\n";
+        }
+        
         $prompt .= "Especificaciones:\n";
         $prompt .= "- Aproximadamente {$wordCount} palabras\n";
         $prompt .= "- Tono: {$tone}\n";
@@ -130,6 +139,12 @@ class AIContentGenerator {
         
         if ($keywords) {
             $prompt .= "- Incluir naturalmente estas palabras clave: {$keywords}\n";
+        }
+        
+        if (!empty($existingContent)) {
+            $prompt .= "- Mantener la coherencia con el contenido base proporcionado\n";
+            $prompt .= "- Expandir ideas ya presentes sin contradecirlas\n";
+            $prompt .= "- Añadir valor y profundidad al contenido existente\n";
         }
         
         $prompt .= "\nIMPORTANTE: Responde ÚNICAMENTE con el contenido del artículo en Markdown. Sin introducción, sin explicaciones, sin 'Aquí tienes el artículo' o similares.";

@@ -15,7 +15,23 @@
     <a href="https://github.com/juancmacias/Portfolio/issues">Algún bug, dimelo aquí.
 </h3>
 
-## 🚀 Nuevas Funcionalidades v1.0.7
+## 🚀 Nuevas Funcionalidades v1.0.8
+
+### 🤖 Generación de Artículos con IA - Contexto Avanzado
+- **💡 Contenido contextual**: Usa contenido existente como base para generar artículos más coherentes
+- **🎨 Modal avanzado**: Interfaz intuitiva con opciones completas de configuración
+- **🎯 Control de tono**: 5 estilos disponibles (profesional, casual, académico, amigable, técnico)
+- **📊 Control de palabras**: Selección precisa del número de palabras a generar
+- **🔄 Auto-generación**: Genera automáticamente extracto y meta description tras crear el artículo
+- **🔧 Test de conexión**: Herramienta de depuración integrada para verificar API
+- **🛠️ Depuración mejorada**: Logs detallados y manejo de errores más robusto
+
+### 🎯 Casos de Uso de IA Contextual
+- **📝 Expansión de notas**: Convierte notas básicas en artículos completos
+- **✨ Mejora de borradores**: Expande y estructura contenido existente
+- **🔗 Coherencia temática**: Mantiene la línea de las ideas originales
+
+## 🚀 Funcionalidades v1.0.7
 
 ### 🔄 Sistema de Vistas de Artículos
 - **📊 Contador de visualizaciones**: Registra automáticamente las vistas de cada artículo

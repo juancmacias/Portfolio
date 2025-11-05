@@ -1,7 +1,7 @@
 {
   "name": "portfolio",
   "homepage": "https://www.juancarlosmacias.es/",
-  "version": "1.0.7",
+  "version": "1.0.8",
   
   "private": true,
   "dependencies": {

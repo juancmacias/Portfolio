@@ -1355,14 +1355,9 @@ $pageTitle = $isEdit ? "Editar Artículo" : "Nuevo Artículo";
                             return;
                         }
 
-                        const contentKeywords = document.getElementById('tags').value || '';
-                        const wordCount = prompt('¿Aproximadamente cuántas palabras? (por defecto 800)', '800');
-
-                        requestData.action = 'generate_article';
-                        requestData.title = title;
-                        requestData.keywords = contentKeywords;
-                        requestData.word_count = parseInt(wordCount) || 800;
-                        break;
+                        // Mostrar modal para opciones avanzadas
+                        showAdvancedArticleModal(title);
+                        return; // No ejecutar el resto del código
 
                     case 'excerpt':
                         const content = document.getElementById('content').value;
@@ -1610,6 +1605,239 @@ $pageTitle = $isEdit ? "Editar Artículo" : "Nuevo Artículo";
                 if (customUrl && customUrl.trim()) {
                     selectImage(customUrl.trim());
                 }
+            }
+        }
+        
+        // Modal avanzado para generación de artículos
+        function showAdvancedArticleModal(title) {
+            const modal = document.createElement('div');
+            modal.id = 'advancedArticleModal';
+            modal.style.cssText = `
+                position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+                background: rgba(0,0,0,0.5); z-index: 1000; display: flex; 
+                align-items: center; justify-content: center;
+            `;
+            
+            const existingContent = document.getElementById('content').value || '';
+            const contentKeywords = document.getElementById('tags').value || '';
+            
+            modal.innerHTML = `
+                <div style="background: white; padding: 30px; border-radius: 12px; max-width: 600px; width: 90%; max-height: 80vh; overflow-y: auto;">
+                    <h3 style="margin: 0 0 20px 0; color: #333;">🤖 Generación Avanzada de Artículo</h3>
+                    
+                    <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                        <strong>Título:</strong> ${title}
+                    </div>
+                    
+                    <div style="margin-bottom: 20px;">
+                        <label style="display: block; margin-bottom: 8px; font-weight: 500;">
+                            Palabras clave (opcional):
+                        </label>
+                        <input type="text" id="ai-keywords" value="${contentKeywords}" 
+                               style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;"
+                               placeholder="javascript, programación, tutorial">
+                    </div>
+                    
+                    <div style="margin-bottom: 20px;">
+                        <label style="display: block; margin-bottom: 8px; font-weight: 500;">
+                            Número de palabras aproximado:
+                        </label>
+                        <input type="number" id="ai-word-count" value="800" min="100" max="3000"
+                               style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                    </div>
+                    
+                    <div style="margin-bottom: 20px;">
+                        <label style="display: block; margin-bottom: 8px; font-weight: 500;">
+                            Tono del artículo:
+                        </label>
+                        <select id="ai-tone" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                            <option value="professional">Profesional</option>
+                            <option value="casual">Casual</option>
+                            <option value="academic">Académico</option>
+                            <option value="friendly">Amigable</option>
+                            <option value="technical">Técnico</option>
+                        </select>
+                    </div>
+                    
+                    <div style="margin-bottom: 20px;">
+                        <label style="display: block; margin-bottom: 8px; font-weight: 500;">
+                            💡 Contenido existente como contexto (opcional):
+                        </label>
+                        <textarea id="ai-existing-content" rows="6" 
+                                  style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; resize: vertical;"
+                                  placeholder="Pega aquí cualquier contenido existente que quieras que la IA use como base o contexto para generar un artículo más coherente y relevante...">${existingContent}</textarea>
+                        <div style="font-size: 12px; color: #666; margin-top: 5px;">
+                            La IA usará este contenido como contexto para crear un artículo más completo y coherente con tus ideas existentes.
+                        </div>
+                    </div>
+                    
+                    <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 25px;">
+                        <button type="button" onclick="testAPIConnection()" 
+                                style="padding: 10px 20px; border: 1px solid #28a745; background: white; color: #28a745; border-radius: 6px; cursor: pointer;">
+                            🔧 Test Conexión
+                        </button>
+                        <button type="button" onclick="closeAdvancedModal()" 
+                                style="padding: 10px 20px; border: 1px solid #ddd; background: white; border-radius: 6px; cursor: pointer;">
+                            Cancelar
+                        </button>
+                        <button type="button" onclick="generateAdvancedArticle()" 
+                                style="padding: 10px 20px; border: none; background: #007bff; color: white; border-radius: 6px; cursor: pointer;">
+                            🚀 Generar Artículo
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            
+            // Cerrar al hacer clic fuera del modal
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    closeAdvancedModal();
+                }
+            });
+        }
+        
+        function closeAdvancedModal() {
+            const modal = document.getElementById('advancedArticleModal');
+            if (modal) {
+                modal.remove();
+            }
+        }
+        
+        // Test de conexión a la API
+        async function testAPIConnection() {
+            const testBtn = event.target;
+            const originalText = testBtn.textContent;
+            testBtn.disabled = true;
+            testBtn.textContent = '⏳ Probando...';
+            
+            try {
+                const testData = {
+                    action: 'test',
+                    csrf_token: '<?= $auth->generateCSRFToken() ?>'
+                };
+                
+                console.log('Testing API with:', testData);
+                
+                const response = await fetch('../api/ai.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(testData)
+                });
+                
+                console.log('Test response status:', response.status);
+                console.log('Test response headers:', [...response.headers]);
+                
+                const responseText = await response.text();
+                console.log('Test response text:', responseText);
+                
+                let result;
+                try {
+                    result = JSON.parse(responseText);
+                    alert('✅ Conexión exitosa!\\n\\nRespuesta: ' + JSON.stringify(result, null, 2));
+                } catch (jsonError) {
+                    alert('❌ Error: El servidor no devolvió JSON válido\\n\\nRespuesta: ' + responseText.substring(0, 500));
+                }
+                
+            } catch (error) {
+                console.error('Test error:', error);
+                alert('❌ Error de conexión: ' + error.message);
+            } finally {
+                testBtn.disabled = false;
+                testBtn.textContent = originalText;
+            }
+        }
+        
+        async function generateAdvancedArticle() {
+            const title = document.getElementById('title').value;
+            const keywords = document.getElementById('ai-keywords').value;
+            const wordCount = parseInt(document.getElementById('ai-word-count').value) || 800;
+            const tone = document.getElementById('ai-tone').value;
+            const existingContent = document.getElementById('ai-existing-content').value;
+            
+            const generateBtn = event.target;
+            const originalText = generateBtn.textContent;
+            generateBtn.disabled = true;
+            generateBtn.textContent = '⏳ Generando artículo...';
+            
+            try {
+                const requestData = {
+                    action: 'generate_article',
+                    title: title,
+                    keywords: keywords,
+                    word_count: wordCount,
+                    tone: tone,
+                    existing_content: existingContent,
+                    csrf_token: '<?= $auth->generateCSRFToken() ?>'
+                };
+                
+                const response = await fetch('../api/ai.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(requestData)
+                });
+                
+                // Verificar si la respuesta es exitosa
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                // Obtener el texto de la respuesta para depurar
+                const responseText = await response.text();
+                console.log('Respuesta del servidor:', responseText);
+                
+                // Intentar parsear como JSON
+                let result;
+                try {
+                    result = JSON.parse(responseText);
+                } catch (jsonError) {
+                    console.error('Error parsing JSON:', jsonError);
+                    console.error('Respuesta recibida:', responseText);
+                    
+                    // Mostrar más detalles del error
+                    let errorMsg = 'El servidor no devolvió JSON válido.';
+                    if (responseText.includes('<!DOCTYPE')) {
+                        errorMsg += '\\n\\nParece que el servidor devolvió HTML en lugar de JSON. Esto puede indicar:\\n';
+                        errorMsg += '- Error 404: Archivo no encontrado\\n';
+                        errorMsg += '- Error 500: Error interno del servidor\\n';
+                        errorMsg += '- Problema de autenticación\\n';
+                    }
+                    errorMsg += '\\n\\nRespuesta del servidor (primeros 300 caracteres):\\n' + responseText.substring(0, 300);
+                    
+                    throw new Error(errorMsg);
+                }
+                
+                if (result.success) {
+                    // Insertar el contenido generado
+                    document.getElementById('content').value = result.content;
+                    
+                    // Cerrar modal
+                    closeAdvancedModal();
+                    
+                    // Mostrar notificación de éxito
+                    showNotification('success', '✅ Artículo generado exitosamente');
+                    
+                    // Auto-generar extracto y meta description si están vacíos
+                    if (!document.getElementById('excerpt').value) {
+                        setTimeout(() => generateWithAI('excerpt'), 1000);
+                    }
+                    if (!document.getElementById('meta_description').value) {
+                        setTimeout(() => generateWithAI('meta'), 2000);
+                    }
+                } else {
+                    alert('Error: ' + (result.error || 'Error desconocido'));
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error de conexión: ' + error.message);
+            } finally {
+                generateBtn.disabled = false;
+                generateBtn.textContent = originalText;
             }
         }
         
