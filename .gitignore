@@ -10,6 +10,10 @@ Thumbs.db
 
 # Logs
 *.log
+logs/
+
+# Archivos subidos por usuarios
+uploads/
 
 # Archivos temporales
 *.tmp
