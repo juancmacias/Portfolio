@@ -28,13 +28,34 @@ try {
         'projects_total' => $db->fetchOne("SELECT COUNT(*) as count FROM projects")['count'] ?? 0,
         'projects_active' => $db->fetchOne("SELECT COUNT(*) as count FROM projects WHERE status = 'active'")['count'] ?? 0
     ];
+    
+    // Estadísticas RAG
+    $ragStats = [
+        'prompts_total' => 0,
+        'documents_total' => 0,
+        'conversations_total' => 0
+    ];
+    
+    try {
+        $ragStats['prompts_total'] = $db->fetchOne("SELECT COUNT(*) as count FROM chat_prompts")['count'] ?? 0;
+        $ragStats['documents_total'] = $db->fetchOne("SELECT COUNT(*) as count FROM reference_documents WHERE status = 'active'")['count'] ?? 0;
+        $ragStats['conversations_total'] = $db->fetchOne("SELECT COUNT(DISTINCT session_id) as count FROM enhanced_conversations WHERE created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)")['count'] ?? 0;
+    } catch (Exception $e) {
+        // Las tablas RAG no existen aún
+    }
+    
+    $stats = array_merge($stats, $ragStats);
+    
 } catch (Exception $e) {
     $stats = [
         'articles_total' => 0, 
         'articles_published' => 0, 
         'articles_draft' => 0,
         'projects_total' => 0,
-        'projects_active' => 0
+        'projects_active' => 0,
+        'prompts_total' => 0,
+        'documents_total' => 0,
+        'conversations_total' => 0
     ];
 }
 ?>
@@ -99,6 +120,18 @@ try {
                 <h3><?php echo $stats['projects_active']; ?></h3>
                 <p>Proyectos Activos</p>
             </div>
+            <div class="stat-card" style="border-left: 4px solid #667eea;">
+                <h3><?php echo $stats['prompts_total']; ?></h3>
+                <p>💬 Prompts RAG</p>
+            </div>
+            <div class="stat-card" style="border-left: 4px solid #28a745;">
+                <h3><?php echo $stats['documents_total']; ?></h3>
+                <p>📁 Documentos</p>
+            </div>
+            <div class="stat-card" style="border-left: 4px solid #17a2b8;">
+                <h3><?php echo $stats['conversations_total']; ?></h3>
+                <p>🗨️ Conversaciones (30d)</p>
+            </div>
         </div>
 
         <!-- Acciones Rápidas -->
@@ -127,6 +160,13 @@ try {
                 <h3>🔍 Herramientas SEO</h3>
                 <a href="sitemap-manager.php" class="btn">🗺️ Generador de Sitemap</a>
                 <a href="sitemap-manager.php?action=info" class="btn btn-info">📊 Estado del Sitemap</a>
+            </div>
+
+            <div class="action-card">
+                <h3>🤖 Sistema RAG Conversacional</h3>
+                <a href="rag/dashboard.php" class="btn">🎛️ Centro de Control RAG</a>
+                <a href="rag/prompts.php" class="btn btn-success">💬 Gestión de Prompts</a>
+                <a href="rag/documents.php" class="btn btn-info">📁 Subida de Documentos</a>
             </div>
 
         </div>

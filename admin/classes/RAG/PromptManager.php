@@ -1,0 +1,353 @@
+<?php
+/**
+ * Gestor de Prompts RAG - Versión Simplificada
+ * Compatible con esquema de base de datos simple
+ */
+
+class PromptManager {
+    private $db;
+    private $cache = [];
+    
+    public function __construct() {
+        $this->db = Database::getInstance();
+    }
+    
+    /**
+     * Obtener prompt por nombre
+     */
+    public function getPrompt($name) {
+        $cacheKey = "prompt_$name";
+        
+        if (isset($this->cache[$cacheKey])) {
+            return $this->cache[$cacheKey];
+        }
+        
+        try {
+            $sql = "SELECT * FROM chat_prompts WHERE name = ? AND is_active = 1 LIMIT 1";
+            $prompt = $this->db->fetchOne($sql, [$name]);
+            
+            if ($prompt) {
+                $this->cache[$cacheKey] = $prompt;
+                return $prompt;
+            }
+            
+            return null;
+            
+        } catch (Exception $e) {
+            error_log("Error obteniendo prompt $name - " . $e->getMessage());
+            return null;
+        }
+    }
+    
+    /**
+     * Obtener todos los prompts
+     */
+    public function getAllPrompts() {
+        try {
+            $sql = "SELECT * FROM chat_prompts ORDER BY created_at DESC";
+            $prompts = $this->db->fetchAll($sql);
+            return $prompts ?: [];
+            
+        } catch (Exception $e) {
+            error_log("Error obteniendo prompts - " . $e->getMessage());
+            return [];
+        }
+    }
+    
+    /**
+     * Obtener prompts activos
+     */
+    public function getActivePrompts() {
+        try {
+            $sql = "SELECT * FROM chat_prompts WHERE is_active = 1 ORDER BY name";
+            $prompts = $this->db->fetchAll($sql);
+            return $prompts ?: [];
+            
+        } catch (Exception $e) {
+            error_log("Error obteniendo prompts activos - " . $e->getMessage());
+            return [];
+        }
+    }
+    
+    /**
+     * Crear nuevo prompt
+     */
+    public function createPrompt($data) {
+        try {
+            $sql = "INSERT INTO chat_prompts (name, prompt_text, context_prompt, is_active) 
+                    VALUES (?, ?, ?, 1)";
+            
+            $this->db->query($sql, [
+                $data['name'],
+                $data['prompt_text'],
+                $data['description'] ?? '' // Usar description como context_prompt
+            ]);
+            
+            $this->clearCache();
+            
+            return [
+                'success' => true,
+                'id' => $this->db->lastInsertId()
+            ];
+            
+        } catch (Exception $e) {
+            return [
+                'success' => false,
+                'error' => $e->getMessage()
+            ];
+        }
+    }
+    
+    /**
+     * Actualizar prompt existente
+     */
+    public function updatePrompt($id, $data) {
+        try {
+            $sql = "UPDATE chat_prompts 
+                    SET name = ?, prompt_text = ?, context_prompt = ?, is_active = ?, updated_at = CURRENT_TIMESTAMP
+                    WHERE id = ?";
+            
+            $this->db->query($sql, [
+                $data['name'],
+                $data['prompt_text'],
+                $data['description'] ?? $data['context_prompt'] ?? '',
+                $data['is_active'] ?? 1,
+                $id
+            ]);
+            
+            $this->clearCache();
+            
+            return [
+                'success' => true
+            ];
+            
+        } catch (Exception $e) {
+            return [
+                'success' => false,
+                'error' => $e->getMessage()
+            ];
+        }
+    }
+    
+    /**
+     * Eliminar prompt
+     */
+    public function deletePrompt($id) {
+        try {
+            $sql = "DELETE FROM chat_prompts WHERE id = ?";
+            $this->db->query($sql, [$id]);
+            
+            $this->clearCache();
+            
+            return [
+                'success' => true
+            ];
+            
+        } catch (Exception $e) {
+            return [
+                'success' => false,
+                'error' => $e->getMessage()
+            ];
+        }
+    }
+    
+    /**
+     * Cambiar estado de un prompt
+     */
+    public function togglePromptStatus($id) {
+        try {
+            $sql = "UPDATE chat_prompts SET is_active = 1 - is_active WHERE id = ?";
+            $this->db->query($sql, [$id]);
+            
+            $this->clearCache();
+            
+            return [
+                'success' => true
+            ];
+            
+        } catch (Exception $e) {
+            return [
+                'success' => false,
+                'error' => $e->getMessage()
+            ];
+        }
+    }
+    
+    /**
+     * Construir prompt final reemplazando variables
+     */
+    public function buildFinalPrompt($promptData, $variables = []) {
+        $finalPrompt = $promptData['prompt_text'];
+        
+        // Agregar contexto si existe
+        if (!empty($promptData['context_prompt'])) {
+            $finalPrompt = $promptData['context_prompt'] . "\n\n" . $finalPrompt;
+        }
+        
+        // Reemplazar variables básicas
+        $defaultVariables = [
+            'context' => $variables['context'] ?? '',
+            'user_name' => $variables['user_name'] ?? 'Usuario',
+            'user_message' => $variables['user_message'] ?? '',
+            'portfolio_data' => $variables['portfolio_data'] ?? '',
+            'conversation_history' => $variables['conversation_history'] ?? '',
+            'timestamp' => date('Y-m-d H:i:s'),
+            'model_used' => $variables['model_used'] ?? 'groq',
+            'language' => $variables['language'] ?? 'es',
+            'session_id' => $variables['session_id'] ?? uniqid()
+        ];
+        
+        // Reemplazar todas las variables
+        foreach ($defaultVariables as $key => $value) {
+            $finalPrompt = str_replace('{' . $key . '}', $value, $finalPrompt);
+        }
+        
+        // Reemplazar variables adicionales proporcionadas
+        foreach ($variables as $key => $value) {
+            if (!isset($defaultVariables[$key])) {
+                $finalPrompt = str_replace('{' . $key . '}', $value, $finalPrompt);
+            }
+        }
+        
+        return $finalPrompt;
+    }
+    
+    /**
+     * Obtener prompt por ID
+     */
+    public function getPromptById($id) {
+        try {
+            $sql = "SELECT * FROM chat_prompts WHERE id = ?";
+            return $this->db->fetchOne($sql, [$id]);
+            
+        } catch (Exception $e) {
+            error_log("Error obteniendo prompt por ID $id - " . $e->getMessage());
+            return null;
+        }
+    }
+    
+    /**
+     * Construir prompt de conversación con contexto RAG
+     * Método requerido por chat-rag.php
+     */
+    public function buildConversationPrompt($userMessage, $ragResults = [], $conversationHistory = []) {
+        // Obtener TODOS los prompts activos y combinarlos
+        $activePrompts = $this->getActivePrompts();
+        
+        if (empty($activePrompts)) {
+            // Prompt por defecto si no hay ninguno activo
+            $systemPrompt = "Eres un asistente conversacional especializado en el portfolio de Juan Carlos Macías. " .
+                           "Usa el contexto proporcionado para responder de manera precisa y útil. " .
+                           "Mantén un tono profesional pero accesible.";
+        } else {
+            // Combinar todos los prompts activos
+            $systemPrompt = "";
+            foreach ($activePrompts as $prompt) {
+                // Añadir context_prompt si existe
+                if (!empty($prompt['context_prompt'])) {
+                    $systemPrompt .= $prompt['context_prompt'] . "\n\n";
+                }
+                // Añadir prompt_text
+                $systemPrompt .= $prompt['prompt_text'] . "\n\n";
+            }
+            $systemPrompt = trim($systemPrompt);
+        }
+        
+        // Construir contexto RAG con contenido completo
+        $ragContext = '';
+        if (!empty($ragResults)) {
+            $ragContext = "\n=== INFORMACIÓN DEL PORTFOLIO ===\n";
+            foreach (array_slice($ragResults, 0, 5) as $idx => $result) {
+                $content = $result['content'] ?? $result['content_text'] ?? '';
+                if (!empty($content)) {
+                    $ragContext .= "\n[Documento " . ($idx + 1) . " - Relevancia: " . 
+                                  round($result['relevance_score'] * 100, 1) . "%]\n";
+                    $ragContext .= trim($content) . "\n";
+                }
+            }
+            $ragContext .= "\n================================\n";
+        }
+        
+        // Construir historial de conversación
+        $historyContext = '';
+        if (!empty($conversationHistory)) {
+            $historyContext = "\n=== CONVERSACIÓN PREVIA ===\n";
+            foreach (array_slice($conversationHistory, -3) as $entry) {
+                $historyContext .= "Usuario: " . $entry['user_message'] . "\n";
+                $historyContext .= "Asistente: " . $entry['bot_response'] . "\n\n";
+            }
+            $historyContext .= "===========================\n";
+        }
+        
+        // Reemplazar variables en el prompt del sistema
+        $variables = [
+            'context' => $ragContext,
+            'portfolio_data' => $ragContext,
+            'user_message' => $userMessage,
+            'conversation_history' => $historyContext,
+            'timestamp' => date('Y-m-d H:i:s'),
+            'language' => 'es'
+        ];
+        
+        foreach ($variables as $key => $value) {
+            $systemPrompt = str_replace('{' . $key . '}', $value, $systemPrompt);
+        }
+        
+        // Construir prompt final en formato conversacional
+        $fullPrompt = $systemPrompt;
+        
+        // Agregar contexto RAG si existe
+        if ($ragContext) {
+            $fullPrompt .= "\n" . $ragContext;
+        }
+        
+        // Agregar historial si existe
+        if ($historyContext) {
+            $fullPrompt .= "\n" . $historyContext;
+        }
+        
+        // Agregar la pregunta del usuario
+        $fullPrompt .= "\n=== PREGUNTA ACTUAL ===\n";
+        $fullPrompt .= $userMessage . "\n";
+        $fullPrompt .= "\nPor favor, responde basándote ÚNICAMENTE en la información proporcionada arriba. Si la información no está disponible, indícalo claramente.\n";
+        
+        return $fullPrompt;
+    }
+    
+    /**
+     * Limpiar caché
+     */
+    private function clearCache() {
+        $this->cache = [];
+    }
+    
+    /**
+     * Obtener estadísticas de prompts
+     */
+    public function getStats() {
+        try {
+            $sql = "
+                SELECT 
+                    COUNT(*) as total,
+                    SUM(CASE WHEN is_active = 1 THEN 1 ELSE 0 END) as active,
+                    COUNT(DISTINCT name) as unique_names
+                FROM chat_prompts
+            ";
+            
+            return $this->db->fetchOne($sql) ?: [
+                'total' => 0,
+                'active' => 0,
+                'unique_names' => 0
+            ];
+            
+        } catch (Exception $e) {
+            error_log("Error obteniendo estadísticas de prompts - " . $e->getMessage());
+            return [
+                'total' => 0,
+                'active' => 0,
+                'unique_names' => 0
+            ];
+        }
+    }
+}
+?>

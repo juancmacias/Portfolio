@@ -17,7 +17,7 @@ const isLocal = () => {
 // URLs según el entorno
 const API_URLS = {
   local: 'http://www.perfil.in/',
-  production: 'https://juancarlosmacias.es/'  // Sin www para evitar redirección 301
+  production: 'https://www.juancarlosmacias.es/'  // Con www para consistencia
 };
 
 // Exportar URL según el entorno detectado
@@ -39,7 +39,8 @@ export const API_ENDPOINTS = {
     version: `${urlApi}api/portfolio/version.php`,
     projects: `${urlApi}api/portfolio/projects.php`,
     articles: `${urlApi}api/portfolio/articles.php`,
-    viewArticle: `${urlApi}api/portfolio/view-article.php`
+    viewArticle: `${urlApi}api/portfolio/view-article.php`,
+    chatRag: `${urlApi}api/portfolio/chat-rag.php`
   }
 };
 

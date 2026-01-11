@@ -12,6 +12,8 @@ import ArticleView from "./components/Articles/ArticleView";
 //import Usocookies from "./components/Politics/usocookies";
 import Politicas from "./components/Politics/politica";
 import Analytics from "./components/Analytics";
+import ChatModal from "./components/Chat/ChatModal";
+import ChatButton from "./components/Chat/ChatButton";
 
 import {
   BrowserRouter as Router,
@@ -30,6 +32,7 @@ function App() {
   const [ theme, setTheme] = useState(localStorage.getItem('preferencia')=== null? prefersColorScheme:localStorage.getItem('preferencia'));
 
   const [load, upadateLoad] = useState(true);
+  const [chatModalOpen, setChatModalOpen] = useState(false);
 
 
   useEffect(() => {
@@ -69,6 +72,15 @@ function App() {
           <Route path="*" element={<Navigate to="/"/>} />
         </Routes>
         <Footer />
+        
+        {/* Botón flotante de chat */}
+        <ChatButton onClick={() => setChatModalOpen(true)} />
+        
+        {/* Chat Modal */}
+        <ChatModal 
+          isOpen={chatModalOpen} 
+          onClose={() => setChatModalOpen(false)} 
+        />
       </div>
     </Router>
   );

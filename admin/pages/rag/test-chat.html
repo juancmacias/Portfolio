@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Chat RAG</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 20px auto; padding: 20px; }
+        .chat-container { border: 1px solid #ddd; border-radius: 8px; padding: 20px; margin-bottom: 20px; }
+        .message { margin: 10px 0; padding: 10px; border-radius: 5px; }
+        .user-message { background: #e3f2fd; text-align: right; }
+        .bot-message { background: #f5f5f5; }
+        .error { background: #ffebee; color: #d32f2f; }
+        input[type="text"] { width: 70%; padding: 10px; margin-right: 10px; }
+        button { padding: 10px 20px; background: #2196f3; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background: #1976d2; }
+        .loading { color: #666; font-style: italic; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 4px; overflow-x: auto; font-size: 12px; }
+    </style>
+</head>
+<body>
+    <h1>🤖 Test Chat RAG - Portfolio Juan Carlos</h1>
+    
+    <div class="chat-container">
+        <h3>💬 Chat de Prueba</h3>
+        <div id="chat-messages"></div>
+        <div style="margin-top: 20px;">
+            <input type="text" id="user-input" placeholder="Escribe tu pregunta aquí..." onkeypress="if(event.key==='Enter') sendMessage()">
+            <button onclick="sendMessage()">Enviar</button>
+        </div>
+    </div>
+    
+    <div style="background: #f8f9fa; padding: 15px; border-radius: 8px;">
+        <h4>🧪 Preguntas de Prueba Sugeridas:</h4>
+        <ul>
+            <li><button onclick="askPredefined('¿Cuáles son las habilidades técnicas de Juan Carlos?')">Habilidades técnicas</button></li>
+            <li><button onclick="askPredefined('¿Qué proyectos ha desarrollado?')">Proyectos desarrollados</button></li>
+            <li><button onclick="askPredefined('¿Cuál es su experiencia profesional?')">Experiencia profesional</button></li>
+            <li><button onclick="askPredefined('Háblame sobre su formación académica')">Formación académica</button></li>
+        </ul>
+    </div>
+
+    <script>
+        const sessionId = 'test_' + Date.now();
+        
+        function addMessage(content, isUser = false, isError = false) {
+            const messagesDiv = document.getElementById('chat-messages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message ' + (isError ? 'error' : (isUser ? 'user-message' : 'bot-message'));
+            messageDiv.innerHTML = content;
+            messagesDiv.appendChild(messageDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+        
+        function askPredefined(question) {
+            document.getElementById('user-input').value = question;
+            sendMessage();
+        }
+        
+        async function sendMessage() {
+            const input = document.getElementById('user-input');
+            const message = input.value.trim();
+            
+            if (!message) return;
+            
+            // Mostrar mensaje del usuario
+            addMessage('👤 ' + message, true);
+            input.value = '';
+            
+            // Mostrar loading
+            const loadingId = 'loading_' + Date.now();
+            addMessage('<span id="' + loadingId + '" class="loading">🤖 Procesando...</span>');
+            
+            try {
+                const response = await fetch('/api/portfolio/chat-rag.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        message: message,
+                        session_id: sessionId,
+                        include_voice: false
+                    })
+                });
+                
+                const data = await response.json();
+                
+                // Remover loading
+                document.getElementById(loadingId).parentNode.remove();
+                
+                if (data.success) {
+                    const botResponse = data.data.response;
+                    const metadata = data.data.metadata;
+                    
+                    addMessage('🤖 ' + botResponse);
+                    
+                    // Mostrar metadata si es útil
+                    if (metadata) {
+                        addMessage(
+                            `<small>📊 Proveedor: ${metadata.llm_provider} | Modelo: ${metadata.model} | Tokens: ${metadata.tokens_used} | Tiempo: ${Math.round(metadata.processing_time * 1000)}ms</small>`
+                        );
+                    }
+                    
+                    // Mostrar contexto RAG si está disponible
+                    if (data.data.rag_context && data.data.rag_context.results_count > 0) {
+                        addMessage(
+                            `<small>🔍 Contexto RAG: ${data.data.rag_context.results_count} resultados relevantes encontrados</small>`
+                        );
+                    }
+                } else {
+                    addMessage('❌ Error: ' + (data.error?.message || 'Error desconocido'), false, true);
+                    
+                    // Mostrar detalles del error en consola
+                    console.error('Error completo:', data);
+                    
+                    // Mostrar JSON raw para debugging
+                    addMessage('<pre>' + JSON.stringify(data, null, 2) + '</pre>', false, true);
+                }
+                
+            } catch (error) {
+                // Remover loading
+                const loadingElement = document.getElementById(loadingId);
+                if (loadingElement) loadingElement.parentNode.remove();
+                
+                addMessage('❌ Error de conexión: ' + error.message, false, true);
+                console.error('Error de fetch:', error);
+            }
+        }
+        
+        // Auto-focus al input
+        document.getElementById('user-input').focus();
+        
+        // Mensaje de bienvenida
+        addMessage('🎯 Sistema de chat RAG iniciado. Session ID: ' + sessionId + '<br>Haz una pregunta para probar el sistema.');
+    </script>
+</body>
+</html>

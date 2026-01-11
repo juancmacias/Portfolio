@@ -3,26 +3,38 @@
   <!-- Sitemap generado en entorno LOCAL para desarrollo -->
   <url>
     <loc>http://www.perfil.in/</loc>
-    <lastmod>2025-11-02</lastmod>
+    <lastmod>2026-01-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
     <loc>http://www.perfil.in/about</loc>
-    <lastmod>2025-11-02</lastmod>
+    <lastmod>2026-01-11</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>http://www.perfil.in/projects</loc>
-    <lastmod>2025-11-02</lastmod>
+    <loc>http://www.perfil.in/project</loc>
+    <lastmod>2026-01-11</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>http://www.perfil.in/articles</loc>
+    <lastmod>2026-01-11</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>http://www.perfil.in/resume</loc>
-    <lastmod>2025-11-02</lastmod>
+    <lastmod>2026-01-11</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>http://www.perfil.in/politics</loc>
+    <lastmod>2026-01-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.5</priority>
   </url>
 </urlset>
