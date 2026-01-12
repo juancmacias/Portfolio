@@ -1,6 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import useChatRAG from '../../hooks/useChatRAG';
 import { API_ENDPOINTS } from '../../Services/urls';
+import ChatPrivacyModal from './ChatPrivacyModal';
+import ChatPrivacyDisclaimer from './ChatPrivacyDisclaimer';
 import './ChatModal.css';
 
 /**
@@ -10,6 +12,9 @@ import './ChatModal.css';
  * @author Juan Carlos Macías
  * @version 1.0
  */
+
+// Clave para localStorage
+const CHAT_CONSENT_KEY = 'chatPrivacyConsent';
 
 const ChatModal = ({ isOpen, onClose }) => {
   // Hook personalizado para manejo del chat
@@ -37,14 +42,45 @@ const ChatModal = ({ isOpen, onClose }) => {
   const [speechSupport, setSpeechSupport] = useState({ speechRecognition: false, speechSynthesis: false });
   const [readingMessageId, setReadingMessageId] = useState(null);
   
+  // Estados de privacidad
+  const [hasConsent, setHasConsent] = useState(false);
+  const [showPrivacyModal, setShowPrivacyModal] = useState(false);
+  const [consentChecked, setConsentChecked] = useState(false);
+  
   // Referencias
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
+  
+  // Verificar consentimiento al abrir el modal
+  useEffect(() => {
+    if (isOpen && !consentChecked) {
+      const savedConsent = localStorage.getItem(CHAT_CONSENT_KEY);
+      if (savedConsent === 'true') {
+        setHasConsent(true);
+      } else {
+        setShowPrivacyModal(true);
+      }
+      setConsentChecked(true);
+    }
+  }, [isOpen, consentChecked]);
   
   // Verificar soporte de voz al montar
   useEffect(() => {
     setSpeechSupport(checkSpeechSupport());
   }, [checkSpeechSupport]);
+  
+  // Manejar aceptación de privacidad
+  const handleAcceptPrivacy = () => {
+    localStorage.setItem(CHAT_CONSENT_KEY, 'true');
+    setHasConsent(true);
+    setShowPrivacyModal(false);
+  };
+  
+  // Manejar rechazo de privacidad
+  const handleRejectPrivacy = () => {
+    setShowPrivacyModal(false);
+    onClose(); // Cerrar el chat si no acepta
+  };
   
   // Auto-scroll al final de mensajes
   useEffect(() => {
@@ -72,37 +108,6 @@ const ChatModal = ({ isOpen, onClose }) => {
   
   const handleSuggestedClick = (question) => {
     sendSuggestedQuestion(question);
-  };
-  
-  // Función de test para verificar conectividad
-  const testApiConnection = async () => {
-    try {
-      console.log('🧪 Testing API connection to:', API_ENDPOINTS.portfolio.chatRag);
-      const response = await fetch(API_ENDPOINTS.portfolio.chatRag, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ 
-          message: 'test',
-          session_id: 'test-' + Date.now()
-        })
-      });
-      
-      console.log('📡 Test Response:', {
-        status: response.status,
-        statusText: response.statusText,
-        headers: Object.fromEntries(response.headers.entries())
-      });
-      
-      const text = await response.text();
-      console.log('📄 Response Body:', text.substring(0, 500));
-      
-      alert(`Test Result:\nStatus: ${response.status}\nContent: ${text.substring(0, 100)}...`);
-    } catch (error) {
-      console.error('❌ Test Error:', error);
-      alert(`Test Error: ${error.message}`);
-    }
   };
   
   const handleVoiceToggle = () => {
@@ -235,16 +240,6 @@ const ChatModal = ({ isOpen, onClose }) => {
           </div>
           
           <div className="chat-controls">
-            {/* Botón de test de conectividad */}
-            <button
-              className="control-btn test-btn"
-              onClick={testApiConnection}
-              title="Test de conectividad API"
-            >
-              🧪
-            </button>
-            
-            {/* Toggle estadísticas */}
             <button
               className={`control-btn ${showStats ? 'active' : ''}`}
               onClick={() => setShowStats(!showStats)}
@@ -253,7 +248,6 @@ const ChatModal = ({ isOpen, onClose }) => {
               📊
             </button>
             
-            {/* Toggle voz */}
             {speechSupport.speechRecognition && (
               <button
                 className={`control-btn voice-btn ${voiceEnabled ? 'active' : ''} ${isListening ? 'listening' : ''}`}
@@ -265,7 +259,6 @@ const ChatModal = ({ isOpen, onClose }) => {
               </button>
             )}
             
-            {/* Limpiar chat */}
             <button
               className="control-btn clear-btn"
               onClick={clearChat}
@@ -275,7 +268,6 @@ const ChatModal = ({ isOpen, onClose }) => {
               🗑️
             </button>
             
-            {/* Cerrar modal */}
             <button
               className="control-btn close-btn"
               onClick={onClose}
@@ -402,13 +394,16 @@ const ChatModal = ({ isOpen, onClose }) => {
             <button
               type="submit"
               className="send-btn"
-              disabled={!inputText.trim() || isLoading || isListening}
+              disabled={!inputText.trim() || isLoading || isListening || !hasConsent}
               title="Enviar mensaje"
             >
               {isLoading ? '⏳' : '➤'}
             </button>
           </div>
         </form>
+        
+        {/* Disclaimer de privacidad - siempre visible */}
+        {hasConsent && <ChatPrivacyDisclaimer />}
         
         {/* Footer */}
         <div className="chat-footer">
@@ -422,6 +417,13 @@ const ChatModal = ({ isOpen, onClose }) => {
           )}
         </div>
       </div>
+      
+      {/* Modal de consentimiento de privacidad */}
+      <ChatPrivacyModal
+        isOpen={showPrivacyModal}
+        onAccept={handleAcceptPrivacy}
+        onReject={handleRejectPrivacy}
+      />
     </div>
   );
 };

@@ -1,0 +1,45 @@
+/* Disclaimer de privacidad - siempre visible */
+.chat-privacy-disclaimer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  background: rgba(201, 91, 245, 0.1);
+  border-top: 1px solid rgba(201, 91, 245, 0.2);
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.7);
+  line-height: 1.4;
+}
+
+.disclaimer-icon {
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.disclaimer-text {
+  flex: 1;
+}
+
+.disclaimer-text a {
+  color: #c95bf5;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+
+.disclaimer-text a:hover {
+  color: #d87eff;
+  text-decoration: underline;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .chat-privacy-disclaimer {
+    font-size: 0.75rem;
+    padding: 8px 10px;
+  }
+  
+  .disclaimer-icon {
+    font-size: 0.9rem;
+  }
+}

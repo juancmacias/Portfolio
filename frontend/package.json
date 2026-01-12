@@ -2,7 +2,6 @@
   "name": "portfolio",
   "homepage": "https://www.juancarlosmacias.es/",
   "version": "1.0.8",
-  
   "private": true,
   "dependencies": {
     "@react-pdf/renderer": "^2.2.0",
@@ -34,9 +33,9 @@
     "githubApiBaseUrl": "https://api.github.com/repos/juancmacias/Portfolio"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
+    "start": "react-app-rewired start",
+    "build": "react-app-rewired build",
+    "test": "react-app-rewired test",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
@@ -56,5 +55,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "react-app-rewired": "^2.2.1"
   }
 }
