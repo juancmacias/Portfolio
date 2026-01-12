@@ -9,7 +9,7 @@ if (!defined('ADMIN_ACCESS')) {
     define('ADMIN_ACCESS', true);
 }
 
-$logDir = __DIR__ . '/../../logs/chat';
+$logDir = __DIR__ . '/../../../logs/chat';
 $selectedDate = $_GET['date'] ?? date('Y-m-d');
 $selectedFile = $logDir . '/chat_' . $selectedDate . '.log';
 
@@ -199,6 +199,7 @@ if (file_exists($selectedFile)) {
     <div class="header">
         <h1>📋 Visor de Logs - Chat RAG</h1>
         <div class="controls">
+            <button onclick="window.location.href='dashboard.php'">← Volver al Dashboard</button>
             <label style="color: #888;">Fecha:</label>
             <select id="dateSelector" onchange="changeDate(this.value)">
                 <?php foreach ($availableDates as $date): ?>
@@ -256,7 +257,7 @@ if (file_exists($selectedFile)) {
         
         function downloadLog() {
             const date = document.getElementById('dateSelector').value;
-            window.location.href = '../../logs/chat/chat_' + date + '.log';
+            window.location.href = '../../../logs/chat/chat_' + date + '.log';
         }
     </script>
 </body>

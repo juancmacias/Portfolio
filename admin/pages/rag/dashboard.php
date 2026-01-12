@@ -777,6 +777,22 @@ $health = $dashboard->getSystemHealth();
                 </div>
             </a>
             
+            <a href="check-db.php" class="nav-card">
+                <span class="nav-icon">🔍</span>
+                <div class="nav-title">Verificar Base de Datos</div>
+                <div class="nav-description">
+                    Revisar estructura y datos de las tablas RAG en la base de datos
+                </div>
+            </a>
+            
+            <a href="run-migration.php" class="nav-card">
+                <span class="nav-icon">🔧</span>
+                <div class="nav-title">Ejecutar Migraciones</div>
+                <div class="nav-description">
+                    Aplicar actualizaciones de esquema y correcciones a la base de datos
+                </div>
+            </a>
+            
             <a href="../dashboard.php" class="nav-card">
                 <span class="nav-icon">🏠</span>
                 <div class="nav-title">Dashboard Principal</div>
