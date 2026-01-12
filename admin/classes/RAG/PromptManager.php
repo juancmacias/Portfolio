@@ -253,30 +253,34 @@ class PromptManager {
             $systemPrompt = trim($systemPrompt);
         }
         
-        // Construir contexto RAG con contenido completo
+        // Construir contexto RAG con contenido resumido (optimizado para tokens)
         $ragContext = '';
         if (!empty($ragResults)) {
-            $ragContext = "\n=== INFORMACIÓN DEL PORTFOLIO ===\n";
-            foreach (array_slice($ragResults, 0, 5) as $idx => $result) {
+            $ragContext = "\n=== INFORMACIÓN RELEVANTE ===\n";
+            foreach (array_slice($ragResults, 0, 3) as $idx => $result) { // Reducido de 5 a 3
                 $content = $result['content'] ?? $result['content_text'] ?? '';
                 if (!empty($content)) {
-                    $ragContext .= "\n[Documento " . ($idx + 1) . " - Relevancia: " . 
-                                  round($result['relevance_score'] * 100, 1) . "%]\n";
-                    $ragContext .= trim($content) . "\n";
+                    // Truncar contenido a 300 caracteres por resultado
+                    $truncated = strlen($content) > 300 ? substr($content, 0, 300) . '...' : $content;
+                    $ragContext .= "\n[" . ($idx + 1) . "] " . trim($truncated) . "\n";
                 }
             }
-            $ragContext .= "\n================================\n";
+            $ragContext .= "\n";
         }
         
-        // Construir historial de conversación
+        // Construir historial de conversación (resumido)
         $historyContext = '';
         if (!empty($conversationHistory)) {
-            $historyContext = "\n=== CONVERSACIÓN PREVIA ===\n";
-            foreach (array_slice($conversationHistory, -3) as $entry) {
-                $historyContext .= "Usuario: " . $entry['user_message'] . "\n";
-                $historyContext .= "Asistente: " . $entry['bot_response'] . "\n\n";
+            $historyContext = "\n=== CONTEXTO PREVIO ===\n";
+            foreach (array_slice($conversationHistory, -2) as $entry) { // Reducido de 3 a 2
+                $userMsg = strlen($entry['user_message']) > 100 
+                    ? substr($entry['user_message'], 0, 100) . '...' 
+                    : $entry['user_message'];
+                $botMsg = strlen($entry['bot_response']) > 150 
+                    ? substr($entry['bot_response'], 0, 150) . '...' 
+                    : $entry['bot_response'];
+                $historyContext .= "U: " . $userMsg . "\nA: " . $botMsg . "\n\n";
             }
-            $historyContext .= "===========================\n";
         }
         
         // Reemplazar variables en el prompt del sistema
@@ -307,9 +311,9 @@ class PromptManager {
         }
         
         // Agregar la pregunta del usuario
-        $fullPrompt .= "\n=== PREGUNTA ACTUAL ===\n";
+        $fullPrompt .= "\n=== PREGUNTA ===\n";
         $fullPrompt .= $userMessage . "\n";
-        $fullPrompt .= "\nPor favor, responde basándote ÚNICAMENTE en la información proporcionada arriba. Si la información no está disponible, indícalo claramente.\n";
+        $fullPrompt .= "\nResponde de forma concisa basándote en la información anterior.\n";
         
         return $fullPrompt;
     }

@@ -187,6 +187,9 @@ try {
         throw new Exception('Datos JSON inválidos');
     }
     
+    // Iniciar medición de tiempo
+    $startTime = microtime(true);
+    
     // Validar parámetros requeridos
     $userMessage = trim($input['message'] ?? '');
     $sessionId = $input['session_id'] ?? uniqid('chat_', true);
@@ -208,11 +211,11 @@ try {
     $promptManager = new PromptManager();
     $aiGenerator = new AIContentGenerator();
     
-    // 1. Búsqueda semántica RAG
+    // 1. Búsqueda semántica RAG (reducido para optimizar tokens)
     logChatEvent('INFO', 'Iniciando búsqueda RAG');
     $ragResults = $ragEngine->searchRelevantContent($userMessage, [
-        'max_results' => 8,
-        'min_relevance' => 0.3,
+        'max_results' => 5,        // Reducido de 8 a 5
+        'min_relevance' => 0.35,   // Aumentado de 0.3 a 0.35 para mejor calidad
         'sources' => ['portfolio', 'documents', 'projects']
     ]);
     
@@ -221,15 +224,15 @@ try {
         'max_score' => $ragResults[0]['relevance_score'] ?? 0
     ]);
     
-    // 2. Obtener historial de conversación reciente
+    // 2. Obtener historial de conversación reciente (limitado)
     $conversationHistory = [];
     try {
         $historyQuery = "
-            SELECT user_message, bot_response 
+            SELECT user_message, assistant_response as bot_response 
             FROM enhanced_conversations 
             WHERE session_id = ? 
-            ORDER BY created_at DESC 
-            LIMIT 3
+            ORDER BY timestamp DESC 
+            LIMIT 2
         ";
         $history = $db->fetchAll($historyQuery, [$sessionId]);
         $conversationHistory = array_reverse($history); // Orden cronológico
@@ -252,10 +255,10 @@ try {
     $llmProvider = 'groq'; // Siempre usar Groq para conversaciones
     $model = 'llama-3.1-8b-instant'; // Modelo rápido para chat
     
-    // 6. Configurar parámetros de generación
+    // 6. Configurar parámetros de generación (optimizados para límites gratuitos)
     $generationOptions = [
         'model' => $model,
-        'max_tokens' => 800,
+        'max_tokens' => 500,    // Reducido de 800 a 500
         'temperature' => 0.4
     ];
     
@@ -266,23 +269,64 @@ try {
         'rag_context_items' => count($ragResults)
     ]);
     
-    // 6. Generar respuesta con Groq (usando la firma correcta)
-    $response = $aiGenerator->generateContent(
-        $fullPrompt,           // prompt
-        'conversation',        // type
-        $llmProvider,          // provider
-        $generationOptions     // options
-    );
+    // 6. Generar respuesta con Groq (con retry en caso de fallo)
+    $maxRetries = 2;
+    $retryCount = 0;
+    $response = null;
+    $lastError = null;
     
-    if (!$response || !isset($response['content'])) {
-        throw new Exception('Error generando respuesta del LLM');
+    while ($retryCount <= $maxRetries && !$response) {
+        try {
+            $apiResponse = $aiGenerator->generateContent(
+                $fullPrompt,           // prompt
+                'conversation',        // type
+                $llmProvider,          // provider
+                $generationOptions     // options
+            );
+            
+            // Verificar que la respuesta es válida
+            if ($apiResponse && isset($apiResponse['success']) && $apiResponse['success'] === true 
+                && isset($apiResponse['content']) && !empty($apiResponse['content'])) {
+                $response = $apiResponse; // Éxito, salir del loop
+                break;
+            } else {
+                $lastError = $apiResponse['error'] ?? 'Respuesta vacía o sin contenido';
+                $response = null;
+            }
+        } catch (Exception $e) {
+            $lastError = $e->getMessage();
+            $response = null;
+            
+            logChatEvent('WARNING', 'Intento ' . ($retryCount + 1) . ' fallido', [
+                'error' => $lastError,
+                'retry_count' => $retryCount
+            ]);
+        }
+        
+        if ($retryCount < $maxRetries && !$response) {
+            sleep(1); // Esperar 1 segundo antes de reintentar
+        }
+        
+        $retryCount++;
+    }
+    
+    if (!$response || !isset($response['content']) || empty($response['content'])) {
+        // Logging detallado del error
+        logChatEvent('ERROR', 'Error generando respuesta del LLM después de ' . $maxRetries . ' intentos', [
+            'response' => $response,
+            'provider' => $llmProvider,
+            'model' => $model,
+            'prompt_length' => strlen($fullPrompt),
+            'last_error' => $lastError
+        ]);
+        throw new Exception('Error generando respuesta: ' . ($lastError ?? 'Sin detalles'));
     }
     
     $botResponse = trim($response['content']);
     
     logChatEvent('INFO', 'Respuesta LLM generada', [
         'response_length' => strlen($botResponse),
-        'tokens_used' => $response['usage']['total_tokens'] ?? 0
+        'tokens_used' => $response['tokens_used'] ?? 0
     ]);
     
     // 6.5. Guardar log detallado en archivo .log
@@ -298,7 +342,7 @@ try {
         [
             'llm_provider' => $llmProvider,
             'model' => $model,
-            'tokens_used' => $response['usage']['total_tokens'] ?? 0,
+            'tokens_used' => $response['tokens_used'] ?? 0,
             'processing_time' => $processingTime,
             'temperature' => $generationOptions['temperature'],
             'max_tokens' => $generationOptions['max_tokens'],
@@ -310,7 +354,7 @@ try {
     try {
         $saveQuery = "
             INSERT INTO enhanced_conversations 
-            (session_id, user_message, bot_response, rag_context, llm_provider, tokens_used) 
+            (session_id, user_message, assistant_response, context_used, model_used, relevance_score) 
             VALUES (?, ?, ?, ?, ?, ?)
         ";
         
@@ -320,19 +364,31 @@ try {
             'relevance_scores' => array_column($ragResults, 'relevance_score')
         ]);
         
+        // Calcular relevancia promedio
+        $avgRelevance = count($ragResults) > 0 
+            ? array_sum(array_column($ragResults, 'relevance_score')) / count($ragResults)
+            : 0;
+        
         $db->query($saveQuery, [
             $sessionId,
             $userMessage,
             $botResponse,
             $ragContextJson,
-            $llmProvider,
-            $response['usage']['total_tokens'] ?? 0
+            $llmProvider . '/' . $model,
+            round($avgRelevance, 2)
         ]);
         
-        logChatEvent('INFO', 'Conversación guardada en BD');
+        logChatEvent('INFO', 'Conversación guardada en BD', [
+            'session_id' => $sessionId,
+            'relevance_avg' => $avgRelevance
+        ]);
         
     } catch (Exception $e) {
-        logChatEvent('ERROR', 'Error guardando conversación', ['error' => $e->getMessage()]);
+        logChatEvent('ERROR', 'Error guardando conversación en BD', [
+            'error' => $e->getMessage(),
+            'session_id' => $sessionId
+        ]);
+        // No fallar el request por error de BD
     }
     
     // 9. Preparar respuesta final
@@ -353,7 +409,7 @@ try {
             'metadata' => [
                 'llm_provider' => $llmProvider,
                 'model' => $model,
-                'tokens_used' => $response['usage']['total_tokens'] ?? 0,
+                'tokens_used' => $response['tokens_used'] ?? 0,
                 'processing_time' => microtime(true) - ($_SERVER['REQUEST_TIME_FLOAT'] ?? microtime(true))
             ]
         ]
