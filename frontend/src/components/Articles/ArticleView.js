@@ -7,6 +7,7 @@ import remarkGfm from 'remark-gfm';
 import LoadingSpinner from "../Loading/LoadingSpinner";
 import Analytics from "../Analytics";
 import MetaData from "../../Services/MetaData";
+import LazyImage from "../LazyImage";
 import { urlApi, API_ENDPOINTS } from "../../Services/urls";
 
 function ArticleView() {
@@ -235,11 +236,13 @@ function ArticleView() {
             {/* Imagen destacada */}
             {article.featured_image && (
               <div className="article-featured-image mb-4">
-                <img 
+                <LazyImage
                   src={article.featured_image} 
                   alt={article.title}
+                  width="100%"
+                  height="400"
                   className="img-fluid rounded shadow"
-                  style={{ width: '100%', maxHeight: '400px', objectFit: 'cover' }}
+                  style={{ maxHeight: '400px', objectFit: 'cover' }}
                 />
               </div>
             )}

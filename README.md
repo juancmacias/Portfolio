@@ -15,9 +15,22 @@
     <a href="https://github.com/juancmacias/Portfolio/issues">Algún bug, dimelo aquí.
 </h3>
 
-## 🚀 Nuevas Funcionalidades v1.0.8
+## 🚀 Nuevas Funcionalidades v1.1.9
 
-### 🤖 Generación de Artículos con IA - Contexto Avanzado
+### 🔄 Sistema Híbrido SSR + SPA
+- **🚀 Server-Side Rendering (SSR)**: Renderizado inicial en PHP para mejor SEO y rendimiento
+- **⚡ Progressive Enhancement**: React se hidrata sobre HTML pre-renderizado
+- **🎯 Optimización SEO**: Meta tags dinámicos completos desde el servidor
+- **📱 Experiencia SPA**: Navegación fluida sin recargas después del primer load
+- **🏗️ Arquitectura front_php/**: Sistema de templates PHP + build de React integrado
+
+### 🎨 Sistema de Templates PHP
+- **📄 Layout.php**: Template base con meta tags dinámicos y structured data
+- **🔧 Componentización**: Sistema modular de componentes reutilizables
+- **🌐 Detección de rutas**: Parsing de URL para inyectar meta tags específicos
+- **📊 Datos estructurados**: JSON-LD automático para artículos y páginas
+
+### 🤖 Generación de Artículos con IA - Contexto Avanzado (v1.0.8)
 - **💡 Contenido contextual**: Usa contenido existente como base para generar artículos más coherentes
 - **🎨 Modal avanzado**: Interfaz intuitiva con opciones completas de configuración
 - **🎯 Control de tono**: 5 estilos disponibles (profesional, casual, académico, amigable, técnico)
@@ -25,11 +38,6 @@
 - **🔄 Auto-generación**: Genera automáticamente extracto y meta description tras crear el artículo
 - **🔧 Test de conexión**: Herramienta de depuración integrada para verificar API
 - **🛠️ Depuración mejorada**: Logs detallados y manejo de errores más robusto
-
-### 🎯 Casos de Uso de IA Contextual
-- **📝 Expansión de notas**: Convierte notas básicas en artículos completos
-- **✨ Mejora de borradores**: Expande y estructura contenido existente
-- **🔗 Coherencia temática**: Mantiene la línea de las ideas originales
 
 ## 🚀 Funcionalidades v1.0.7
 
@@ -112,6 +120,7 @@ Este proyecto utiliza tecnologías modernas para ofrecer una experiencia complet
 - **React Router** - Navegación entre páginas
 - **CSS3** - Estilos personalizados y animaciones
 - **JavaScript ES6+** - Funcionalidades modernas
+- **SSR con PHP** - Renderizado híbrido servidor/cliente para SEO óptimo
 
 ### Backend
 - **PHP 8+** - Lenguaje del servidor con programación orientada a objetos
@@ -139,6 +148,8 @@ Clona este repositorio. Necesitaras `node.js`, `git` y un servidor PHP instalado
 
 ### Configuración del Frontend
 
+#### Opción 1: Desarrollo SPA (Recomendado para desarrollo)
+
 1. **Instala las dependencias**: `npm install`
 
 2. **Configura las URLs**: 
@@ -150,6 +161,27 @@ Clona este repositorio. Necesitaras `node.js`, `git` y un servidor PHP instalado
 Ejecuta la aplicación en modo de desarrollo.
 Abre [http://localhost:3000](http://localhost:3000) para verlo en el navegador.
 La página se recargará si realizas modificaciones.
+
+#### Opción 2: Sistema Híbrido SSR + React (Producción)
+
+1. **Build del frontend**:
+   ```bash
+   cd frontend
+   npm install
+   npm run build
+   ```
+
+2. **Copia el build a front_php/**:
+   ```bash
+   cp -r build/* ../front_php/build/
+   ```
+
+3. **Configura PHP**:
+   - El archivo `front_php/index.php` servirá como punto de entrada
+   - Los templates en `front_php/templates/` manejan el SSR
+   - React se hidrata automáticamente sobre el HTML generado
+
+4. **Accede a**: `http://tudominio.com/` (el SSR funcionará automáticamente)
 
 ### Configuración del Backend
 
@@ -193,17 +225,26 @@ Para usar las funcionalidades de generación automática de contenido:
 
 ```
 📦 Portfolio/
-├── 🎨 frontend/          # Aplicación React
+├── 🎨 frontend/          # Aplicación React (desarrollo)
 │   ├── src/components/   # Componentes reutilizables
 │   ├── src/Services/     # Configuración de APIs y URLs
 │   └── public/Assets/    # Imágenes y recursos estáticos
+├── 🚀 front_php/        # Sistema híbrido SSR + SPA (producción)
+│   ├── index.php        # Punto de entrada con detección de rutas
+│   ├── templates/       # Templates PHP para SSR
+│   │   ├── Layout.php   # Layout base con meta tags dinámicos
+│   │   └── components/  # Componentes reutilizables PHP
+│   └── build/           # Build de React integrado
 ├── 🔧 admin/            # Panel de administración
 │   ├── pages/           # Páginas del admin (login, dashboard, etc.)
 │   ├── api/             # APIs para imágenes y funciones IA
+│   ├── classes/         # Clases PHP (AIContentGenerator, ArticleManager, etc.)
+│   │   └── RAG/         # Sistema RAG para chat conversacional
 │   └── config/          # Configuración de la aplicación
 ├── 🌐 api/portfolio/    # API REST principal
 │   ├── projects.php     # Endpoint de proyectos
 │   ├── articles.php     # Endpoint de artículos
+│   ├── chat-rag.php     # Endpoint del chat conversacional
 │   └── config.php       # Configuración de la API
 └── 📚 doc/             # Documentación técnica
 ```

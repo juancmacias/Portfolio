@@ -1,0 +1,12 @@
+{
+  "main.css": "/static/css/main.css",
+  "main.js": "/static/js/main.js",
+  "static/js/453.chunk.js": "/static/js/453.chunk.js",
+  "static/media/cv.pdf": "/static/media/cv.pdf",
+  "static/media/about.png": "/static/media/about.png",
+  "index.html": "/index.html",
+  "static/media/pre.svg": "/static/media/pre.svg",
+  "main.css.map": "/static/css/main.css.map",
+  "main.js.map": "/static/js/main.js.map",
+  "453.chunk.js.map": "/static/js/453.chunk.js.map"
+}

@@ -1,0 +1,155 @@
+/**
+ * Estilos para MessageRenderer
+ * Formato de mensajes con Markdown en el chat
+ * 
+ * @author Juan Carlos Macías
+ * @version 1.0
+ */
+
+.message-renderer {
+  width: 100%;
+  line-height: 1.6;
+}
+
+/* === PÁRRAFOS === */
+.message-paragraph {
+  margin: 0 0 8px 0;
+}
+
+.message-paragraph:last-child {
+  margin-bottom: 0;
+}
+
+/* === ENLACES === */
+.message-link {
+  color: inherit;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.4);
+  transition: all 0.2s ease;
+  word-break: break-all;
+}
+
+.message-link:hover {
+  color: inherit;
+  border-bottom-color: rgba(255, 255, 255, 0.8);
+  opacity: 0.9;
+}
+
+/* Enlaces en mensajes del usuario */
+.user-message .message-link {
+  color: inherit;
+  border-bottom-color: rgba(255, 255, 255, 0.5);
+}
+
+.user-message .message-link:hover {
+  border-bottom-color: rgba(255, 255, 255, 1);
+}
+
+/* === LISTAS === */
+.message-list {
+  margin: 8px 0;
+  padding-left: 20px;
+  list-style-type: none;
+}
+
+.message-list-item {
+  position: relative;
+  margin-bottom: 6px;
+  padding-left: 0;
+}
+
+.message-list-item::before {
+  content: "•";
+  color: #64b5f6;
+  font-weight: bold;
+  display: inline-block;
+  width: 1em;
+  margin-left: -1em;
+  margin-right: 4px;
+}
+
+/* Listas en mensajes del usuario */
+.user-message .message-list-item::before {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* === CÓDIGO === */
+.message-code-inline {
+  background: rgba(0, 0, 0, 0.2);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: 'Courier New', monospace;
+  font-size: 0.9em;
+  color: #90caf9;
+}
+
+.message-code-block {
+  display: block;
+  background: rgba(0, 0, 0, 0.3);
+  padding: 12px;
+  border-radius: 6px;
+  margin: 8px 0;
+  font-family: 'Courier New', monospace;
+  font-size: 0.9em;
+  overflow-x: auto;
+  color: #90caf9;
+}
+
+/* Código en mensajes del usuario */
+.user-message .message-code-inline,
+.user-message .message-code-block {
+  background: rgba(0, 0, 0, 0.3);
+  color: rgba(255, 255, 255, 0.95);
+}
+
+/* === ENCABEZADOS === */
+.message-h1,
+.message-h2,
+.message-h3,
+.message-h4 {
+  margin: 12px 0 8px 0;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.message-h1 {
+  font-size: 1.3em;
+}
+
+.message-h2 {
+  font-size: 1.2em;
+}
+
+.message-h3 {
+  font-size: 1.1em;
+}
+
+.message-h4 {
+  font-size: 1.05em;
+}
+
+/* === ÉNFASIS === */
+.message-renderer strong {
+  font-weight: 600;
+  color: inherit;
+}
+
+.message-renderer em {
+  font-style: italic;
+}
+
+/* === RESPONSIVE === */
+@media (max-width: 480px) {
+  .message-link {
+    word-break: break-word;
+  }
+  
+  .message-list {
+    padding-left: 16px;
+  }
+  
+  .message-code-block {
+    font-size: 0.85em;
+    padding: 10px;
+  }
+}

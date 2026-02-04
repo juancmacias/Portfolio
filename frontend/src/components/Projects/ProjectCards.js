@@ -4,11 +4,19 @@ import Button from "react-bootstrap/Button";
 import { CgWebsite } from "react-icons/cg";
 import { BsGithub } from "react-icons/bs";
 import Analytics from "../Analytics";
+import LazyImage from "../LazyImage";
 
 function ProjectCards(props) {
   return (
     <Card className="project-card-view">
-      <Card.Img variant="top" src={props.imgPath} alt={props.title} />
+      <LazyImage 
+        src={props.imgPath} 
+        alt={props.title}
+        width="100%"
+        height="200"
+        className="card-img-top"
+        style={{ objectFit: 'cover' }}
+      />
       <Card.Body>
         <Card.Title>{props.title}</Card.Title>
         <Card.Text style={{ textAlign: "justify" }}>

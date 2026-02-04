@@ -3,6 +3,7 @@ import useChatRAG from '../../hooks/useChatRAG';
 import { API_ENDPOINTS } from '../../Services/urls';
 import ChatPrivacyModal from './ChatPrivacyModal';
 import ChatPrivacyDisclaimer from './ChatPrivacyDisclaimer';
+import MessageRenderer from './MessageRenderer';
 import './ChatModal.css';
 
 /**
@@ -176,7 +177,11 @@ const ChatModal = ({ isOpen, onClose }) => {
       >
         <div className="message-content">
           <div className="message-text">
-            {message.text}
+            {isBot && !isError ? (
+              <MessageRenderer content={message.text} />
+            ) : (
+              message.text
+            )}
           </div>
           <div className="message-meta">
             <span className="message-time">

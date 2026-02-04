@@ -35,5 +35,13 @@ uploads/
 *.swp
 *.swo
 
+# Dependencias de Node.js
+node_modules/
+**/node_modules/
+package-lock.json
+
 # Archivos específicos del servidor
 .htpasswd
+
+# Carpetas temporales/experimentales
+frontend_mejora/

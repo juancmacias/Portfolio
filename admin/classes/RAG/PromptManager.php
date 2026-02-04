@@ -260,8 +260,8 @@ class PromptManager {
             foreach (array_slice($ragResults, 0, 3) as $idx => $result) { // Reducido de 5 a 3
                 $content = $result['content'] ?? $result['content_text'] ?? '';
                 if (!empty($content)) {
-                    // Truncar contenido a 300 caracteres por resultado
-                    $truncated = strlen($content) > 300 ? substr($content, 0, 300) . '...' : $content;
+                    // Truncar contenido a 600 caracteres por resultado (aumentado de 300)
+                    $truncated = strlen($content) > 600 ? substr($content, 0, 600) . '...' : $content;
                     $ragContext .= "\n[" . ($idx + 1) . "] " . trim($truncated) . "\n";
                 }
             }
@@ -290,7 +290,10 @@ class PromptManager {
             'user_message' => $userMessage,
             'conversation_history' => $historyContext,
             'timestamp' => date('Y-m-d H:i:s'),
-            'language' => 'es'
+            'language' => 'es',
+            'user_name' => 'Usuario',  // Valor por defecto (anónimo)
+            'model_used' => 'llama-3.1-8b-instant',  // Modelo usado
+            'session_id' => uniqid('session_')  // ID de sesión único
         ];
         
         foreach ($variables as $key => $value) {

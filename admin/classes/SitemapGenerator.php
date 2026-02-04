@@ -26,6 +26,7 @@ class SitemapGenerator
     private $validUrls = [];
     private $maxDepth;
     private $currentDepth = 0;
+    private $logFile;
     private $excludePatterns = [
         '/logout',
         '/admin',
@@ -54,9 +55,35 @@ class SitemapGenerator
 
     public function __construct($baseUrl, $maxDepth = 3) 
     {
+        // Eliminar www. del baseUrl si existe
+        $baseUrl = preg_replace('/^(https?:\/\/)www\./i', '$1', $baseUrl);
+        
         $this->baseUrl = rtrim($baseUrl, '/');
         $this->domain = parse_url($baseUrl, PHP_URL_HOST);
         $this->maxDepth = $maxDepth;
+        
+        // Configurar archivo de log
+        $logDir = __DIR__;
+        $this->logFile = $logDir . '/sitemap_generator.log';
+        
+        // Limpiar log anterior si existe
+        if (file_exists($this->logFile)) {
+            @unlink($this->logFile);
+        }
+        
+        $this->log("=== INICIO GENERACIÓN SITEMAP ===");
+        $this->log("Base URL: " . $this->baseUrl);
+        $this->log("Domain: " . $this->domain);
+        $this->log("Max Depth: " . $this->maxDepth);
+    }
+    
+    /**
+     * Escribe en el archivo de log
+     */
+    private function log($message) {
+        $timestamp = date('Y-m-d H:i:s');
+        $logMessage = "[$timestamp] $message" . PHP_EOL;
+        @file_put_contents($this->logFile, $logMessage, FILE_APPEND);
     }
 
     /**
@@ -68,38 +95,61 @@ class SitemapGenerator
         $startTime = microtime(true);
         
         try {
+            $this->log("Iniciando generación del sitemap...");
+            
             // Limpiar arrays
             $this->visitedUrls = [];
             $this->validUrls = [];
             $this->currentDepth = 0;
             
-            // Analizar sitio web principal
-            $this->crawlUrl($this->baseUrl);
+            $this->log("Arrays limpiados");
             
-            // Buscar URLs adicionales en robots.txt y sitemap.xml
+            // NO hacer crawling automático del sitio (puede causar errores con APIs protegidas)
+            // Solo agregar la home
+            $this->log("Agregando URL home...");
+            $this->addValidUrl($this->baseUrl);
+            
+            // Buscar URLs adicionales en robots.txt y sitemap.xml existente
+            $this->log("Buscando en archivos del sitio...");
             $this->discoverFromSiteFiles();
             
-            // Buscar URLs dinámicas en APIs
+            // Buscar URLs dinámicas desde la base de datos
+            $this->log("Buscando URLs desde base de datos...");
             $this->discoverFromAPIs();
             
             // Agregar rutas conocidas de React/SPA
+            $this->log("Agregando rutas conocidas de React/SPA...");
             $this->addKnownReactRoutes();
             
             // Generar XML
+            $this->log("Generando XML...");
             $xmlContent = $this->generateXML();
+            $this->log("XML generado. Tamaño: " . strlen($xmlContent) . " bytes");
             
             // Guardar archivo
             $sitemapPath = $this->getSitemapPath();
+            $this->log("Guardando sitemap en: $sitemapPath");
             $saved = file_put_contents($sitemapPath, $xmlContent);
+            
+            if ($saved === false) {
+                $this->log("ERROR: No se pudo guardar el archivo");
+            } else {
+                $this->log("Sitemap guardado exitosamente. Tamaño: " . strlen($xmlContent) . " bytes");
+            }
             
             $endTime = microtime(true);
             $executionTime = round($endTime - $startTime, 2);
+            
+            $this->log("URLs totales encontradas: " . count($this->validUrls));
+            $this->log("Tiempo de ejecución: {$executionTime}s");
+            $this->log("=== FIN GENERACIÓN SITEMAP ===");
             
             return [
                 'success' => $saved !== false,
                 'message' => $saved ? 'Sitemap generado exitosamente' : 'Error al guardar sitemap',
                 'urls_found' => count($this->validUrls),
                 'file_path' => $sitemapPath,
+                'log_file' => $this->logFile,
                 'file_size' => $saved ? $this->formatBytes($saved) : '0 bytes',
                 'execution_time' => $executionTime . ' segundos',
                 'urls' => array_values($this->validUrls)
@@ -321,11 +371,11 @@ class SitemapGenerator
      * Obtiene la ruta donde guardar el sitemap
      * @return string Ruta completa del archivo
      */
-    private function getSitemapPath() 
+    private function getSitemapPath($filename = 'sitemap.xml') 
     {
         // Directorio raíz del proyecto (3 niveles arriba desde admin/classes/)
         $rootDir = realpath(__DIR__ . '/../../');
-        return $rootDir . DIRECTORY_SEPARATOR . 'sitemap.xml';
+        return $rootDir . DIRECTORY_SEPARATOR . $filename;
     }
 
     /**
@@ -368,6 +418,9 @@ class SitemapGenerator
         if ($content) {
             $urlCount = substr_count($content, '<url>');
         }
+        
+        // Verificar si es reciente (menos de 7 días)
+        $isRecent = (time() - $lastModified) < (7 * 24 * 60 * 60);
 
         return [
             'exists' => true,
@@ -375,85 +428,126 @@ class SitemapGenerator
             'size' => $this->formatBytes($fileSize),
             'last_modified' => date('d M Y, H:i', $lastModified),
             'url_count' => $urlCount,
-            'is_recent' => (time() - $lastModified) < 86400 // Menos de 24 horas
+            'is_recent' => $isRecent
         ];
     }
 
     /**
-     * Agrega rutas conocidas de React/SPA al sitemap
-     * Estas rutas no se pueden descubrir mediante scraping tradicional
+     * Agrega las rutas conocidas de React/SPA
      */
     private function addKnownReactRoutes() 
     {
+        $this->log("  - Rutas conocidas a agregar: " . count($this->knownReactRoutes));
+        
         foreach ($this->knownReactRoutes as $route) {
             $fullUrl = $this->baseUrl . $route;
             
-            // Verificar que la ruta responde correctamente
-            if ($this->isUrlAccessible($fullUrl)) {
-                $this->addValidUrl($fullUrl);
-            }
+            // Agregar directamente sin verificar (son rutas conocidas que existen)
+            // No hacer peticiones HTTP para evitar errores con APIs protegidas
+            $this->addValidUrl($fullUrl);
+            $this->log("    - Agregada: $route");
         }
+        
+        $this->log("  - Rutas conocidas agregadas exitosamente");
     }
 
     /**
-     * Busca URLs adicionales en archivos del sitio (robots.txt, sitemap.xml)
+     * Descubre URLs desde archivos locales del sitio
      */
     private function discoverFromSiteFiles() 
     {
-        // Buscar en robots.txt
-        $robotsUrl = $this->baseUrl . '/robots.txt';
-        $robotsContent = @file_get_contents($robotsUrl);
+        // Usar archivos locales en lugar de HTTP para evitar errores de "Acceso directo no permitido"
         
-        if ($robotsContent) {
-            // Buscar Sitemap: directives
-            preg_match_all('/Sitemap:\s*(.+)/i', $robotsContent, $matches);
-            foreach ($matches[1] ?? [] as $sitemapUrl) {
-                $this->parseExistingSitemap(trim($sitemapUrl));
+        // Buscar robots.txt en el sistema de archivos local
+        $robotsLocalPath = $this->getSitemapPath('robots.txt');
+        $this->log("  - Ruta robots.txt: $robotsLocalPath");
+        
+        if (file_exists($robotsLocalPath)) {
+            $this->log("  - robots.txt encontrado");
+            $robotsContent = file_get_contents($robotsLocalPath);
+            if ($robotsContent) {
+                // Buscar Sitemap: directives
+                preg_match_all('/Sitemap:\s*(.+)/i', $robotsContent, $matches);
+                $this->log("  - Sitemaps encontrados en robots.txt: " . count($matches[1] ?? []));
+                // Comentado para evitar llamadas HTTP
+                // foreach ($matches[1] ?? [] as $sitemapUrl) {
+                //     $this->parseExistingSitemap(trim($sitemapUrl));
+                // }
+                if (count($matches[1] ?? []) > 0) {
+                    $this->log("  - Parseado de sitemaps desde robots.txt deshabilitado (evitar errores HTTP)");
+                }
             }
+        } else {
+            $this->log("  - robots.txt NO encontrado");
         }
 
-        // Buscar sitemap.xml en la raíz
-        $sitemapUrl = $this->baseUrl . '/sitemap.xml';
-        $this->parseExistingSitemap($sitemapUrl);
+        // Buscar sitemap.xml local
+        $sitemapLocalPath = $this->getSitemapPath('sitemap.xml');
+        $this->log("  - Ruta sitemap.xml: $sitemapLocalPath");
+        
+        if (file_exists($sitemapLocalPath)) {
+            $this->log("  - sitemap.xml existente encontrado");
+            // Comentado para evitar errores HTTP en parseExistingSitemap
+            // $this->parseExistingSitemap($sitemapLocalPath);
+            $this->log("  - Parseado de sitemap.xml existente deshabilitado (evitar errores HTTP)");
+        } else {
+            $this->log("  - sitemap.xml NO encontrado (será creado)");
+        }
     }
 
     /**
-     * Busca URLs dinámicas consultando APIs del portfolio
+     * Descubre URLs desde la base de datos (artículos, proyectos, etc.)
      */
     private function discoverFromAPIs() 
     {
-        // Consultar API de artículos
-        $articlesUrl = $this->baseUrl . '/api/portfolio/articles.php';
-        $articlesData = $this->fetchAPIData($articlesUrl);
+        // Acceso directo a la base de datos en lugar de APIs HTTP para evitar errores
         
-        if ($articlesData && isset($articlesData['data']['articles'])) {
-            foreach ($articlesData['data']['articles'] as $article) {
-                if (isset($article['slug'])) {
+        $this->log("  - Conectando a base de datos...");
+        
+        try {
+            // Definir constante requerida para acceso a database.php
+            if (!defined('ADMIN_ACCESS')) {
+                define('ADMIN_ACCESS', true);
+            }
+            
+            // Obtener conexión a la base de datos
+            require_once __DIR__ . '/../config/database.php';
+            $db = Database::getInstance();
+            
+            $this->log("  - Conexión exitosa");
+            $this->log("  - Consultando artículos publicados...");
+            
+            // Consultar artículos publicados directamente desde la DB
+            $articles = $db->fetchAll(
+                "SELECT slug, updated_at FROM articles 
+                 WHERE status = 'published' 
+                 ORDER BY updated_at DESC"
+            );
+            
+            $this->log("  - Artículos encontrados: " . count($articles ?? []));
+            
+            if ($articles) {
+                foreach ($articles as $article) {
                     $articleUrl = $this->baseUrl . '/article/' . $article['slug'];
-                    $this->addValidUrl($articleUrl);
+                    
+                    // Agregar con metadata de la base de datos
+                    $this->validUrls[$articleUrl] = [
+                        'url' => $articleUrl,
+                        'lastmod' => date('Y-m-d', strtotime($article['updated_at'])),
+                        'changefreq' => 'weekly',
+                        'priority' => '0.7'
+                    ];
+                    
+                    $this->visitedUrls[$articleUrl] = true;
+                    $this->log("    - Agregado: " . $article['slug']);
                 }
             }
+            
+            $this->log("  - Total artículos agregados: " . count($articles ?? []));
+            
+        } catch (Exception $e) {
+            $this->log("  - ERROR DB: " . $e->getMessage());
         }
-
-        // Consultar API de proyectos
-        $projectsUrl = $this->baseUrl . '/api/portfolio/projects.php';
-        $projectsData = $this->fetchAPIData($projectsUrl);
-        
-        if ($projectsData && isset($projectsData['data'])) {
-            foreach ($projectsData['data'] as $project) {
-                // Los proyectos en React no tienen páginas individuales aparentemente
-                // Solo agregamos si tienen un patrón específico que usemos
-                if (isset($project['id']) && isset($project['title'])) {
-                    // Verificar si hay rutas dinámicas para proyectos individuales
-                    // Por ahora comentado hasta confirmar el patrón de URLs
-                    // $projectUrl = $this->baseUrl . '/project/' . $project['id'];
-                    // $this->addValidUrl($projectUrl);
-                }
-            }
-        }
-
-        // También intentar leer datos_proyectos.json directamente
-        $this->discoverFromProjectsJSON();
     }
 
     /**
@@ -467,17 +561,26 @@ class SitemapGenerator
             'http' => [
                 'timeout' => 15,
                 'user_agent' => 'SitemapGenerator/1.0 (Portfolio JCMS)',
-                'follow_location' => true
+                'follow_location' => true,
+                'ignore_errors' => true
             ]
         ]);
 
         $response = @file_get_contents($url, false, $context);
         
         if ($response === false) {
+            error_log("SitemapGenerator: No se pudo acceder a $url");
             return null;
         }
 
-        $data = json_decode($response, true);
+        // Verificar si es JSON válido
+        $data = @json_decode($response, true);
+        
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            error_log("SitemapGenerator: Respuesta no es JSON válido de $url - " . substr($response, 0, 100));
+            return null;
+        }
+        
         return $data ?: null;
     }
 
@@ -507,11 +610,18 @@ class SitemapGenerator
 
     /**
      * Parsea un sitemap existente para encontrar URLs
-     * @param string $sitemapUrl URL del sitemap a parsear
+     * @param string $sitemapPath Ruta local o URL del sitemap a parsear
      */
-    private function parseExistingSitemap($sitemapUrl) 
+    private function parseExistingSitemap($sitemapPath) 
     {
-        $content = @file_get_contents($sitemapUrl);
+        // Intentar leer como archivo local primero
+        if (file_exists($sitemapPath)) {
+            $content = @file_get_contents($sitemapPath);
+        } else {
+            // Si no existe localmente, intentar como URL (con cautela)
+            $content = @file_get_contents($sitemapPath);
+        }
+        
         if (!$content) return;
 
         // Parsear XML del sitemap

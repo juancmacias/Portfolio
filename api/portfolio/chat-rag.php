@@ -251,6 +251,26 @@ try {
         $conversationHistory
     );
     
+    // LOG: Guardar prompt usado en archivo
+    try {
+        $promptLogDir = __DIR__ . '/../../logs/chat';
+        if (!file_exists($promptLogDir)) {
+            mkdir($promptLogDir, 0755, true);
+        }
+        $promptLogFile = $promptLogDir . '/prompts_' . date('Y-m-d') . '.log';
+        
+        $promptLogContent = str_repeat('=', 80) . "\n";
+        $promptLogContent .= "PROMPT USADO - " . date('Y-m-d H:i:s') . "\n";
+        $promptLogContent .= "Session ID: " . $sessionId . "\n";
+        $promptLogContent .= str_repeat('=', 80) . "\n";
+        $promptLogContent .= $fullPrompt . "\n";
+        $promptLogContent .= str_repeat('=', 80) . "\n\n";
+        
+        file_put_contents($promptLogFile, $promptLogContent, FILE_APPEND);
+    } catch (Exception $e) {
+        error_log("Error guardando log de prompt: " . $e->getMessage());
+    }
+    
     // 5. Determinar proveedor LLM (priorizar Groq)
     $llmProvider = 'groq'; // Siempre usar Groq para conversaciones
     $model = 'llama-3.1-8b-instant'; // Modelo rápido para chat
