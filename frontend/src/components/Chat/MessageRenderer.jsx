@@ -38,13 +38,13 @@ const MessageRenderer = ({ content }) => {
   // Configuración de componentes personalizados para ReactMarkdown
   const components = {
     // Enlaces con target blank y rel noopener
-    a: ({ node, ...props }) => (
+    a: ({ node, children, ...props }) => (
       <a 
         {...props} 
         target="_blank" 
         rel="noopener noreferrer"
         className="message-link"
-      />
+      >{children}</a>
     ),
     // Párrafos con mejor espaciado
     p: ({ node, ...props }) => (
@@ -64,10 +64,10 @@ const MessageRenderer = ({ content }) => {
         : <code className="message-code-block" {...props} />
     ),
     // Encabezados
-    h1: ({ node, ...props }) => <h1 className="message-h1" {...props} />,
-    h2: ({ node, ...props }) => <h2 className="message-h2" {...props} />,
-    h3: ({ node, ...props }) => <h3 className="message-h3" {...props} />,
-    h4: ({ node, ...props }) => <h4 className="message-h4" {...props} />,
+    h1: ({ node, children, ...props }) => <h1 className="message-h1" {...props}>{children}</h1>,
+    h2: ({ node, children, ...props }) => <h2 className="message-h2" {...props}>{children}</h2>,
+    h3: ({ node, children, ...props }) => <h3 className="message-h3" {...props}>{children}</h3>,
+    h4: ({ node, children, ...props }) => <h4 className="message-h4" {...props}>{children}</h4>,
   };
 
   return (

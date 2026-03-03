@@ -11,6 +11,8 @@ import ArticlesPage from "./components/Articles/ArticlesPage";
 import ArticleView from "./components/Articles/ArticleView";
 //import Usocookies from "./components/Politics/usocookies";
 import Politicas from "./components/Politics/politica";
+import Terminos from "./components/Politics/terminos";
+import Contact from "./components/Contact/Contact";
 import Analytics from "./components/Analytics";
 import ChatModal from "./components/Chat/ChatModal";
 import ChatButton from "./components/Chat/ChatButton";
@@ -26,21 +28,27 @@ import "./style.css";
 import "./App.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 
-function App() {
+function App({ initialState = null }) {
   Analytics("Principal")
   const prefersColorScheme = usePrefersColorScheme();
   const [ theme, setTheme] = useState(localStorage.getItem('preferencia')=== null? prefersColorScheme:localStorage.getItem('preferencia'));
 
-  const [load, upadateLoad] = useState(true);
+  // Reducir tiempo de preloader si viene de SSR (ya hay contenido)
+  const isSSR = initialState !== null;
+  const [load, upadateLoad] = useState(!isSSR); // Si es SSR, skip preloader
   const [chatModalOpen, setChatModalOpen] = useState(false);
 
 
   useEffect(() => {
+    // Log SSR info
+    if (isSSR) {
+      console.log('🎯 App montada con SSR state:', initialState);
+    }
 
     const timer = setTimeout(() => {
       upadateLoad(false);
       
-    }, 1200);
+    }, isSSR ? 300 : 1200); // Preloader más rápido si es SSR
 
     return () =>{
       const metaTag = document.querySelector(`meta`);
@@ -49,7 +57,7 @@ function App() {
         }
       clearTimeout(timer); 
     } 
-  }, []);
+  }, [isSSR, initialState]);
   function handleAction(event) {
     setTheme(event);
     console.log('Child did:', event);
@@ -69,6 +77,8 @@ function App() {
           <Route path="/articles" element={<ArticlesPage />} />
           <Route path="/article/:slug" element={<ArticleView />} />
           <Route path="/politics" element={<Politicas />} />
+          <Route path="/terminos" element={<Terminos />} />
+          <Route path="/contacto" element={<Contact />} />
           <Route path="*" element={<Navigate to="/"/>} />
         </Routes>
         <Footer />

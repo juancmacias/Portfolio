@@ -3,7 +3,6 @@ import { Card, Badge, Button } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import { FaClock, FaCalendar, FaTag } from "react-icons/fa";
 import Analytics from "../Analytics";
-import LazyImage from "../LazyImage";
 
 function ArticleCard({ 
   id, 
@@ -64,13 +63,12 @@ function ArticleCard({
     <Card className="article-card h-100 shadow-sm">
       {featured_image && (
         <div className="article-image-container">
-          <LazyImage
+          <Card.Img 
+            variant="top" 
             src={featured_image} 
             alt={title}
-            width="100%"
-            height="200"
             className="article-featured-image"
-            style={{ objectFit: 'cover' }}
+            style={{ height: '200px', objectFit: 'cover' }}
           />
         </div>
       )}

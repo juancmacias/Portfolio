@@ -1,5 +1,6 @@
 import React from "react";
 import { Container, Row, Col } from "react-bootstrap";
+import { Link } from "react-router-dom";
 import { AiFillGithub, AiFillInstagram } from "react-icons/ai";
 import { FaLinkedinIn, FaGooglePlay, FaMapMarkedAlt  } from "react-icons/fa";
 import { useEffect, useState } from "react";
@@ -97,6 +98,17 @@ const [version, setVersion] = useState(null);
               </a>
             </li>
           </ul>
+        </Col>
+      </Row>
+      <Row className="mt-3">
+        <Col md="12" className="footer-legal text-center">
+          <p className="mb-0 text-muted small">
+            <Link to="/politics" className="text-muted me-3">Política de Privacidad</Link>
+            <span className="me-3">|</span>
+            <Link to="/terminos" className="text-muted me-3">Términos y Condiciones</Link>
+            <span className="me-3">|</span>
+            <Link to="/contacto" className="text-muted">Contacto</Link>
+          </p>
         </Col>
       </Row>
     </Container>

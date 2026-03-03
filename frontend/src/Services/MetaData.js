@@ -11,6 +11,12 @@ function MetaData(props) {
 
     // Generar structured data para artículos
     const generateStructuredData = () => {
+        if (props._structuredData) {
+            return typeof props._structuredData === "string"
+                ? props._structuredData
+                : JSON.stringify(props._structuredData);
+        }
+
         if (props._type === "article") {
             const structuredData = {
                 "@context": "https://schema.org",

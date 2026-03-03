@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
 import useChatRAG from '../../hooks/useChatRAG';
-import { API_ENDPOINTS } from '../../Services/urls';
 import ChatPrivacyModal from './ChatPrivacyModal';
 import ChatPrivacyDisclaimer from './ChatPrivacyDisclaimer';
 import MessageRenderer from './MessageRenderer';

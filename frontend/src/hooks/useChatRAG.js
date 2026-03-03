@@ -112,12 +112,9 @@ const useChatRAG = () => {
       
       setMessages(prev => [...prev, botMsg]);
       
-      // Reproducir audio si está habilitado (sin await para evitar dependencias)
-      if (voiceEnabled && data.data.voice_text && window.speechSynthesis) {
-        const utterance = new SpeechSynthesisUtterance(data.data.voice_text);
-        utterance.lang = 'es-ES';
-        utterance.rate = 0.9;
-        window.speechSynthesis.speak(utterance);
+      // Reproducir audio si está habilitado
+      if (voiceEnabled && data.data.voice_text) {
+        await speakText(data.data.voice_text);
       }
       
       return botMsg;
@@ -151,6 +148,7 @@ const useChatRAG = () => {
     } finally {
       setIsLoading(false);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLoading, sessionId, voiceEnabled]);
   
   /**
@@ -160,21 +158,11 @@ const useChatRAG = () => {
     setMessages([]);
     setSessionId(null);
     setError(null);
-    
-    // Detener reconocimiento de voz si está activo
-    if (recognitionRef.current && isListening) {
-      recognitionRef.current.stop();
-    }
-    
-    // Detener síntesis de voz si está activa
-    if (window.speechSynthesis && window.speechSynthesis.speaking) {
-      window.speechSynthesis.cancel();
-    }
-    
-    setIsListening(false);
-    setIsSpeaking(false);
-  }, [isListening]);
-  
+    stopListening();
+    stopSpeaking();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   /**
    * Enviar pregunta sugerida
    */

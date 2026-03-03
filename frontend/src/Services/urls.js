@@ -36,6 +36,7 @@ export const API_ENDPOINTS = {
   portfolio: {
     base: `${urlApi}api/portfolio/`,
     metadata: `${urlApi}api/portfolio/metadata.php`,
+    seoConfig: `${urlApi}api/portfolio/seo-config.php`,
     version: `${urlApi}api/portfolio/version.php`,
     projects: `${urlApi}api/portfolio/projects.php`,
     articles: `${urlApi}api/portfolio/articles.php`,

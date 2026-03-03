@@ -73,6 +73,92 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $error = "❌ Test de {$provider} falló: " . $result['error'];
                 }
                 break;
+
+            case 'save_seo':
+                $sameAsRaw   = $_POST['seo_business_sameas'] ?? '';
+                $sameAsLines = preg_split('/\r\n|\r|\n/', $sameAsRaw);
+                $sameAs      = [];
+
+                foreach ($sameAsLines as $line) {
+                    $url = trim($line);
+                    if ($url !== '' && filter_var($url, FILTER_VALIDATE_URL)) {
+                        $sameAs[] = $url;
+                    }
+                }
+
+                // Validaciones básicas
+                $requiredFields = ['seo_business_name', 'seo_business_phone', 'seo_business_email'];
+                foreach ($requiredFields as $field) {
+                    if (empty(trim($_POST[$field] ?? ''))) {
+                        throw new Exception('Los campos nombre, teléfono y email son obligatorios');
+                    }
+                }
+
+                // Validar email
+                if (!filter_var(trim($_POST['seo_business_email'] ?? ''), FILTER_VALIDATE_EMAIL)) {
+                    throw new Exception('El formato del email no es válido');
+                }
+
+                // Sanear coordenadas geo
+                $geoLat = (float)($_POST['seo_business_geo_lat'] ?? 40.3861);
+                $geoLng = (float)($_POST['seo_business_geo_lng'] ?? -3.7161);
+
+                // Guardar Google Analytics en system_config (separado del SEO de negocio)
+                $gaId = trim($_POST['google_analytics_id'] ?? '');
+                $db->query(
+                    "INSERT INTO system_config (config_key, config_value) VALUES ('google_analytics_id', ?)
+                     ON DUPLICATE KEY UPDATE config_value = VALUES(config_value)",
+                    [$gaId]
+                );
+
+                // UPSERT en tabla dedicada seo_business (siempre fila id=1)
+                $sameAsJson = json_encode(
+                    array_values(array_unique($sameAs)),
+                    JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES
+                );
+
+                $db->query(
+                    "INSERT INTO seo_business
+                        (id, name, description, service_type, price_range,
+                         phone, email,
+                         street_address, address_locality, address_region, postal_code, address_country,
+                         geo_latitude, geo_longitude, same_as)
+                     VALUES (1, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                     ON DUPLICATE KEY UPDATE
+                         name             = VALUES(name),
+                         description      = VALUES(description),
+                         service_type     = VALUES(service_type),
+                         price_range      = VALUES(price_range),
+                         phone            = VALUES(phone),
+                         email            = VALUES(email),
+                         street_address   = VALUES(street_address),
+                         address_locality = VALUES(address_locality),
+                         address_region   = VALUES(address_region),
+                         postal_code      = VALUES(postal_code),
+                         address_country  = VALUES(address_country),
+                         geo_latitude     = VALUES(geo_latitude),
+                         geo_longitude    = VALUES(geo_longitude),
+                         same_as          = VALUES(same_as)",
+                    [
+                        trim(strip_tags($_POST['seo_business_name']          ?? '')),
+                        trim(strip_tags($_POST['seo_business_description']   ?? '')),
+                        trim(strip_tags($_POST['seo_business_serviceType']   ?? '')),
+                        trim($_POST['seo_business_priceRange']               ?? ''),
+                        trim($_POST['seo_business_phone']                    ?? ''),
+                        trim($_POST['seo_business_email']                    ?? ''),
+                        trim(strip_tags($_POST['seo_business_streetAddress'] ?? '')),
+                        trim(strip_tags($_POST['seo_business_addressLocality'] ?? '')),
+                        trim(strip_tags($_POST['seo_business_addressRegion']   ?? '')),
+                        trim($_POST['seo_business_postalCode']               ?? ''),
+                        strtoupper(substr(trim($_POST['seo_business_addressCountry'] ?? 'ES'), 0, 2)),
+                        $geoLat,
+                        $geoLng,
+                        $sameAsJson
+                    ]
+                );
+
+                $success = "Configuración SEO guardada exitosamente";
+                break;
                 
             default:
                 throw new Exception('Acción no válida');
@@ -94,6 +180,71 @@ try {
     $configs = [];
     $error = "Error al cargar configuración: " . $e->getMessage();
 }
+
+$defaultSeoBusiness = [
+    'name'            => 'JCMS - Soluciones Full Stack con IA Generativa',
+    'phone'           => '+34618309775',
+    'email'           => 'juancmaciassalvador@gmail.com',
+    'description'     => 'Desarrollador Full Stack especializado en React, PHP y soluciones con Inteligencia Artificial Generativa.',
+    'serviceType'     => 'Full Stack Development',
+    'priceRange'      => '€€',
+    'streetAddress'   => 'Calle de Padre Oltra',
+    'addressLocality' => 'Madrid',
+    'addressRegion'   => 'Comunidad de Madrid',
+    'postalCode'      => '28019',
+    'addressCountry'  => 'ES',
+    'geo'             => ['latitude' => 40.3861, 'longitude' => -3.7161],
+    'sameAs' => [
+        'https://www.linkedin.com/in/juancarlosmacias/',
+        'https://github.com/juancmacias',
+        'https://maps.app.goo.gl/eb43KR6oPFGrNgAn9',
+        'https://play.google.com/store/apps/dev?id=7098282899285176966',
+        'https://www.instagram.com/jcms_madrid/'
+    ]
+];
+
+$currentSeoBusiness = $defaultSeoBusiness;
+try {
+    $seoRow = $db->fetchOne(
+        "SELECT name, description, service_type, price_range,
+                phone, email,
+                street_address, address_locality, address_region, postal_code, address_country,
+                geo_latitude, geo_longitude, same_as
+         FROM seo_business
+         WHERE is_active = 1
+         ORDER BY id ASC
+         LIMIT 1"
+    );
+    if ($seoRow && !empty($seoRow['name'])) {
+        $decodedSameAs = json_decode($seoRow['same_as'] ?? '[]', true);
+        $currentSeoBusiness = array_merge($defaultSeoBusiness, [
+            'name'            => $seoRow['name'],
+            'description'     => $seoRow['description']      ?? $defaultSeoBusiness['description'],
+            'serviceType'     => $seoRow['service_type']     ?? $defaultSeoBusiness['serviceType'],
+            'priceRange'      => $seoRow['price_range']      ?? $defaultSeoBusiness['priceRange'],
+            'phone'           => $seoRow['phone'],
+            'email'           => $seoRow['email'],
+            'streetAddress'   => $seoRow['street_address']   ?? $defaultSeoBusiness['streetAddress'],
+            'addressLocality' => $seoRow['address_locality'] ?? $defaultSeoBusiness['addressLocality'],
+            'addressRegion'   => $seoRow['address_region']   ?? $defaultSeoBusiness['addressRegion'],
+            'postalCode'      => $seoRow['postal_code']      ?? $defaultSeoBusiness['postalCode'],
+            'addressCountry'  => $seoRow['address_country']  ?? $defaultSeoBusiness['addressCountry'],
+            'geo'             => [
+                'latitude'  => (float)($seoRow['geo_latitude']  ?? 40.3861),
+                'longitude' => (float)($seoRow['geo_longitude'] ?? -3.7161)
+            ],
+            'sameAs' => is_array($decodedSameAs) && !empty($decodedSameAs)
+                            ? $decodedSameAs
+                            : $defaultSeoBusiness['sameAs']
+        ]);
+    }
+} catch (Exception $e) {
+    // Tabla aún no creada o error — se usa el fallback por defecto
+    error_log('settings.php: no se pudo leer seo_business — ' . $e->getMessage());
+}
+
+$sameAsText = implode("\n", $currentSeoBusiness['sameAs']);
+$currentGeo = $currentSeoBusiness['geo'] ?? ['latitude' => 40.3861, 'longitude' => -3.7161];
 
 $pageTitle = "Configuración del Sistema";
 ?>
@@ -526,20 +677,139 @@ $pageTitle = "Configuración del Sistema";
             
             <!-- Tab SEO -->
             <div id="tab-seo" class="tab-content">
-                <div class="form-section">
-                    <h3>🔍 Configuración SEO</h3>
-                    
-                    <div class="form-group">
-                        <label for="google_analytics_id">Google Analytics ID</label>
-                        <input type="text" id="google_analytics_id" name="google_analytics_id" 
-                               class="form-control" 
-                               value="<?= htmlspecialchars($configs['google_analytics_id'] ?? '') ?>"
-                               placeholder="G-XXXXXXXXXX">
-                        <div class="form-text">ID de medición de Google Analytics 4</div>
+                <form method="POST">
+                    <input type="hidden" name="action" value="save_seo">
+
+                    <div class="form-section">
+                        <h3>🔍 Configuración SEO</h3>
+
+                        <div class="form-group">
+                            <label for="google_analytics_id">Google Analytics ID</label>
+                            <input type="text" id="google_analytics_id" name="google_analytics_id"
+                                   class="form-control"
+                                   value="<?= htmlspecialchars($configs['google_analytics_id'] ?? '') ?>"
+                                   placeholder="G-XXXXXXXXXX">
+                            <div class="form-text">ID de medición de Google Analytics 4</div>
+                        </div>
                     </div>
-                    
-                    <p><em>Más opciones de SEO próximamente...</em></p>
-                </div>
+
+                    <div class="form-section">
+                        <h3>🏢 Business SEO (JSON-LD)</h3>
+
+                        <!-- Identidad -->
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="seo_business_name">Nombre comercial <span style="color:red">*</span></label>
+                                <input type="text" id="seo_business_name" name="seo_business_name" class="form-control"
+                                       value="<?= htmlspecialchars($currentSeoBusiness['name']) ?>" required>
+                                <div class="form-text">Debe coincidir exactamente con Google My Business.</div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="seo_business_serviceType">Tipo de servicio</label>
+                                <input type="text" id="seo_business_serviceType" name="seo_business_serviceType" class="form-control"
+                                       value="<?= htmlspecialchars($currentSeoBusiness['serviceType'] ?? '') ?>"
+                                       placeholder="Full Stack Development">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="seo_business_description">Descripción del negocio</label>
+                            <textarea id="seo_business_description" name="seo_business_description" class="form-control" rows="2"
+                                      placeholder="Descripción breve para schema.org ProfessionalService..."><?= htmlspecialchars($currentSeoBusiness['description'] ?? '') ?></textarea>
+                            <div class="form-text">Aparece en el JSON-LD de la página de contacto.</div>
+                        </div>
+
+                        <!-- Contacto -->
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="seo_business_phone">Teléfono (E.164) <span style="color:red">*</span></label>
+                                <input type="text" id="seo_business_phone" name="seo_business_phone" class="form-control"
+                                       value="<?= htmlspecialchars($currentSeoBusiness['phone']) ?>" placeholder="+34600111222" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="seo_business_email">Email <span style="color:red">*</span></label>
+                                <input type="email" id="seo_business_email" name="seo_business_email" class="form-control"
+                                       value="<?= htmlspecialchars($currentSeoBusiness['email']) ?>" required>
+                            </div>
+                        </div>
+
+                        <!-- Dirección -->
+                        <div class="form-group">
+                            <label for="seo_business_streetAddress">Dirección</label>
+                            <input type="text" id="seo_business_streetAddress" name="seo_business_streetAddress" class="form-control"
+                                   value="<?= htmlspecialchars($currentSeoBusiness['streetAddress']) ?>">
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="seo_business_addressLocality">Ciudad</label>
+                                <input type="text" id="seo_business_addressLocality" name="seo_business_addressLocality" class="form-control"
+                                       value="<?= htmlspecialchars($currentSeoBusiness['addressLocality']) ?>">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="seo_business_addressRegion">Región / Comunidad</label>
+                                <input type="text" id="seo_business_addressRegion" name="seo_business_addressRegion" class="form-control"
+                                       value="<?= htmlspecialchars($currentSeoBusiness['addressRegion']) ?>">
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="seo_business_postalCode">Código postal</label>
+                                <input type="text" id="seo_business_postalCode" name="seo_business_postalCode" class="form-control"
+                                       value="<?= htmlspecialchars($currentSeoBusiness['postalCode']) ?>">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="seo_business_addressCountry">País (ISO 3166-1 α-2)</label>
+                                <input type="text" id="seo_business_addressCountry" name="seo_business_addressCountry" class="form-control"
+                                       value="<?= htmlspecialchars($currentSeoBusiness['addressCountry']) ?>" maxlength="2"
+                                       placeholder="ES" style="text-transform:uppercase">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="seo_business_priceRange">Rango de precio</label>
+                                <input type="text" id="seo_business_priceRange" name="seo_business_priceRange" class="form-control"
+                                       value="<?= htmlspecialchars($currentSeoBusiness['priceRange'] ?? '') ?>"
+                                       placeholder="€€" maxlength="5">
+                                <div class="form-text">Usa €, €€ o €€€ (Schema.org priceRange).</div>
+                            </div>
+                        </div>
+
+                        <!-- Coordenadas -->
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="seo_business_geo_lat">Latitud</label>
+                                <input type="number" step="0.0001" id="seo_business_geo_lat" name="seo_business_geo_lat" class="form-control"
+                                       value="<?= htmlspecialchars((string)($currentGeo['latitude'] ?? '')) ?>"
+                                       placeholder="40.3861">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="seo_business_geo_lng">Longitud</label>
+                                <input type="number" step="0.0001" id="seo_business_geo_lng" name="seo_business_geo_lng" class="form-control"
+                                       value="<?= htmlspecialchars((string)($currentGeo['longitude'] ?? '')) ?>"
+                                       placeholder="-3.7161">
+                                <div class="form-text">Coordenadas para <code>GeoCoordinates</code> en el JSON-LD.</div>
+                            </div>
+                        </div>
+
+                        <!-- sameAs -->
+                        <div class="form-group">
+                            <label for="seo_business_sameas">sameAs — Perfiles y presencia web (una URL por línea)</label>
+                            <textarea id="seo_business_sameas" name="seo_business_sameas" class="form-control" rows="7"
+                                      placeholder="https://www.linkedin.com/in/...
+https://github.com/...
+https://maps.app.goo.gl/..."><?= htmlspecialchars($sameAsText) ?></textarea>
+                            <div class="form-text">Se guardan solo URLs válidas y sin duplicados. Incluye LinkedIn, GitHub, Google Maps, etc.</div>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">💾 Guardar Configuración SEO</button>
+                </form>
             </div>
             
             <!-- Tab Security -->

@@ -45,3 +45,6 @@ package-lock.json
 
 # Carpetas temporales/experimentales
 frontend_mejora/
+
+# Carpetas de configuración de GitHub
+.github/

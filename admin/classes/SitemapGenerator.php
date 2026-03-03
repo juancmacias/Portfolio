@@ -211,12 +211,17 @@ class SitemapGenerator
             $xpath = new DOMXPath($dom);
             $links = $xpath->query('//a[@href]');
 
-            foreach ($links as $link) {
-                $href = $link->getAttribute('href');
-                $absoluteUrl = $this->resolveUrl($href, $url);
-                
-                if ($this->isValidUrl($absoluteUrl) && $depth < $this->maxDepth) {
-                    $this->crawlUrl($absoluteUrl, $depth + 1);
+            if ($links !== false) {
+                foreach ($links as $link) {
+                    // Verificar que es un DOMElement válido
+                    if ($link instanceof DOMElement) {
+                        $href = $link->getAttribute('href');
+                        $absoluteUrl = $this->resolveUrl($href, $url);
+                        
+                        if ($this->isValidUrl($absoluteUrl) && $depth < $this->maxDepth) {
+                            $this->crawlUrl($absoluteUrl, $depth + 1);
+                        }
+                    }
                 }
             }
 
@@ -666,10 +671,19 @@ class SitemapGenerator
 
     /**
      * Notifica a los buscadores sobre la actualización del sitemap
-     * @param string $sitemapUrl URL completa del sitemap
-     * @return array Resultado de las notificaciones
+     * 
+     * Envía notificaciones a múltiples motores de búsqueda y servicios:
+     * - Google: Ping directo al sitemap
+     * - Bing: Ping directo al sitemap
+     * - Yandex: Ping directo al sitemap
+     * - Pingomatic: Servicio agregador que notifica a 23+ servicios adicionales
+     *   (incluyendo Technorati, Feedburner, My Yahoo, BlogLines, etc.)
+     * 
+     * @param string $sitemapUrl URL completa del sitemap (null = auto-detectar)
+     * @param string $siteTitle Título del sitio para Pingomatic (default: "Portfolio JCMS")
+     * @return array Resultado de las notificaciones con estadísticas detalladas
      */
-    public function notifySearchEngines($sitemapUrl = null) 
+    public function notifySearchEngines($sitemapUrl = null, $siteTitle = 'Portfolio JCMS') 
     {
         if (!$sitemapUrl) {
             $sitemapUrl = $this->baseUrl . '/sitemap.xml';
@@ -679,6 +693,9 @@ class SitemapGenerator
             'Google' => 'http://www.google.com/ping?sitemap=' . urlencode($sitemapUrl),
             'Bing' => 'http://www.bing.com/ping?sitemap=' . urlencode($sitemapUrl),
             'Yandex' => 'http://webmaster.yandex.com/ping?sitemap=' . urlencode($sitemapUrl),
+            'Pingomatic' => 'https://pingomatic.com/ping/?title=' . urlencode($siteTitle) . 
+                          '&blogurl=' . urlencode($this->baseUrl) . 
+                          '&rssurl=',
         ];
 
         $results = [];
@@ -692,6 +709,10 @@ class SitemapGenerator
                         'user_agent' => 'SitemapGenerator/1.0 (Portfolio JCMS)',
                         'follow_location' => true,
                         'max_redirects' => 3
+                    ],
+                    'ssl' => [
+                        'verify_peer' => false,
+                        'verify_peer_name' => false
                     ]
                 ]);
 

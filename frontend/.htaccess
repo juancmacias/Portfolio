@@ -1,0 +1,48 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /
+
+    # 1. Archivos y directorios que existen directamente → servir tal cual
+    RewriteCond %{REQUEST_FILENAME} -f [OR]
+    RewriteCond %{REQUEST_FILENAME} -d
+    RewriteRule ^ - [L]
+
+    # 2. Assets del build: /static/ y /Assets/ → redirigir a build/
+    RewriteRule ^(static|Assets)/(.*)$ build/$1/$2 [L]
+
+    # 3. Ficheros raíz del build (favicon, manifest, robots, sitemap)
+    RewriteRule ^(favicon\.ico|favicon\.png|manifest\.json|robots\.txt|sitemap\.xml|asset-manifest\.json)$ build/$1 [L]
+
+    # 4. Todo lo demás → index.php (SSR entry point)
+    RewriteRule ^ index.php [L]
+</IfModule>
+
+# Seguridad: bloquear acceso a ficheros sensibles
+<FilesMatch "(^\.env|config\.local\.php|database\.php)$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+# Tipos MIME
+<IfModule mod_mime.c>
+    AddType application/javascript .js
+    AddType text/css .css
+    AddType image/png .png
+    AddType image/jpeg .jpg .jpeg
+    AddType image/webp .webp
+    AddType image/svg+xml .svg
+    AddType font/woff2 .woff2
+    AddType font/woff .woff
+</IfModule>
+
+# Cabeceras de caché para assets estáticos
+<IfModule mod_headers.c>
+    <FilesMatch "\.(js|css|png|jpe?g|gif|ico|svg|webp|woff2?)$">
+        Header set Cache-Control "public, max-age=604800, immutable"
+    </FilesMatch>
+    <FilesMatch "\.(html|php)$">
+        Header set Cache-Control "no-cache, no-store, must-revalidate"
+    </FilesMatch>
+</IfModule>
+
+AddDefaultCharset UTF-8

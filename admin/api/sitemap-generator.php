@@ -337,8 +337,8 @@ function handleNotifySearchEngines($generator, $baseUrl, $isLocal)
             echo json_encode([
                 'success' => true,
                 'message' => 'Simulación de notificaciones en entorno local',
-                'total_engines' => 3,
-                'successful_notifications' => 3,
+                'total_engines' => 4,
+                'successful_notifications' => 4,
                 'results' => [
                     'Google' => [
                         'success' => true,
@@ -351,6 +351,11 @@ function handleNotifySearchEngines($generator, $baseUrl, $isLocal)
                         'status_code' => 200
                     ],
                     'Yandex' => [
+                        'success' => true,
+                        'message' => 'Simulado - Notificación enviada correctamente',
+                        'status_code' => 200
+                    ],
+                    'Pingomatic' => [
                         'success' => true,
                         'message' => 'Simulado - Notificación enviada correctamente',
                         'status_code' => 200

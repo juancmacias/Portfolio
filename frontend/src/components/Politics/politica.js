@@ -9,7 +9,7 @@ function Politicas() {
                 <Container className="home-content">
                 <h1>Política de Privacidad y Protección de Datos</h1>
                 <p>
-                    <strong>Última actualización:</strong> Junio 2025
+                    <strong>Última actualización:</strong> Febrero 2026
                 </p>
 
                 <h2>1. Responsable del tratamiento</h2>
@@ -65,12 +65,119 @@ function Politicas() {
                     El responsable aplica las medidas técnicas y organizativas adecuadas para garantizar la seguridad, confidencialidad, integridad y disponibilidad de los datos.
                 </p>
 
-                <h2>8. Política de cookies</h2>
+                <h2>8. Publicidad y Google AdSense</h2>
                 <p>
-                    Esta web no utiliza cookies ni tecnologías de seguimiento de terceros.
+                    Este sitio web utiliza <strong>Google AdSense</strong>, un servicio de publicidad proporcionado por Google LLC ("Google"). 
+                    AdSense utiliza "cookies" y otras tecnologías de seguimiento para mostrar anuncios basados en tus 
+                    visitas anteriores a este sitio web u otros sitios web en Internet.
                 </p>
 
-                <h2>9. Reclamaciones ante la autoridad de control</h2>
+                <h3>8.1. Información Recopilada por Google AdSense</h3>
+                <p>Google puede recopilar la siguiente información:</p>
+                <p>
+                    - Tu dirección IP (anonimizada)<br />
+                    - Tipo de navegador y sistema operativo<br />
+                    - Páginas visitadas en nuestro sitio<br />
+                    - Hora y fecha de las visitas<br />
+                    - Sitios web de referencia<br />
+                    - Interacción con anuncios mostrados
+                </p>
+
+                <h3>8.2. Uso de la Información</h3>
+                <p>La información recopilada se utiliza para:</p>
+                <p>
+                    - Mostrar anuncios relevantes para tus intereses<br />
+                    - Medir la efectividad de los anuncios<br />
+                    - Limitar el número de veces que ves un anuncio<br />
+                    - Informes de rendimiento de anuncios (datos agregados y anónimos)
+                </p>
+
+                <h2>9. Cookies de Publicidad</h2>
+                <p>
+                    Google AdSense utiliza las siguientes cookies:
+                </p>
+                <p>
+                    <strong>- Cookies de DoubleClick:</strong> Para servir anuncios relevantes y limitar el número de veces que se 
+                    muestra un anuncio<br />
+                    <strong>- Cookies DART:</strong> Para mostrar anuncios basados en tus visitas a este y otros sitios web<br />
+                    <strong>- IDE cookie:</strong> Utilizada por Google DoubleClick para registrar y reportar las acciones del usuario<br />
+                    <strong>- Cookies de personalización:</strong> Para personalizar anuncios según tus intereses
+                </p>
+
+                <h3>9.1. Duración de las Cookies</h3>
+                <p>
+                    Las cookies de Google AdSense pueden tener una duración de hasta 2 años desde tu última interacción con un anuncio.
+                </p>
+
+                <h2>10. Tus Derechos y Opciones sobre Publicidad</h2>
+                
+                <h3>10.1. Gestionar Consentimiento de Anuncios</h3>
+                <p>Puedes gestionar tus preferencias de anuncios en cualquier momento:</p>
+                <p>
+                    - <a href="https://adssettings.google.com/" target="_blank" rel="noopener noreferrer">
+                        Configuración de Anuncios de Google
+                    </a><br />
+                    - <a href="https://www.google.com/settings/ads" target="_blank" rel="noopener noreferrer">
+                        Desactivar Anuncios Personalizados
+                    </a>
+                </p>
+
+                <h3>10.2. Desactivar Cookies de Publicidad</h3>
+                <p>Opciones adicionales para desactivar cookies de publicidad:</p>
+                <p>
+                    1. <a href="https://www.networkadvertising.org/choices/" target="_blank" rel="noopener noreferrer">
+                        Network Advertising Initiative (NAI)
+                    </a><br />
+                    2. <a href="https://www.youronlinechoices.com/" target="_blank" rel="noopener noreferrer">
+                        European Interactive Digital Advertising Alliance (EDAA)
+                    </a><br />
+                    3. Configuración de tu navegador (Chrome, Firefox, Safari)
+                </p>
+
+                <h3>10.3. Extensiones de Navegador para Privacidad</h3>
+                <p>Puedes instalar complementos como:</p>
+                <p>
+                    - <a href="https://privacybadger.org/" target="_blank" rel="noopener noreferrer">
+                        Privacy Badger
+                    </a><br />
+                    - <a href="https://ublockorigin.com/" target="_blank" rel="noopener noreferrer">
+                        uBlock Origin
+                    </a>
+                </p>
+
+                <h3>10.4. Proveedores de Publicidad de Google</h3>
+                <p>
+                    Google trabaja con más de 200 proveedores de publicidad certificados. Puedes ver la lista completa aquí:{" "}
+                    <a href="https://support.google.com/adsense/answer/9012903" target="_blank" rel="noopener noreferrer">
+                        Lista de proveedores de Google
+                    </a>
+                </p>
+
+                <h3>10.5. Transferencias Internacionales de Datos</h3>
+                <p>
+                    Google puede transferir tus datos a servidores ubicados fuera del Espacio Económico Europeo (EEA). 
+                    Google cumple con el Marco de Privacidad de Datos UE-EE.UU. y el Marco de Privacidad de Datos Suiza-EE.UU.
+                </p>
+
+                <h3>10.6. Política de Privacidad de Google</h3>
+                <p>Para más información sobre cómo Google recopila y procesa datos:</p>
+                <p>
+                    - <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer">
+                        Política de Privacidad de Google
+                    </a><br />
+                    - <a href="https://policies.google.com/technologies/partner-sites" target="_blank" rel="noopener noreferrer">
+                        Cómo Google usa la información de sitios web
+                    </a>
+                </p>
+
+                <h2>11. Política de cookies</h2>
+                <p>
+                    Esta web utiliza cookies propias y de terceros (Google AdSense) para proporcionar publicidad 
+                    y mejorar la experiencia del usuario. Al continuar navegando, aceptas el uso de cookies según 
+                    se describe en esta política.
+                </p>
+
+                <h2>12. Reclamaciones ante la autoridad de control</h2>
                 <p>
                     Si considera que se ha vulnerado alguno de sus derechos, puede presentar una reclamación ante la Agencia Española de Protección de Datos (AEPD):{" "}
                     <a href="https://www.aepd.es" target="_blank" rel="noopener noreferrer">
