@@ -5,7 +5,7 @@
  * 
  * @package Portfolio API
  * @author Juan Carlos Macías
- * @version 1.0.6
+ * @version 1.2.1
  */
 
 // Debug: Log de inicio de config
