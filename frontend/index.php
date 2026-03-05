@@ -295,19 +295,51 @@ ITEM;
 
 /**
  * Helper reutilizable: localiza database.php probando varias rutas.
+ * Detecta automáticamente el document root para mayor flexibilidad.
  */
 function findDatabasePhp(): ?string {
+    // Detectar document root desde $_SERVER
+    $docRoot = $_SERVER['DOCUMENT_ROOT'] ?? '';
+    
     $candidates = [
+        // Rutas relativas desde build/
         __DIR__ . '/../../admin/config/database.php',          // build/ → 2 niveles arriba
         __DIR__ . '/../../../admin/config/database.php',       // 3 niveles
         dirname(dirname(dirname(__DIR__))) . '/admin/config/database.php',
         dirname(dirname(__DIR__)) . '/admin/config/database.php',
-        '/var/www/html/admin/config/database.php',             // ruta absoluta típica Linux
+        __DIR__ . '/../admin/config/database.php',             // 1 nivel arriba
+        
+        // Rutas desde document root detectado
+        $docRoot . '/admin/config/database.php',
+        $docRoot . '/Portfolio/admin/config/database.php',
+        $docRoot . '/../admin/config/database.php',            // Un nivel arriba del docroot
+        
+        // Rutas absolutas comunes Linux
+        '/var/www/html/admin/config/database.php',
         '/var/www/Portfolio/admin/config/database.php',
+        '/home/*/public_html/admin/config/database.php',       // Hosting compartido
+        
+        // Rutas absolutas comunes Windows (desarrollo local)
+        'E:/wwwserver/N_JCMS/Portfolio/admin/config/database.php',
+        'C:/wwwserver/Portfolio/admin/config/database.php',
     ];
+    
     foreach ($candidates as $path) {
-        if (file_exists($path)) return $path;
+        // Expandir comodines si existen
+        if (strpos($path, '*') !== false) {
+            $matches = glob($path);
+            if (!empty($matches) && file_exists($matches[0])) {
+                return $matches[0];
+            }
+        } elseif (file_exists($path)) {
+            return $path;
+        }
     }
+    
+    // Log de debug para diagnosticar en producción
+    error_log('findDatabasePhp() - Document Root: ' . $docRoot);
+    error_log('findDatabasePhp() - __DIR__: ' . __DIR__);
+    
     return null;
 }
 

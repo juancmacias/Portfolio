@@ -10,6 +10,11 @@
   # Si la URL empieza con /api/ NO hacer redirección www
   RewriteRule ^api/ - [L]
   
+  # RSS Feed aliases
+  RewriteRule ^feed/?$ /rss.php [L]
+  RewriteRule ^feed\.xml$ /rss.php [L]
+  RewriteRule ^rss\.xml$ /rss.php [L]
+  
   # Manejo de preflight OPTIONS requests
   RewriteCond %{REQUEST_METHOD} OPTIONS
   RewriteRule ^(.*)$ $1 [R=200,L]

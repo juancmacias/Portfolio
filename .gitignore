@@ -11,6 +11,8 @@ Thumbs.db
 # Logs
 *.log
 logs/
+error_log
+**/error_log
 
 # Archivos subidos por usuarios
 uploads/

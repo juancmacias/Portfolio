@@ -14,6 +14,11 @@ function renderLayout($content, $initialState = [], $cssFiles = [], $jsFiles = [
     $ogImage = htmlspecialchars($initialState['ogImage'] ?? '/Assets/avatar.png', ENT_QUOTES, 'UTF-8');
     $url = htmlspecialchars($initialState['url'] ?? '', ENT_QUOTES, 'UTF-8');
     
+    // Detectar si es un artículo para cambiar el tipo Open Graph
+    $isArticle = isset($initialState['article']) && !empty($initialState['article']);
+    $ogType = $isArticle ? 'article' : 'website';
+    $article = $initialState['article'] ?? null;
+    
     // Archivos CSS por defecto
     $defaultCss = [
         '/static/css/main.css'
@@ -45,7 +50,7 @@ function renderLayout($content, $initialState = [], $cssFiles = [], $jsFiles = [
     <meta name="author" content="Juan Carlos Macías">
     
     <!-- Open Graph / Facebook -->
-    <meta property="og:type" content="website">
+    <meta property="og:type" content="<?php echo $ogType; ?>">
     <meta property="og:url" content="<?php echo $url; ?>">
     <meta property="og:title" content="<?php echo $title; ?>">
     <meta property="og:description" content="<?php echo $description; ?>">
@@ -54,6 +59,30 @@ function renderLayout($content, $initialState = [], $cssFiles = [], $jsFiles = [
     <meta property="og:image:height" content="630">
     <meta property="og:site_name" content="Juan Carlos Macías - Portfolio">
     <meta property="og:locale" content="es_ES">
+    
+    <?php if ($isArticle): ?>
+    <!-- Article-specific Open Graph tags -->
+    <?php if (!empty($article['published_at'])): ?>
+    <meta property="article:published_time" content="<?php echo date('c', strtotime($article['published_at'])); ?>">
+    <?php elseif (!empty($article['created_at'])): ?>
+    <meta property="article:published_time" content="<?php echo date('c', strtotime($article['created_at'])); ?>">
+    <?php endif; ?>
+    <?php if (!empty($article['updated_at'])): ?>
+    <meta property="article:modified_time" content="<?php echo date('c', strtotime($article['updated_at'])); ?>">
+    <?php endif; ?>
+    <meta property="article:author" content="Juan Carlos Macías">
+    <?php 
+    // Tags del artículo como categorías Open Graph
+    if (!empty($article['tags'])) {
+        $tags = is_string($article['tags']) ? json_decode($article['tags'], true) : $article['tags'];
+        if (is_array($tags)) {
+            foreach ($tags as $tag) {
+                echo '    <meta property="article:tag" content="' . htmlspecialchars($tag, ENT_QUOTES, 'UTF-8') . '">' . "\n";
+            }
+        }
+    }
+    ?>
+    <?php endif; ?>
     
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image">
@@ -69,6 +98,9 @@ function renderLayout($content, $initialState = [], $cssFiles = [], $jsFiles = [
     
     <!-- Favicon -->
     <link rel="icon" href="/Assets/favicon.ico" type="image/x-icon">
+    
+    <!-- RSS Feed -->
+    <link rel="alternate" type="application/rss+xml" title="Juan Carlos Macías - RSS Feed" href="/rss.php">
     
     <!-- Preconnect para optimización - establece conexiones DNS/TLS antes de descargar recursos -->
     <link rel="preconnect" href="https://cdn.jsdelivr.net">
