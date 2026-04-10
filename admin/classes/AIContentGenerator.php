@@ -316,22 +316,20 @@ class AIContentGenerator {
      */
     private function logAIUsage($data) {
         try {
+            // Usar columnas existentes en producción (estructura antigua)
             $sql = "
                 INSERT INTO ai_logs (
-                    ai_provider, ai_model, prompt_text, response_text,
-                    tokens_used, cost_estimated, execution_time_ms,
-                    status, error_message
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    prompt, ai_model, tokens_used, cost_estimated, 
+                    generation_time, status, error_message
+                ) VALUES (?, ?, ?, ?, ?, ?, ?)
             ";
             
             $this->db->query($sql, [
-                $data['provider'],
-                $data['model'],
                 $data['prompt'],
-                $data['response'],
+                $data['model'],
                 $data['tokens_used'],
                 $data['cost_estimated'],
-                $data['execution_time_ms'],
+                $data['execution_time_ms'],  // Se guarda en generation_time
                 $data['status'],
                 $data['error_message'] ?? null
             ]);
