@@ -161,11 +161,22 @@ try {
         '../../admin/classes/RAG/PromptManager.php'
     ];
     
+    // Cargar clases opcionales (no rompen si no existen)
+    $optionalClasses = [
+        '../../admin/classes/TelegramNotifier.php'
+    ];
+    
     foreach ($requiredClasses as $classFile) {
         if (file_exists($classFile)) {
             require_once $classFile;
         } else {
             throw new Exception("Archivo de clase requerido no encontrado: " . basename($classFile));
+        }
+    }
+    
+    foreach ($optionalClasses as $classFile) {
+        if (file_exists($classFile)) {
+            require_once $classFile;
         }
     }
     
@@ -181,10 +192,17 @@ try {
     }
     
     // Obtener datos de la petición
-    $input = json_decode(file_get_contents('php://input'), true);
+    $rawInput = file_get_contents('php://input');
+    $input = json_decode($rawInput, true);
     
-    if (!$input) {
-        throw new Exception('Datos JSON inválidos');
+    // Verificar errores de JSON (null es válido si el body está vacío)
+    if ($input === null && json_last_error() !== JSON_ERROR_NONE) {
+        throw new Exception('Datos JSON inválidos: ' . json_last_error_msg());
+    }
+    
+    // Si es null o array vacío, inicializar como array vacío
+    if ($input === null) {
+        $input = [];
     }
     
     // Iniciar medición de tiempo
@@ -448,10 +466,48 @@ try {
         'processing_time' => $apiResponse['data']['metadata']['processing_time']
     ]);
     
-    // Limpiar buffer y responder
-    ob_clean();
+    // Limpiar buffer solo si existe
+    if (ob_get_level() > 0) {
+        ob_clean();
+    }
+    
+    // Responder con JSON
     http_response_code(200);
+    header('Content-Type: application/json; charset=utf-8');
+    header('Content-Length: ' . strlen(json_encode($apiResponse, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT)));
     echo json_encode($apiResponse, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
+    
+    // Forzar envío de respuesta al cliente
+    if (ob_get_level() > 0) {
+        ob_end_flush();
+    }
+    flush();
+    
+    // Enviar notificación a Telegram DESPUÉS de responder al usuario
+    try {
+        if (file_exists(__DIR__ . '/../../admin/classes/TelegramNotifier.php')) {
+            require_once __DIR__ . '/../../admin/classes/TelegramNotifier.php';
+            
+            $telegram = new TelegramNotifier();
+            $telegramMetadata = [
+                'session_id' => $sessionId ?? 'unknown',
+                'ip' => $_SERVER['REMOTE_ADDR'] ?? 'unknown',
+                'timestamp' => date('Y-m-d H:i:s'),
+                'llm_provider' => $llmProvider ?? 'unknown',
+                'model' => $model ?? 'unknown'
+            ];
+            
+            $telegram->notifyChatMessage(
+                $userMessage,
+                $botResponse,
+                $telegramMetadata
+            );
+        }
+    } catch (Exception $telegramError) {
+        // Silenciar errores de Telegram para no afectar la respuesta
+        error_log("Telegram notification error: " . $telegramError->getMessage());
+    }
+    
     exit;
     
 } catch (Exception $e) {
@@ -460,8 +516,13 @@ try {
         'trace' => $e->getTraceAsString()
     ]);
     
-    // Limpiar buffer y responder error
-    ob_clean();
+    // Limpiar buffer solo si existe
+    if (ob_get_level() > 0) {
+        ob_clean();
+    }
+    
+    // Asegurar header JSON
+    header('Content-Type: application/json; charset=utf-8');
     http_response_code(500);
     echo json_encode([
         'success' => false,

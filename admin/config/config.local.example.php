@@ -134,6 +134,47 @@ function get_email_config() {
 }
 
 /**
+ * Configuración de Telegram Bot (Notificaciones)
+ * 
+ * Cómo obtener las credenciales:
+ * 1. Crear bot: Busca @BotFather en Telegram → /newbot
+ * 2. Bot token: BotFather te dará un token (formato: 123456:ABC-DEF...)
+ * 3. Chat ID: Inicia chat con tu bot → visita https://api.telegram.org/bot<TOKEN>/getUpdates
+ *    Busca "chat":{"id":123456789 → ese número es tu chat_id
+ */
+function get_telegram_config() {
+    return [
+        'enabled' => false,                                  // ⚠️  CAMBIAR: true para activar notificaciones
+        'bot_token' => getenv('TELEGRAM_BOT_TOKEN') ?: '',  // ⚠️  CAMBIAR: Token del bot de @BotFather
+        'chat_id' => getenv('TELEGRAM_CHAT_ID') ?: '',      // ⚠️  CAMBIAR: Tu chat ID
+        
+        // Configuración de eventos a notificar
+        'events' => [
+            'chat_messages' => true,             // Mensajes en Chat RAG
+            'contact_form' => true,              // Formularios de contacto
+            'article_views' => false,            // Vistas de artículos (puede ser spam)
+            'errors' => true,                    // Errores del sistema
+            'admin_login' => true                // Logins en admin panel
+        ],
+        
+        // Rate limiting para evitar spam
+        'rate_limit' => [
+            'enabled' => true,
+            'max_notifications_per_hour' => 20,
+            'cooldown_seconds' => 60             // Mínimo 60s entre notificaciones del mismo tipo
+        ],
+        
+        // Formato de notificaciones
+        'format' => [
+            'use_markdown' => true,
+            'include_timestamp' => true,
+            'include_user_agent' => false,
+            'include_ip' => true
+        ]
+    ];
+}
+
+/**
  * Rutas del sistema
  */
 function get_paths_config() {

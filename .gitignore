@@ -48,6 +48,10 @@ error_log
 # Archivos subidos por usuarios
 uploads/
 
+# Archivos temporales de testing
+api/portfolio/test-*.php
+admin/pages/migrate-ai-logs.php
+
 # Archivos temporales
 *.tmp
 *.temp
