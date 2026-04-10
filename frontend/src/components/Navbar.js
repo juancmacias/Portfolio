@@ -107,10 +107,10 @@ function NavBar({ onAction }) {
             <Nav.Item>
               <Nav.Link
                 as={Link}
-                to="/politics"
+                to="/agendar"
                 onClick={() => updateExpanded(false)}
               >
-                 Políticas de Privacidad
+                 Agendar una reunión
               </Nav.Link>
             </Nav.Item>
 

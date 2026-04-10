@@ -1,5 +1,36 @@
 # Archivos de configuración sensibles
 admin/config/config.local.php
+admin/config/bing-api-key.txt
+admin/config/indexnow-key.txt
+admin/config/service-account-credentials.json
+
+# Variables de entorno
+.env
+.env.local
+
+# Logs
+logs/
+*.log
+
+# Uploads de usuarios
+uploads/
+
+# Archivos de verificación pública IndexNow (excluir del repositorio tras verificación)
+/*.txt
+!robots.txt
+
+# IDEs
+.vscode/
+.idea/
+*.suo
+*.user
+*.swp
+*~
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
+admin/config/config.local.php
 /admin/config/config.local.php
 **/config.local.php
 config.local.php

@@ -330,51 +330,103 @@ class HuggingFaceProvider implements AIProviderInterface {
     }
 }
 
+
 /**
  * Proveedor OpenAI para generación de contenido
+ * Soporta tanto OpenAI directo como GitHub Models (Azure AI)
  */
 class OpenAIProvider implements AIProviderInterface {
     private $apiKey;
-    private $baseUrl = 'https://api.openai.com/v1/chat/completions';
+    private $baseUrl;
+    private $isGitHubModels = false;
     private $models = [
+        // Modelos OpenAI directos
         'gpt-3.5-turbo' => ['name' => 'GPT-3.5 Turbo', 'max_tokens' => 4096, 'cost_per_1k' => 0.001],
         'gpt-3.5-turbo-16k' => ['name' => 'GPT-3.5 Turbo 16K', 'max_tokens' => 16384, 'cost_per_1k' => 0.003],
         'gpt-4' => ['name' => 'GPT-4', 'max_tokens' => 8192, 'cost_per_1k' => 0.03],
-        'gpt-4-turbo' => ['name' => 'GPT-4 Turbo', 'max_tokens' => 128000, 'cost_per_1k' => 0.01]
+        'gpt-4-turbo' => ['name' => 'GPT-4 Turbo', 'max_tokens' => 128000, 'cost_per_1k' => 0.01],
+        // Modelos GitHub Models (Azure AI)
+        'gpt-4o-mini' => ['name' => 'GPT-4o Mini (GitHub)', 'max_tokens' => 128000, 'cost_per_1k' => 0.0],
+        'gpt-4o' => ['name' => 'GPT-4o (GitHub)', 'max_tokens' => 128000, 'cost_per_1k' => 0.0],
+        'meta-llama-3.1-405b-instruct' => ['name' => 'Llama 3.1 405B (GitHub)', 'max_tokens' => 128000, 'cost_per_1k' => 0.0],
+        'mistral-large-2407' => ['name' => 'Mistral Large (GitHub)', 'max_tokens' => 128000, 'cost_per_1k' => 0.0]
     ];
     private $defaultModel = 'gpt-3.5-turbo';
     
     public function __construct() {
         $this->apiKey = $this->getApiKey();
+        $this->configureEndpoint();
+    }
+    
+    /**
+     * Configurar endpoint según tipo de autenticación
+     */
+    private function configureEndpoint() {
+        // Si se detecta GitHub Token, usar GitHub Models (Azure AI)
+        if ($this->isGitHubModels) {
+            $this->baseUrl = 'https://models.inference.ai.azure.com/chat/completions';
+            $this->defaultModel = 'gpt-4o-mini'; // Modelo por defecto para GitHub Models
+        } else {
+            $this->baseUrl = 'https://api.openai.com/v1/chat/completions';
+            $this->defaultModel = 'gpt-3.5-turbo'; // Modelo por defecto para OpenAI directo
+        }
     }
     
     private function getApiKey() {
+        // Prioridad 1: GitHub Token (para GitHub Models)
+        if (getenv('GITHUB_TOKEN')) {
+            $this->isGitHubModels = true;
+            return getenv('GITHUB_TOKEN');
+        }
+        
+        // Prioridad 2: OpenAI API Key desde variables de entorno
         if (getenv('OPENAI_API_KEY')) {
+            $this->isGitHubModels = false;
             return getenv('OPENAI_API_KEY');
         }
         
-        // Intentar desde archivo de configuración local
+        // Prioridad 3: Archivo de configuración local
         try {
             $configFile = __DIR__ . '/../config/config.local.php';
             if (file_exists($configFile)) {
                 require_once $configFile;
                 $aiConfig = get_ai_config();
+                
+                // Intentar GitHub Token primero
+                if (!empty($aiConfig['api_keys']['github_models'])) {
+                    $this->isGitHubModels = true;
+                    return $aiConfig['api_keys']['github_models'];
+                }
+                
+                // Si no, usar OpenAI directo
                 if (!empty($aiConfig['api_keys']['openai'])) {
+                    $this->isGitHubModels = false;
                     return $aiConfig['api_keys']['openai'];
                 }
             }
         } catch (Exception $e) {
-            error_log("Error loading OpenAI API key from config: " . $e->getMessage());
+            error_log("Error loading API key from config: " . $e->getMessage());
         }
         
+        // Prioridad 4: Base de datos
         try {
             $db = Database::getInstance();
+            
+            // Intentar GitHub Token de BD
+            $config = $db->fetchOne("SELECT config_value FROM system_config WHERE config_key = 'github_models_token'");
+            if ($config && $config['config_value']) {
+                $this->isGitHubModels = true;
+                return $config['config_value'];
+            }
+            
+            // Si no, OpenAI API Key de BD
             $config = $db->fetchOne("SELECT config_value FROM system_config WHERE config_key = 'openai_api_key'");
             if ($config && $config['config_value']) {
+                $this->isGitHubModels = false;
                 return $config['config_value'];
             }
         } catch (Exception $e) {
-            error_log("Error loading OpenAI API key: " . $e->getMessage());
+            error_log("Error loading API key from DB: " . $e->getMessage());
         }
         
         return '';
@@ -382,21 +434,31 @@ class OpenAIProvider implements AIProviderInterface {
     
     public function generate($prompt, $options = []) {
         if (empty($this->apiKey)) {
-            throw new Exception('API key de OpenAI no configurada');
+            $provider = $this->isGitHubModels ? 'GitHub Models' : 'OpenAI';
+            throw new Exception("API key de {$provider} no configurada");
         }
         
         $model = $options['model'] ?? $this->defaultModel;
         $maxTokens = $options['max_tokens'] ?? 1000;
         $temperature = $options['temperature'] ?? 0.7;
+        $systemMessage = $options['system'] ?? null;
+        
+        // Construir mensajes según formato OpenAI/GitHub Models
+        $messages = [];
+        if ($systemMessage) {
+            $messages[] = [
+                'role' => 'system',
+                'content' => $systemMessage
+            ];
+        }
+        $messages[] = [
+            'role' => 'user',
+            'content' => $prompt
+        ];
         
         $data = [
             'model' => $model,
-            'messages' => [
-                [
-                    'role' => 'user',
-                    'content' => $prompt
-                ]
-            ],
+            'messages' => $messages,
             'max_tokens' => $maxTokens,
             'temperature' => $temperature
         ];
@@ -404,16 +466,19 @@ class OpenAIProvider implements AIProviderInterface {
         $response = $this->makeRequest($data);
         
         if (!$response) {
-            throw new Exception('No se recibió respuesta de OpenAI');
+            $provider = $this->isGitHubModels ? 'GitHub Models' : 'OpenAI';
+            throw new Exception("No se recibió respuesta de {$provider}");
         }
         
         $content = $response['choices'][0]['message']['content'] ?? '';
         $tokensUsed = $response['usage']['total_tokens'] ?? 0;
         $costEstimated = $this->calculateCost($tokensUsed, $model);
         
+        $modelSuffix = $this->isGitHubModels ? ' (GitHub)' : '';
+        
         return [
             'content' => trim($content),
-            'model' => $model,
+            'model' => $model . $modelSuffix,
             'tokens_used' => $tokensUsed,
             'cost_estimated' => $costEstimated
         ];
@@ -464,7 +529,11 @@ class OpenAIProvider implements AIProviderInterface {
     }
     
     public function getDisplayName() {
-        return 'OpenAI';
+        return $this->isGitHubModels ? 'OpenAI (GitHub Models)' : 'OpenAI';
+    }
+    
+    public function getProviderType() {
+        return $this->isGitHubModels ? 'github_models' : 'openai_direct';
     }
     
     public function getAvailableModels() {

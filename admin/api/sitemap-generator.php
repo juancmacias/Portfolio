@@ -28,7 +28,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 
 // Incluir dependencias
 require_once '../classes/SitemapGenerator.php';
-require_once '../classes/SitemapGenerator.php';
 
 // Verificar autenticación (solo usuarios logueados pueden generar sitemap)
 session_start();
@@ -103,58 +102,45 @@ try {
 function generateLocalSitemap($sitemapPath, $baseUrl) 
 {
     $startTime = microtime(true);
+
+    $lastmodUtc = (new DateTimeImmutable('now', new DateTimeZone('UTC')))->format('Y-m-d\\TH:i:sP');
     
     // URLs de ejemplo para el sitemap local - SOLO URLs REALES
     $exampleUrls = [
         [
             'url' => $baseUrl . '/',
-            'lastmod' => date('Y-m-d'),
-            'changefreq' => 'weekly',
-            'priority' => '1.0'
+            'lastmod' => $lastmodUtc
         ],
         [
             'url' => $baseUrl . '/about',
-            'lastmod' => date('Y-m-d'),
-            'changefreq' => 'yearly',
-            'priority' => '0.8'
+            'lastmod' => $lastmodUtc
         ],
         [
             'url' => $baseUrl . '/project',
-            'lastmod' => date('Y-m-d'),
-            'changefreq' => 'monthly',
-            'priority' => '0.8'
+            'lastmod' => $lastmodUtc
         ],
         [
             'url' => $baseUrl . '/articles',
-            'lastmod' => date('Y-m-d'),
-            'changefreq' => 'weekly',
-            'priority' => '0.7'
+            'lastmod' => $lastmodUtc
         ],
         [
             'url' => $baseUrl . '/resume',
-            'lastmod' => date('Y-m-d'),
-            'changefreq' => 'yearly',
-            'priority' => '0.7'
+            'lastmod' => $lastmodUtc
         ],
         [
             'url' => $baseUrl . '/politics',
-            'lastmod' => date('Y-m-d'),
-            'changefreq' => 'yearly',
-            'priority' => '0.5'
+            'lastmod' => $lastmodUtc
         ]
     ];
     
     // Generar XML
     $xml = '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
     $xml .= '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' . "\n";
-    $xml .= '  <!-- Sitemap generado en entorno LOCAL para desarrollo -->' . "\n";
     
     foreach ($exampleUrls as $urlData) {
         $xml .= "  <url>\n";
         $xml .= "    <loc>" . htmlspecialchars($urlData['url']) . "</loc>\n";
         $xml .= "    <lastmod>" . $urlData['lastmod'] . "</lastmod>\n";
-        $xml .= "    <changefreq>" . $urlData['changefreq'] . "</changefreq>\n";
-        $xml .= "    <priority>" . $urlData['priority'] . "</priority>\n";
         $xml .= "  </url>\n";
     }
     

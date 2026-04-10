@@ -53,6 +53,8 @@ class SitemapGenerator
         '/politics'  // Política de privacidad
     ];
 
+    private const LASTMOD_FORMAT = 'Y-m-d\\TH:i:sP';
+
     public function __construct($baseUrl, $maxDepth = 3) 
     {
         // Eliminar www. del baseUrl si existe
@@ -295,10 +297,29 @@ class SitemapGenerator
         
         $this->validUrls[$cleanUrl] = [
             'url' => $cleanUrl,
-            'lastmod' => date('Y-m-d'),
+            'lastmod' => $this->formatLastmodUtc(),
             'changefreq' => $this->getChangeFreq($cleanUrl),
             'priority' => $this->getPriority($cleanUrl)
         ];
+    }
+
+    /**
+     * Formatea lastmod en UTC con offset +00:00 (ISO 8601 / RFC3339)
+     */
+    private function formatLastmodUtc(?string $dateTimeString = null): string
+    {
+        $utc = new DateTimeZone('UTC');
+
+        if ($dateTimeString !== null && trim($dateTimeString) !== '') {
+            try {
+                $dt = new DateTimeImmutable($dateTimeString);
+                return $dt->setTimezone($utc)->format(self::LASTMOD_FORMAT);
+            } catch (Exception $e) {
+                // Si el parseo falla, se usa "now" en UTC
+            }
+        }
+
+        return (new DateTimeImmutable('now', $utc))->format(self::LASTMOD_FORMAT);
     }
 
     /**
@@ -362,8 +383,6 @@ class SitemapGenerator
             $xml .= "  <url>\n";
             $xml .= "    <loc>" . htmlspecialchars($urlData['url']) . "</loc>\n";
             $xml .= "    <lastmod>" . $urlData['lastmod'] . "</lastmod>\n";
-            $xml .= "    <changefreq>" . $urlData['changefreq'] . "</changefreq>\n";
-            $xml .= "    <priority>" . $urlData['priority'] . "</priority>\n";
             $xml .= "  </url>\n";
         }
         
@@ -538,7 +557,7 @@ class SitemapGenerator
                     // Agregar con metadata de la base de datos
                     $this->validUrls[$articleUrl] = [
                         'url' => $articleUrl,
-                        'lastmod' => date('Y-m-d', strtotime($article['updated_at'])),
+                        'lastmod' => $this->formatLastmodUtc($article['updated_at'] ?? null),
                         'changefreq' => 'weekly',
                         'priority' => '0.7'
                     ];
@@ -773,6 +792,46 @@ class SitemapGenerator
         }
         
         return null;
+    }
+
+    /**
+     * Extrae todas las URLs de un sitemap existente
+     * Usado para notificar a buscadores con listas de URLs
+     * 
+     * @param string $sitemapPath Ruta completa al archivo sitemap.xml
+     * @return array Lista de URLs extraídas
+     */
+    public function extractUrlsFromSitemap($sitemapPath)
+    {
+        $urls = [];
+        
+        if (!file_exists($sitemapPath)) {
+            $this->log("Sitemap not found: {$sitemapPath}");
+            return $urls;
+        }
+        
+        $xml = @simplexml_load_file($sitemapPath);
+        
+        if ($xml === false) {
+            $this->log("Failed to parse sitemap XML: {$sitemapPath}");
+            return $urls;
+        }
+        
+        // Sitemap simple (contiene URLs directamente)
+        if (isset($xml->url)) {
+            foreach ($xml->url as $urlEntry) {
+                if (isset($urlEntry->loc)) {
+                    $urls[] = (string)$urlEntry->loc;
+                }
+            }
+            
+            $this->log("Extracted " . count($urls) . " URLs from sitemap");
+        }
+        
+        // Sitemap index (contiene referencias a otros sitemaps)
+        // No procesamos índices, solo sitemaps simples
+        
+        return $urls;
     }
 }
 ?>

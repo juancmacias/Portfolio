@@ -93,6 +93,13 @@ INSERT IGNORE INTO system_config (config_key, config_value, config_type, descrip
 ('allow_comments', 'false', 'boolean', 'Permitir comentarios en artículos', true),
 ('google_analytics_id', '', 'string', 'ID de Google Analytics', false);
 
+    -- Google Calendar (OAuth) - Agendar reunión
+    ('google_calendar_enabled', 'false', 'boolean', 'Activar integración con Google Calendar', 0),
+    ('google_oauth_client_id', '', 'string', 'Google OAuth Client ID', 0),
+    ('google_oauth_client_secret', '', 'string', 'Google OAuth Client Secret (MVP en texto plano)', 0),
+    ('google_oauth_redirect_uri', '', 'string', 'Google OAuth Redirect URI', 0),
+    ('google_calendar_id', 'primary', 'string', 'Calendar ID (primary o ID compartido)', 0),
+
 -- Insertar algunos artículos de ejemplo si no existen
 INSERT IGNORE INTO articles (title, slug, content, excerpt, meta_description, status, author, tags, reading_time, ai_generated) VALUES
 ('Bienvenido al Blog de Juan Carlos Macías', 'bienvenido-blog-juan-carlos-macias', 

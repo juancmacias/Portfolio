@@ -546,22 +546,21 @@ $sitemapInfo = $generator->getSitemapInfo();
                 }
             });
 
-            // Evento para notificar buscadores
+            // Evento para notificar buscadores (nuevo sistema con 3 proveedores)
             const notifyBtn = document.getElementById('notifyBtn');
             notifyBtn.addEventListener('click', async function() {
-                // Verificar que existe un sitemap
-                const sitemapExists = document.querySelector('.current-urls-container .url-list');
-                if (!sitemapExists || sitemapExists.children.length === 0) {
-                    showErrorResult('Primero debes generar un sitemap antes de notificar a los buscadores');
+                // Confirmar acción
+                if (!confirm('¿Enviar notificación del sitemap a Google, Bing y otros buscadores?')) {
                     return;
                 }
 
                 // Deshabilitar botón y mostrar estado
                 notifyBtn.disabled = true;
                 notifyBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Notificando...';
+                resultContainer.style.display = 'none';
 
                 try {
-                    const response = await fetch('../api/sitemap-generator.php?action=notify', {
+                    const response = await fetch('../api/notify-search-engines.php', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'
@@ -571,9 +570,9 @@ $sitemapInfo = $generator->getSitemapInfo();
                     const result = await response.json();
 
                     if (result.success) {
-                        showNotificationResult(result);
+                        showNewNotificationResult(result);
                     } else {
-                        showErrorResult(result.error || result.message || 'Error desconocido');
+                        showErrorResult(result.error || 'Error al notificar a los buscadores');
                     }
 
                 } catch (error) {
@@ -738,6 +737,83 @@ $sitemapInfo = $generator->getSitemapInfo();
                     
                     ${environmentNote}
                     ${resultsHtml}
+                `;
+                
+                resultContainer.style.display = 'block';
+            }
+
+            // Función para mostrar resultados del nuevo sistema de notificación (3 proveedores)
+            function showNewNotificationResult(result) {
+                const alertClass = result.providers_success > 0 ? 'alert-success' : 'alert-danger';
+                const icon = result.providers_success > 0 ? 'bi-check-circle' : 'bi-x-circle';
+                
+                let resultsHtml = `
+                    <h6 class="mt-4 mb-3">
+                        <i class="bi bi-search me-2"></i>Resultados por proveedor:
+                    </h6>
+                    <div class="notification-results">
+                `;
+                
+                // Procesar resultados de cada proveedor
+                for (const [providerKey, providerResult] of Object.entries(result.results)) {
+                    const statusIcon = providerResult.success ? 'bi-check-circle text-success' : 'bi-x-circle text-danger';
+                    const providerName = providerResult.provider || providerKey;
+                    
+                    resultsHtml += `
+                        <div class="notification-item d-flex justify-content-between align-items-center">
+                            <div class="engine-info">
+                                <i class="${statusIcon} me-2"></i>
+                                <strong>${providerName}</strong>
+                            </div>
+                            <div class="status-info">
+                                <span class="badge ${providerResult.success ? 'bg-success' : 'bg-danger'}">
+                                    ${providerResult.success ? 'Éxito' : 'Error'}
+                                </span>
+                                <small class="text-muted ms-2">${providerResult.message}</small>
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                resultsHtml += '</div>';
+
+                resultContent.innerHTML = `
+                    <div class="alert ${alertClass}">
+                        <h6><i class="${icon} me-2"></i>Notificaciones Enviadas</h6>
+                        <p class="mb-0">
+                            <strong>${result.providers_success}/${result.providers_total}</strong> proveedores notificados correctamente
+                        </p>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="stat-item">
+                                <div class="stat-value text-success">${result.providers_success}</div>
+                                <div class="stat-label">Éxitos</div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="stat-item">
+                                <div class="stat-value text-danger">${result.providers_failed || 0}</div>
+                                <div class="stat-label">Fallos</div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="stat-item">
+                                <div class="stat-value">${result.urls_count || 0}</div>
+                                <div class="stat-label">URLs enviadas</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    ${resultsHtml}
+                    
+                    <div class="alert alert-info mt-3">
+                        <small>
+                            <i class="bi bi-info-circle me-2"></i>
+                            <strong>Proveedores notificados:</strong> Google Search Console, Bing Webmaster Tools, IndexNow (Bing + Yandex + Naver + Seznam)
+                        </small>
+                    </div>
                 `;
                 
                 resultContainer.style.display = 'block';

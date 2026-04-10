@@ -15,7 +15,27 @@ class AIContentGenerator {
     
     public function __construct() {
         $this->db = Database::getInstance();
+        $this->loadDefaultProvider();
         $this->initializeProviders();
+    }
+    
+    /**
+     * Cargar proveedor por defecto desde configuración
+     */
+    private function loadDefaultProvider() {
+        try {
+            $configFile = __DIR__ . '/../config/config.local.php';
+            if (file_exists($configFile)) {
+                require_once $configFile;
+                $aiConfig = get_ai_config();
+                if (!empty($aiConfig['default_provider'])) {
+                    $this->defaultProvider = $aiConfig['default_provider'];
+                }
+            }
+        } catch (Exception $e) {
+            error_log("Error loading default AI provider from config: " . $e->getMessage());
+            // Mantener 'groq' como fallback
+        }
     }
     
     /**

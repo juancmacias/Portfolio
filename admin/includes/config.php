@@ -9,7 +9,7 @@ define('ADMIN_TITLE', 'Portfolio Admin');
 define('ADMIN_DESCRIPTION', 'Sistema de administración de contenido');
 
 // Rutas base
-define('ADMIN_ROOT', __DIR__);
+define('ADMIN_ROOT', dirname(__DIR__));
 define('ADMIN_URL', '/admin');
 define('ASSETS_URL', ADMIN_URL . '/assets');
 define('API_URL', '/api/portfolio');
@@ -100,7 +100,10 @@ $routes = [
     'article-edit' => '/pages/article-create.php',
     'article-view' => '/pages/article-view.php',
     'sitemap-manager' => '/pages/sitemap-manager.php',
+    'test-search-engine-notification' => '/pages/test-search-engine-notification.php',
+    'gsc-inspector' => '/pages/gsc-inspector.php',
     'settings' => '/pages/settings.php',
+    'google-calendar' => '/pages/google-calendar.php',
     'login' => '/pages/login.php',
     'logout' => '/pages/logout.php'
 ];
@@ -159,14 +162,34 @@ $navigationMenu = [
                 'title' => 'Generador de Sitemap',
                 'url' => getRoute('sitemap-manager'),
                 'active' => ['sitemap-manager']
+            ],
+            [
+                'title' => 'Inspector GSC',
+                'url' => getRoute('gsc-inspector'),
+                'active' => ['gsc-inspector']
+            ],
+            [
+                'title' => 'Test Notificaciones',
+                'url' => getRoute('test-search-engine-notification'),
+                'active' => ['test-search-engine-notification']
             ]
         ]
     ],
     [
         'title' => 'Configuración',
-        'url' => getRoute('settings'),
         'icon' => '⚙️',
-        'active' => ['settings']
+        'children' => [
+            [
+                'title' => 'General',
+                'url' => getRoute('settings'),
+                'active' => ['settings']
+            ],
+            [
+                'title' => 'Google Calendar',
+                'url' => getRoute('google-calendar'),
+                'active' => ['google-calendar']
+            ]
+        ]
     ]
 ];
 

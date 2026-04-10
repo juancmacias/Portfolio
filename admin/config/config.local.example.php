@@ -73,8 +73,39 @@ function get_ai_config() {
         'api_keys' => [
             'groq' => '',                        // ⚠️  CAMBIAR: Tu API key de Groq
             'huggingface' => '',                 // ⚠️  CAMBIAR: Tu API key de Hugging Face
-            'openai' => ''                       // ⚠️  CAMBIAR: Tu API key de OpenAI
+            'openai' => '',                      // ⚠️  CAMBIAR: Tu API key de OpenAI (directo)
+            'github_models' => ''                // ⚠️  NUEVO: GitHub Personal Access Token (scope: models:read)
+        ],
+        
+        // Configuración específica de GitHub Models
+        'github_models' => [
+            'enabled' => false,                  // ⚠️  CAMBIAR: true si usas GitHub Models
+            'preferred_model' => 'gpt-4o-mini',  // 'gpt-4o-mini', 'gpt-4o', 'meta-llama-3.1-405b-instruct', 'mistral-large-2407'
+            'rate_limit_info' => 'Ver https://docs.github.com/en/github-models/usage-limits',
+            'description' => 'GitHub Models proporciona acceso gratuito a modelos GPT-4o y otros a través de Azure AI usando GitHub PAT'
         ]
+    ];
+}
+
+/**
+ * Configuración Google Calendar (OAuth 2.0)
+ *
+ * Se usa para la funcionalidad "Agendar una reunión" del frontend.
+ *
+ * Pasos:
+ * 1) Crea credenciales OAuth en Google Cloud Console.
+ * 2) Autoriza el redirect URI (callback).
+ * 3) Rellena estos valores.
+ */
+function get_google_calendar_config() {
+    return [
+        'enabled' => false,
+        'client_id' => '',
+        'client_secret' => '',
+        // Ejemplo local: 'http://localhost/api/portfolio/calendar-auth-callback.php'
+        'redirect_uri' => '',
+        // 'primary' o ID de un calendario compartido
+        'calendar_id' => 'primary',
     ];
 }
 
@@ -155,8 +186,18 @@ if (is_development()) {
  * 1. Copia este archivo como 'config.local.php'
  * 2. Actualiza la configuración de base de datos en get_db_config()
  * 3. Cambia debug_mode a false en producción
- * 4. Si usas IA, configura las API keys en get_ai_config()
+ * 4. Si usas IA, configura las API keys en get_ai_config():
+ *    - Para GitHub Models: Genera un Personal Access Token en https://github.com/settings/tokens
+ *      con el scope 'models:read' y configúralo en 'github_models'
+ *    - Para OpenAI directo: Obtén tu API key de https://platform.openai.com/api-keys
+ *    - Para Groq: Obtén tu API key de https://console.groq.com
  * 5. Si necesitas emails, configura SMTP en get_email_config()
  * 6. Asegúrate de que el archivo config.local.php esté en .gitignore
+ * 
+ * NOTA GITHUB MODELS:
+ * - GitHub Models proporciona acceso gratuito a GPT-4o-mini, GPT-4o y otros modelos
+ * - Se autentica con tu GitHub Personal Access Token (no requiere tarjeta de crédito)
+ * - Ideal para desarrollo y proyectos de bajo tráfico
+ * - Ver límites en: https://docs.github.com/en/github-models/usage-limits
  */
 ?>

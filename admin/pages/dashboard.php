@@ -154,12 +154,15 @@ try {
                 <h3>⚙️ Configuración</h3>
                 <a href="settings.php" class="btn">🔧 Configuración General</a>
                 <a href="settings.php#ai" class="btn btn-info">🤖 Configurar IA</a>
+                <a href="google-calendar.php" class="btn btn-info">📅 Google Calendar</a>
             </div>
 
             <div class="action-card">
                 <h3>🔍 Herramientas SEO</h3>
                 <a href="sitemap-manager.php" class="btn">🗺️ Generador de Sitemap</a>
                 <a href="sitemap-manager.php?action=info" class="btn btn-info">📊 Estado del Sitemap</a>
+                <a href="gsc-inspector.php" class="btn btn-success">🔎 Inspector GSC</a>
+                <a href="test-search-engine-notification.php" class="btn btn-info">🧪 Test Notificaciones</a>
             </div>
 
             <div class="action-card">

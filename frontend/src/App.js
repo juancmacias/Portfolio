@@ -13,6 +13,7 @@ import ArticleView from "./components/Articles/ArticleView";
 import Politicas from "./components/Politics/politica";
 import Terminos from "./components/Politics/terminos";
 import Contact from "./components/Contact/Contact";
+import ScheduleMeeting from "./components/Scheduling/ScheduleMeeting";
 import Analytics from "./components/Analytics";
 import ChatModal from "./components/Chat/ChatModal";
 import ChatButton from "./components/Chat/ChatButton";
@@ -79,6 +80,7 @@ function App({ initialState = null }) {
           <Route path="/politics" element={<Politicas />} />
           <Route path="/terminos" element={<Terminos />} />
           <Route path="/contacto" element={<Contact />} />
+          <Route path="/agendar" element={<ScheduleMeeting />} />
           <Route path="*" element={<Navigate to="/"/>} />
         </Routes>
         <Footer />
