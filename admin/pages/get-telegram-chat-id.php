@@ -1,3 +1,17 @@
+<?php
+/**
+ * Herramienta para obtener el Chat ID de Telegram
+ * SEGURIDAD: Usa configuración desde config.local.php
+ */
+define('ADMIN_ACCESS', true);
+require_once __DIR__ . '/../config/auth.php';
+require_once __DIR__ . '/../config/config.local.php';
+
+// Obtener configuración Telegram de forma segura
+$telegramConfig = get_telegram_config();
+$botToken = $telegramConfig['bot_token'] ?? '';
+$isConfigured = !empty($botToken);
+?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -15,6 +29,11 @@
                         <h4 class="mb-0">📱 Obtener tu Chat ID de Telegram</h4>
                     </div>
                     <div class="card-body">
+                        <?php if (!$isConfigured): ?>
+                        <div class="alert alert-danger">
+                            <strong>⚠️ Error:</strong> Bot Token no configurado en <code>config.local.php</code>
+                        </div>
+                        <?php else: ?>
                         <div class="alert alert-info">
                             <strong>📝 Instrucciones:</strong> Sigue estos pasos para obtener tu Chat ID
                         </div>
@@ -27,15 +46,8 @@
                         </ol>
 
                         <h5 class="mt-4">Paso 2: Obtén el Chat ID</h5>
-                        <p>Introduce tu bot token y haz clic en el botón:</p>
+                        <p>El bot token está configurado automáticamente desde <code>config.local.php</code></p>
                         
-                        <div class="mb-3">
-                            <label class="form-label">Bot Token:</label>
-                            <input type="text" id="botToken" class="form-control" 
-                                   value="8646528294:AAHvSDgPXfvkJtY-F7IyW2U8quHJS_VYaPQ"
-                                   placeholder="123456:ABC-DEF...">
-                        </div>
-
                         <button onclick="getChatId()" class="btn btn-primary">
                             🔍 Obtener Chat ID
                         </button>
@@ -62,9 +74,11 @@
                                 <p class="mt-2">Consultando Telegram API...</p>
                             </div>
                         </div>
+                        <?php endif; ?>
                     </div>
                 </div>
 
+                <?php if ($isConfigured): ?>
                 <div class="card shadow mt-4">
                     <div class="card-header bg-success text-white">
                         <h5 class="mb-0">📋 Método Alternativo (Manual)</h5>
@@ -73,12 +87,12 @@
                         <p>Si el botón no funciona, obtén tu Chat ID manualmente:</p>
                         <ol>
                             <li>Asegúrate de haber enviado <code>/start</code> a tu bot</li>
-                            <li>Abre esta URL en tu navegador (reemplaza <code>&lt;TOKEN&gt;</code>):</li>
+                            <li>Abre esta URL en tu navegador:</li>
                         </ol>
                         <div class="input-group mb-3">
                             <input type="text" class="form-control" id="manualUrl" readonly
-                                   value="https://api.telegram.org/bot8646528294:AAHvSDgPXfvkJtY-F7IyW2U8quHJS_VYaPQ/getUpdates">
-                            <button class="btn btn-outline-secondary" onclick="copyUrl()">📋 Copiar</button>
+                                   value="Ver en código fuente (token oculto por seguridad)">
+                            <button class="btn btn-outline-secondary" onclick="openManualUrl()">🌐 Abrir URL</button>
                         </div>
                         <ol start="3">
                             <li>Busca en la respuesta JSON: <code>"chat":{"id":<strong>123456789</strong></code></li>
@@ -86,16 +100,18 @@
                         </ol>
                     </div>
                 </div>
+                <?php endif; ?>
             </div>
         </div>
     </div>
 
     <script>
+        // Token obtenido de forma segura desde PHP (no visible en código fuente)
+        const BOT_TOKEN = <?php echo json_encode($botToken); ?>;
+
         async function getChatId() {
-            const botToken = document.getElementById('botToken').value.trim();
-            
-            if (!botToken) {
-                showError('Por favor, introduce tu Bot Token');
+            if (!BOT_TOKEN) {
+                showError('Bot Token no configurado');
                 return;
             }
 
@@ -105,7 +121,7 @@
             document.getElementById('loading').style.display = 'block';
 
             try {
-                const url = `https://api.telegram.org/bot${botToken}/getUpdates`;
+                const url = `https://api.telegram.org/bot${BOT_TOKEN}/getUpdates`;
                 const response = await fetch(url);
                 const data = await response.json();
 
@@ -154,21 +170,25 @@
         }
 
         function showError(message) {
-            document.getElementById('errorDisplay').innerHTML = `<p>${message}</p>`;
+            document.getElementById('errorDisplay').textContent = message;
             document.getElementById('error').style.display = 'block';
         }
 
         function copyChatId(chatId) {
             navigator.clipboard.writeText(chatId).then(() => {
                 alert('✅ Chat ID copiado al portapapeles: ' + chatId);
+            }).catch(err => {
+                alert('❌ Error al copiar: ' + err);
             });
         }
 
-        function copyUrl() {
-            const url = document.getElementById('manualUrl');
-            url.select();
-            document.execCommand('copy');
-            alert('✅ URL copiada al portapapeles');
+        function openManualUrl() {
+            if (!BOT_TOKEN) {
+                alert('Token no configurado');
+                return;
+            }
+            const url = `https://api.telegram.org/bot${BOT_TOKEN}/getUpdates`;
+            window.open(url, '_blank');
         }
     </script>
 </body>
