@@ -474,8 +474,14 @@ try {
     // Responder con JSON
     http_response_code(200);
     header('Content-Type: application/json; charset=utf-8');
-    header('Content-Length: ' . strlen(json_encode($apiResponse, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT)));
-    echo json_encode($apiResponse, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
+    $jsonResponse = json_encode($apiResponse, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
+    header('Content-Length: ' . strlen($jsonResponse));
+    echo $jsonResponse;
+    
+    // === TELEGRAM NOTIFICATION (Non-blocking) ===
+    // Permitir que el script continúe después de enviar la respuesta
+    ignore_user_abort(true);
+    set_time_limit(30); // 30s adicionales para Telegram
     
     // Forzar envío de respuesta al cliente
     if (ob_get_level() > 0) {
@@ -483,29 +489,38 @@ try {
     }
     flush();
     
+    // Cerrar la conexión si es FastCGI
+    if (function_exists('fastcgi_finish_request')) {
+        fastcgi_finish_request();
+    }
+    
     // Enviar notificación a Telegram DESPUÉS de responder al usuario
     try {
-        if (file_exists(__DIR__ . '/../../admin/classes/TelegramNotifier.php')) {
-            require_once __DIR__ . '/../../admin/classes/TelegramNotifier.php';
+        $telegramPath = __DIR__ . '/../../admin/classes/TelegramNotifier.php';
+        
+        if (file_exists($telegramPath)) {
+            require_once $telegramPath;
             
             $telegram = new TelegramNotifier();
             $telegramMetadata = [
                 'session_id' => $sessionId ?? 'unknown',
                 'ip' => $_SERVER['REMOTE_ADDR'] ?? 'unknown',
                 'timestamp' => date('Y-m-d H:i:s'),
-                'llm_provider' => $llmProvider ?? 'unknown',
+                'llm_provider' => $llmprovider ?? 'unknown',
                 'model' => $model ?? 'unknown'
             ];
             
-            $telegram->notifyChatMessage(
+            $result = $telegram->notifyChatMessage(
                 $userMessage,
                 $botResponse,
                 $telegramMetadata
             );
+            
+            // Log resultado
+            error_log("[TELEGRAM] Notification sent: " . ($result ? 'SUCCESS' : 'FAILED'));
         }
     } catch (Exception $telegramError) {
-        // Silenciar errores de Telegram para no afectar la respuesta
-        error_log("Telegram notification error: " . $telegramError->getMessage());
+        error_log("[TELEGRAM ERROR] " . $telegramError->getMessage());
     }
     
     exit;
