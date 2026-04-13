@@ -1,8 +1,20 @@
 <?php
 /**
- * Dynamic Rendering Entry Point
- * - Usuarios reales → sirve index.html (React SPA sin SSR)
- * - Bots / crawlers → PHP genera HTML optimizado para SEO
+ * SSR Universal Entry Point - PHP + React Hybrid Architecture
+ * 
+ * TODOS los usuarios (reales y bots) reciben:
+ * 1. HTML completo generado por PHP (SEO instantáneo, FCP <500ms)
+ * 2. JavaScript React bundle cargado
+ * 3. React hidrata el DOM para interactividad SPA
+ * 
+ * Ventajas:
+ * - ✅ 0% riesgo de cloaking (mismo HTML para todos)
+ * - ✅ SEO máximo (HTML completo sin JS)
+ * - ✅ Performance óptima (contenido visible inmediatamente)
+ * - ✅ Experiencia SPA completa después de hidratación
+ * 
+ * Arquitectura conforme con: doc/analisis-ssr-php-react-hybrid.md
+ * Implementado: 13 de abril de 2026
  *
  * Rutas manejadas (deben coincidir con App.js):
  *   /                 → Home
@@ -14,7 +26,6 @@
  *   /politics         → Política de privacidad
  *   /terminos         → Términos de uso
  *   /contacto         → Contacto
- *   *                 → Fallback a index.html (React SPA)
  */
 
 // Evitar ejecución cuando Apache sirve un asset estático
@@ -38,44 +49,33 @@ if ($isLocal) {
 }
 
 // ──────────────────────────────────────────────
-// Dynamic Rendering: usuarios reales → index.html, bots → PHP SSR
+// Definir constante requerida por database.php
 // ──────────────────────────────────────────────
-
-function isBot(): bool {
-    $ua = strtolower($_SERVER['HTTP_USER_AGENT'] ?? '');
-    if (empty($ua)) return false;
-    $bots = [
-        'googlebot', 'bingbot', 'slurp', 'duckduckbot', 'baiduspider',
-        'yandexbot', 'sogou', 'exabot', 'facebot', 'facebookexternalhit',
-        'twitterbot', 'linkedinbot', 'whatsapp', 'telegrambot', 'slackbot',
-        'discordbot', 'applebot', 'semrushbot', 'ahrefsbot', 'mj12bot',
-        'dotbot', 'rogerbot', 'screaming frog', 'sitebulb',
-        'ia_archiver', 'archive.org_bot', 'ccbot',
-        'chrome-lighthouse', 'gtmetrix', 'pingdom', 'uptimerobot',
-        'spider', 'crawler', 'bot/',
-    ];
-    foreach ($bots as $bot) {
-        if (strpos($ua, $bot) !== false) return true;
-    }
-    return false;
-}
-
-if (!isBot()) {
-    // Usuario real → servir React SPA directamente
-    $indexHtml = __DIR__ . '/index.html';
-    if (file_exists($indexHtml)) {
-        header('Content-Type: text/html; charset=UTF-8');
-        header('X-Rendered-By: React-SPA');
-        readfile($indexHtml);
-        exit;
-    }
-    // index.html no existe aún (sin build) → continuar con PHP como fallback
+if (!defined('ADMIN_ACCESS')) {
+    define('ADMIN_ACCESS', true);
 }
 
 // ──────────────────────────────────────────────
-// Solo bots llegan aquí → Cargar templates SSR
+// SSR UNIVERSAL: TODOS reciben PHP SSR + React Hydration
 // ──────────────────────────────────────────────
-$templateDir = __DIR__ . '/templates';
+// 
+// Arquitectura híbrida legítima:
+// 1. PHP genera HTML inicial completo (SEO instantáneo)
+// 2. React hidrata el DOM para interactividad SPA
+// 3. MISMO contenido para usuarios y bots (0% riesgo cloaking)
+// 4. Performance óptima: FCP <500ms
+// 
+// Conforme con: doc/analisis-ssr-php-react-hybrid.md
+// Implementado: 13 de abril de 2026
+// ──────────────────────────────────────────────
+
+// Detectar ubicación del archivo y ajustar ruta de templates
+// Si estamos en public/, usar ./templates
+// Si estamos en build/ (después del build), usar ../public/templates
+$templateDir = file_exists(__DIR__ . '/templates') 
+    ? __DIR__ . '/templates'
+    : __DIR__ . '/../public/templates';
+
 require_once $templateDir . '/Layout.php';
 require_once $templateDir . '/ArticleView.php';
 

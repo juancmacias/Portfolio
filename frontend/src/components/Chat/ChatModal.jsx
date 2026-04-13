@@ -23,6 +23,7 @@ const ChatModal = ({ isOpen, onClose }) => {
     isLoading,
     error,
     sessionId,
+    currentModel,
     isListening,
     isSpeaking,
     voiceEnabled,
@@ -412,7 +413,10 @@ const ChatModal = ({ isOpen, onClose }) => {
         {/* Footer */}
         <div className="chat-footer">
           <span className="footer-info">
-            🤖 Powered by Groq • 🧠 RAG • 🎤 Web Speech API
+            {currentModel.model 
+              ? `🤖 ${currentModel.provider} (${currentModel.model}) • 🧠 RAG • 🎤 Web Speech API`
+              : '🤖 Powered by Groq • 🧠 RAG • 🎤 Web Speech API'
+            }
           </span>
           {!speechSupport.speechRecognition && (
             <span className="footer-warning">

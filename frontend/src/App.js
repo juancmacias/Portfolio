@@ -17,6 +17,7 @@ import ScheduleMeeting from "./components/Scheduling/ScheduleMeeting";
 import Analytics from "./components/Analytics";
 import ChatModal from "./components/Chat/ChatModal";
 import ChatButton from "./components/Chat/ChatButton";
+import usePageTracking from "./hooks/usePageTracking";
 
 import {
   BrowserRouter as Router,
@@ -28,6 +29,49 @@ import ScrollToTop from "./components/ScrollToTop";
 import "./style.css";
 import "./App.css";
 import "bootstrap/dist/css/bootstrap.min.css";
+
+// Componente interno que usa el hook de tracking (debe estar dentro del Router)
+function AppContent({ theme, handleAction, load, chatModalOpen, setChatModalOpen }) {
+  // Hook de tracking de visitas (envía notificación a Telegram cada 10 min)
+  usePageTracking({
+    enabled: true,          // Habilitar tracking
+    onlyProduction: true,   // Solo en producción (no en localhost)
+    debug: false            // Debug mode (console.log)
+  });
+
+  return (
+    <>
+      <Preloader load={load} />
+      <div className={`${theme}`} id={load ? "no-scroll" : "scroll"}>
+        <Navbar onAction={handleAction}/>
+        <ScrollToTop />
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/project" element={<Projects />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/resume" element={<Resume />} />
+          <Route path="/articles" element={<ArticlesPage />} />
+          <Route path="/article/:slug" element={<ArticleView />} />
+          <Route path="/politics" element={<Politicas />} />
+          <Route path="/terminos" element={<Terminos />} />
+          <Route path="/contacto" element={<Contact />} />
+          <Route path="/agendar" element={<ScheduleMeeting />} />
+          <Route path="*" element={<Navigate to="/"/>} />
+        </Routes>
+        <Footer />
+        
+        {/* Botón flotante de chat */}
+        <ChatButton onClick={() => setChatModalOpen(true)} />
+        
+        {/* Chat Modal */}
+        <ChatModal 
+          isOpen={chatModalOpen} 
+          onClose={() => setChatModalOpen(false)} 
+        />
+      </div>
+    </>
+  );
+}
 
 function App({ initialState = null }) {
   Analytics("Principal")
@@ -66,34 +110,13 @@ function App({ initialState = null }) {
 }
   return (
     <Router>
-      <Preloader load={load} />
-      <div className={`${theme}`} id={load ? "no-scroll" : "scroll"}>
-        <Navbar onAction={handleAction}/>
-        <ScrollToTop />
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/project" element={<Projects />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/resume" element={<Resume />} />
-          <Route path="/articles" element={<ArticlesPage />} />
-          <Route path="/article/:slug" element={<ArticleView />} />
-          <Route path="/politics" element={<Politicas />} />
-          <Route path="/terminos" element={<Terminos />} />
-          <Route path="/contacto" element={<Contact />} />
-          <Route path="/agendar" element={<ScheduleMeeting />} />
-          <Route path="*" element={<Navigate to="/"/>} />
-        </Routes>
-        <Footer />
-        
-        {/* Botón flotante de chat */}
-        <ChatButton onClick={() => setChatModalOpen(true)} />
-        
-        {/* Chat Modal */}
-        <ChatModal 
-          isOpen={chatModalOpen} 
-          onClose={() => setChatModalOpen(false)} 
-        />
-      </div>
+      <AppContent 
+        theme={theme}
+        handleAction={handleAction}
+        load={load}
+        chatModalOpen={chatModalOpen}
+        setChatModalOpen={setChatModalOpen}
+      />
     </Router>
   );
 }

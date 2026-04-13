@@ -45,9 +45,16 @@ if ($isLocal) {
 }
 
 // ──────────────────────────────────────────────
+// Definir constante requerida por database.php
+// ──────────────────────────────────────────────
+if (!defined('ADMIN_ACCESS')) {
+    define('ADMIN_ACCESS', true);
+}
+
+// ──────────────────────────────────────────────
 // Universal SSR: TODOS reciben HTML renderizado por PHP
 // ──────────────────────────────────────────────
-$templateDir = __DIR__ . '/templates';
+$templateDir = __DIR__ . '/public/templates';
 require_once $templateDir . '/Layout.php';
 require_once $templateDir . '/ArticleView.php';
 

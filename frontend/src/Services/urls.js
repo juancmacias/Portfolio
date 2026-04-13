@@ -41,7 +41,8 @@ export const API_ENDPOINTS = {
     projects: `${urlApi}api/portfolio/projects.php`,
     articles: `${urlApi}api/portfolio/articles.php`,
     viewArticle: `${urlApi}api/portfolio/view-article.php`,
-    chatRag: `${urlApi}api/portfolio/chat-rag.php`
+    chatRag: `${urlApi}api/portfolio/chat-rag.php`,
+    trackVisit: `${urlApi}api/portfolio/track-visit.php`
   }
 };
 

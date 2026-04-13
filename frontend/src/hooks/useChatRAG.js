@@ -15,6 +15,7 @@ const useChatRAG = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [sessionId, setSessionId] = useState(null);
+  const [currentModel, setCurrentModel] = useState({ provider: 'Groq', model: null });
   
   // Estados de voz
   const [isListening, setIsListening] = useState(false);
@@ -95,6 +96,14 @@ const useChatRAG = () => {
         setSessionId(data.data.session_id);
       }
       
+      // Actualizar modelo actual usado
+      if (data.data.metadata?.llm_provider && data.data.metadata?.model) {
+        setCurrentModel({
+          provider: data.data.metadata.llm_provider,
+          model: data.data.metadata.model
+        });
+      }
+      
       // Agregar respuesta del bot
       const botMsg = {
         id: Date.now() + 1,
@@ -104,6 +113,7 @@ const useChatRAG = () => {
         metadata: {
           ragContext: data.data.rag_context,
           llmProvider: data.data.metadata.llm_provider,
+          model: data.data.metadata.model,
           tokensUsed: data.data.metadata.tokens_used,
           processingTime: data.data.metadata.processing_time
         },
@@ -328,6 +338,7 @@ const useChatRAG = () => {
     isLoading,
     error,
     sessionId,
+    currentModel,
     
     // Estado de voz
     isListening,

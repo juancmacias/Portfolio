@@ -1,0 +1,31 @@
+.optimized-image {
+  max-width: 100%;
+  height: auto;
+  object-fit: cover;
+  transition: opacity 0.3s ease-in-out;
+}
+
+.optimized-image[data-loaded='false'] {
+  opacity: 0;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: loading 1.5s infinite;
+}
+
+.optimized-image[data-loaded='true'] {
+  opacity: 1;
+}
+
+@keyframes loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Prevenir layout shift con aspect-ratio */
+.optimized-image {
+  display: block;
+}

@@ -119,23 +119,29 @@ class TelegramNotifier
         }
         
         // Truncar mensajes largos (compatible sin mbstring)
-        $userMessageShort = $this->safeSubstr($userMessage, 0, 200);
-        $botResponseShort = $this->safeSubstr($botResponse, 0, 200);
+        $userMessageShort = $this->safeSubstr($userMessage, 0, 300);
+        $botResponseShort = $this->safeSubstr($botResponse, 0, 400);
         
         $ip = $metadata['ip'] ?? $this->getClientIp();
         $timestamp = $metadata['timestamp'] ?? date('Y-m-d H:i:s');
+        $sessionId = $metadata['session_id'] ?? 'N/A';
+        $provider = $metadata['llm_provider'] ?? 'N/A';
+        $model = $metadata['model'] ?? 'N/A';
         
         $message = "💬 *Nuevo mensaje en Chat RAG*\n\n";
         $message .= "👤 *Usuario:* `{$ip}`\n";
-        $message .= "🕐 *Hora:* {$timestamp}\n\n";
+        $message .= "🕐 *Hora:* {$timestamp}\n";
+        $message .= "🆔 *Sesión:* `" . substr($sessionId, 0, 8) . "`\n";
+        $message .= "🤖 *Proveedor:* {$provider} ({$model})\n\n";
         $message .= "📝 *Mensaje:*\n_{$userMessageShort}_";
         
         if ($botResponse) {
-            $message .= "\n\n🤖 *Respuesta:*\n_{$botResponseShort}_";
+            $message .= "\n\n💡 *Respuesta:*\n_{$botResponseShort}_";
         }
         
-        if ($this->safeStrlen($userMessage) > 200) {
-            $message .= "\n\n_...mensaje truncado_";
+        $isTruncated = $this->safeStrlen($userMessage) > 300 || $this->safeStrlen($botResponse) > 400;
+        if ($isTruncated) {
+            $message .= "\n\n_...contenido truncado_";
         }
         
         return $this->sendMessage($message);
@@ -426,6 +432,151 @@ class TelegramNotifier
                 'success' => false,
                 'error' => 'Failed to send test message. Check logs for details.'
             ];
+        }
+    }
+    
+    /**
+     * Notifica cuando alguien visita una página del portfolio
+     * Con rate limiting agresivo (10 min por defecto) y agrupación de visitas
+     * 
+     * @param array $metadata Datos de la visita (page, ip, referrer, user_agent, timestamp)
+     * @return bool True si se envió la notificación
+     */
+    public function notifyPageVisit($metadata = [])
+    {
+        if (!$this->enabled) {
+            return false;
+        }
+        
+        // Verificar si este evento está habilitado
+        if (!$this->isEventEnabled('page_visits')) {
+            return false;
+        }
+        
+        // Rate limiting agresivo para visitas (10 minutos por defecto)
+        $cooldown = $this->config['rate_limit']['page_visit_cooldown_seconds'] ?? 600; // 10 min default
+        if ($this->isRateLimited('page_visit', $cooldown)) {
+            // Guardar visita para agrupación futura (implementación futura)
+            $this->logVisitForGrouping($metadata);
+            return false;
+        }
+        
+        // Obtener visitas agrupadas de los últimos minutos
+        $recentVisits = $this->getRecentVisits();
+        
+        // Construir mensaje
+        $page = $metadata['page'] ?? 'unknown';
+        $ip = $metadata['ip'] ?? 'unknown';
+        $referrer = $metadata['referrer'] ?? 'direct';
+        
+        // Hashear IP parcialmente por privacidad
+        $ipParts = explode('.', $ip);
+        $maskedIp = count($ipParts) === 4 
+            ? $ipParts[0] . '.' . $ipParts[1] . '.xxx.xxx' 
+            : 'unknown';
+        
+        $message = "🌐 *Nueva Visita al Portfolio*\n\n";
+        
+        if (count($recentVisits) > 1) {
+            $message .= "📊 *Actividad reciente:* " . count($recentVisits) . " páginas visitadas\n";
+            $message .= "📄 *Páginas:*\n";
+            
+            $visitCounts = array_count_values(array_column($recentVisits, 'page'));
+            arsort($visitCounts);
+            $top3 = array_slice($visitCounts, 0, 3, true);
+            
+            foreach ($top3 as $visitedPage => $count) {
+                $message .= "  • " . $this->safeSubstr($visitedPage, 0, 40) . " ($count x)\n";
+            }
+        } else {
+            $message .= "📄 *Página:* `" . $page . "`\n";
+        }
+        
+        $message .= "🌍 *IP:* `" . $maskedIp . "`\n";
+        $message .= "🔗 *Origen:* " . ($referrer === 'direct' ? 'Directo' : $this->safeSubstr($referrer, 0, 40)) . "\n";
+        $message .= "🕐 *" . date('Y-m-d H:i:s') . "*";
+        
+        // Enviar notificación
+        $sent = $this->sendMessage($message);
+        
+        // Limpiar visitas agrupadas después de enviar
+        if ($sent) {
+            $this->clearRecentVisits();
+        }
+        
+        return $sent;
+    }
+    
+    /**
+     * Guarda una visita para agrupación en futuras notificaciones
+     * 
+     * @param array $metadata
+     */
+    private function logVisitForGrouping($metadata)
+    {
+        $visitsFile = dirname($this->rateLimitFile) . '/recent_visits.json';
+        $visits = [];
+        
+        if (file_exists($visitsFile)) {
+            $content = @file_get_contents($visitsFile);
+            $visits = json_decode($content, true) ?: [];
+        }
+        
+        // Limpiar visitas antiguas (más de 15 minutos)
+        $now = time();
+        $visits = array_filter($visits, function($visit) use ($now) {
+            $visitTime = strtotime($visit['timestamp'] ?? '');
+            return ($now - $visitTime) < 900; // 15 min
+        });
+        
+        // Agregar nueva visita
+        $visits[] = [
+            'page' => $metadata['page'] ?? 'unknown',
+            'ip' => $metadata['ip'] ?? 'unknown',
+            'referrer' => $metadata['referrer'] ?? 'direct',
+            'timestamp' => $metadata['timestamp'] ?? date('Y-m-d H:i:s')
+        ];
+        
+        // Guardar (crear directorio si es necesario)
+        $dir = dirname($visitsFile);
+        if (!is_dir($dir)) {
+            @mkdir($dir, 0755, true);
+        }
+        @file_put_contents($visitsFile, json_encode($visits));
+    }
+    
+    /**
+     * Obtiene visitas recientes agrupadas
+     * 
+     * @return array
+     */
+    private function getRecentVisits()
+    {
+        $visitsFile = dirname($this->rateLimitFile) . '/recent_visits.json';
+        
+        if (!file_exists($visitsFile)) {
+            return [];
+        }
+        
+        $content = @file_get_contents($visitsFile);
+        $visits = json_decode($content, true) ?: [];
+        
+        // Filtrar visitas antiguas
+        $now = time();
+        return array_filter($visits, function($visit) use ($now) {
+            $visitTime = strtotime($visit['timestamp'] ?? '');
+            return ($now - $visitTime) < 900; // 15 min
+        });
+    }
+    
+    /**
+     * Limpia el archivo de visitas agrupadas
+     */
+    private function clearRecentVisits()
+    {
+        $visitsFile = dirname($this->rateLimitFile) . '/recent_visits.json';
+        if (file_exists($visitsFile)) {
+            @unlink($visitsFile);
         }
     }
 }

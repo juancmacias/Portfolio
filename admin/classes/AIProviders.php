@@ -71,18 +71,32 @@ class GroqProvider implements AIProviderInterface {
             throw new Exception('API key de Groq no configurada');
         }
         
+        // Validar que el prompt no esté vacío
+        if (empty($prompt) || !is_string($prompt)) {
+            throw new Exception('Prompt inválido o vacío');
+        }
+        
         $model = $options['model'] ?? $this->defaultModel;
         $maxTokens = $options['max_tokens'] ?? 1000;
         $temperature = $options['temperature'] ?? 0.7;
+        $systemMessage = $options['system'] ?? null;
+        
+        // Construir mensajes
+        $messages = [];
+        if ($systemMessage) {
+            $messages[] = [
+                'role' => 'system',
+                'content' => $systemMessage
+            ];
+        }
+        $messages[] = [
+            'role' => 'user',
+            'content' => $prompt
+        ];
         
         $data = [
             'model' => $model,
-            'messages' => [
-                [
-                    'role' => 'user',
-                    'content' => $prompt
-                ]
-            ],
+            'messages' => $messages,
             'max_tokens' => $maxTokens,
             'temperature' => $temperature,
             'stream' => false
@@ -115,12 +129,24 @@ class GroqProvider implements AIProviderInterface {
             'Content-Type: application/json'
         ];
         
+        // Codificar datos a JSON
+        $jsonData = json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        if ($jsonData === false) {
+            $errorMsg = 'Error codificando datos a JSON: ' . json_last_error_msg();
+            error_log("GROQ REQUEST ENCODING ERROR: " . $errorMsg);
+            throw new Exception($errorMsg);
+        }
+        
+        error_log("GROQ REQUEST URL: " . $this->baseUrl);
+        error_log("GROQ REQUEST BODY LENGTH: " . strlen($jsonData));
+        error_log("GROQ REQUEST SAMPLE: " . substr($jsonData, 0, 500));
+        
         $ch = curl_init();
         curl_setopt_array($ch, [
             CURLOPT_URL => $this->baseUrl,
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_POST => true,
-            CURLOPT_POSTFIELDS => json_encode($data),
+            CURLOPT_POSTFIELDS => $jsonData,
             CURLOPT_HTTPHEADER => $headers,
             CURLOPT_TIMEOUT => 60,
             CURLOPT_SSL_VERIFYPEER => true,
@@ -132,19 +158,32 @@ class GroqProvider implements AIProviderInterface {
         $error = curl_error($ch);
         curl_close($ch);
         
+        error_log("GROQ RESPONSE HTTP CODE: " . $httpCode);
+        error_log("GROQ RESPONSE LENGTH: " . strlen($response));
+        error_log("GROQ RESPONSE SAMPLE: " . substr($response, 0, 500));
+        
         if ($error) {
+            error_log("GROQ CURL ERROR: " . $error);
             throw new Exception("Error cURL: {$error}");
         }
         
         if ($httpCode !== 200) {
+            error_log("GROQ HTTP ERROR: " . $httpCode . " - FULL RESPONSE: " . $response);
             $errorData = json_decode($response, true);
             $errorMsg = $errorData['error']['message'] ?? "HTTP Error {$httpCode}";
             throw new Exception("Error Groq API: {$errorMsg}");
         }
         
+        if (empty($response)) {
+            error_log("GROQ EMPTY RESPONSE");
+            throw new Exception('Respuesta vacía de Groq API');
+        }
+        
         $decoded = json_decode($response, true);
         if (json_last_error() !== JSON_ERROR_NONE) {
-            throw new Exception('Error decodificando respuesta JSON de Groq');
+            error_log("GROQ JSON DECODE ERROR: " . json_last_error_msg());
+            error_log("GROQ FULL RAW RESPONSE: " . $response);
+            throw new Exception('Error decodificando respuesta JSON de Groq: ' . json_last_error_msg());
         }
         
         return $decoded;

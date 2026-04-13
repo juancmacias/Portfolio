@@ -9,8 +9,16 @@
  */
 
 // Suprimir errores para devolver JSON limpio
-error_reporting(0);
+error_reporting(E_ALL);
 ini_set('display_errors', 0);
+ini_set('log_errors', 1);
+ini_set('error_log', __DIR__ . '/../../logs/chat-debug.log');
+
+// Log de inicio
+file_put_contents(__DIR__ . '/../../logs/chat-debug.log', 
+    "\n\n=== CHAT REQUEST " . date('Y-m-d H:i:s') . " ===\n", 
+    FILE_APPEND
+);
 
 // Limpiar cualquier salida previa
 ob_start();
@@ -289,9 +297,9 @@ try {
         error_log("Error guardando log de prompt: " . $e->getMessage());
     }
     
-    // 5. Determinar proveedor LLM (priorizar Groq)
-    $llmProvider = 'groq'; // Siempre usar Groq para conversaciones
-    $model = 'llama-3.1-8b-instant'; // Modelo rápido para chat
+    // 5. Determinar proveedor LLM (GitHub Models vía OpenAI)
+    $llmProvider = 'openai'; // Usar GitHub Models
+    $model = 'gpt-4o-mini'; // Modelo de GitHub Models
     
     // 6. Configurar parámetros de generación (optimizados para límites gratuitos)
     $generationOptions = [
@@ -506,7 +514,7 @@ try {
                 'session_id' => $sessionId ?? 'unknown',
                 'ip' => $_SERVER['REMOTE_ADDR'] ?? 'unknown',
                 'timestamp' => date('Y-m-d H:i:s'),
-                'llm_provider' => $llmprovider ?? 'unknown',
+                'llm_provider' => $llmProvider ?? 'unknown',
                 'model' => $model ?? 'unknown'
             ];
             

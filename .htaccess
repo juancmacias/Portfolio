@@ -80,33 +80,36 @@ AddType text/javascript .js
     # Configuración por defecto
     ExpiresDefault "access plus 1 hour"
     
-    # Imágenes - Caché largo (1 semana)
-    ExpiresByType image/x-icon "access plus 1 week"
-    ExpiresByType image/jpeg "access plus 1 week"
-    ExpiresByType image/jpg "access plus 1 week"
-    ExpiresByType image/png "access plus 1 week"
-    ExpiresByType image/gif "access plus 1 week"
-    ExpiresByType image/webp "access plus 1 week"
-    ExpiresByType image/svg+xml "access plus 1 week"
+    # Imágenes - Caché largo (1 año para inmutables)
+    ExpiresByType image/x-icon "access plus 1 year"
+    ExpiresByType image/jpeg "access plus 1 year"
+    ExpiresByType image/jpg "access plus 1 year"
+    ExpiresByType image/png "access plus 1 year"
+    ExpiresByType image/gif "access plus 1 year"
+    ExpiresByType image/webp "access plus 1 year"
+    ExpiresByType image/svg+xml "access plus 1 year"
+    ExpiresByType image/avif "access plus 1 year"
     
-    # Archivos estáticos - Caché medio (1 día)
-    ExpiresByType text/css "access plus 1 day"
-    ExpiresByType text/javascript "access plus 1 day"
-    ExpiresByType application/javascript "access plus 1 day"
-    ExpiresByType application/x-javascript "access plus 1 day"
+    # Archivos estáticos - Caché largo (1 año para archivos versionados)
+    ExpiresByType text/css "access plus 1 year"
+    ExpiresByType text/javascript "access plus 1 year"
+    ExpiresByType application/javascript "access plus 1 year"
+    ExpiresByType application/x-javascript "access plus 1 year"
     
-    # Archivos de fuentes - Caché largo (1 mes)
-    ExpiresByType font/woff "access plus 1 month"
-    ExpiresByType font/woff2 "access plus 1 month"
-    ExpiresByType application/font-woff "access plus 1 month"
-    ExpiresByType application/font-woff2 "access plus 1 month"
+    # Archivos de fuentes - Caché largo (1 año)
+    ExpiresByType font/woff "access plus 1 year"
+    ExpiresByType font/woff2 "access plus 1 year"
+    ExpiresByType application/font-woff "access plus 1 year"
+    ExpiresByType application/font-woff2 "access plus 1 year"
+    ExpiresByType font/ttf "access plus 1 year"
+    ExpiresByType font/otf "access plus 1 year"
     
-    # Archivos multimedia - Caché largo (1 semana)
-    ExpiresByType video/mp4 "access plus 1 week"
-    ExpiresByType audio/mpeg "access plus 1 week"
+    # Archivos multimedia - Caché largo (1 año)
+    ExpiresByType video/mp4 "access plus 1 year"
+    ExpiresByType audio/mpeg "access plus 1 year"
     
-    # PDFs - Caché medio (1 día)
-    ExpiresByType application/pdf "access plus 1 day"
+    # PDFs - Caché medio (1 semana)
+    ExpiresByType application/pdf "access plus 1 week"
     
     # HTML y PHP - Sin caché para contenido dinámico
     ExpiresByType text/html "access plus 0 seconds"
@@ -116,8 +119,51 @@ AddType text/javascript .js
     # JSON - Caché corto (1 hora)
     ExpiresByType application/json "access plus 1 hour"
     
+    # Manifest - Caché corto (1 semana)
+    ExpiresByType application/manifest+json "access plus 1 week"
+    
     # Flash (legacy)
-    ExpiresByType application/x-shockwave-flash "access plus 1 month"
+    ExpiresByType application/x-shockwave-flash "access plus 1 year"
+</IfModule>
+
+#
+# Compresión GZIP para optimizar transferencias
+#
+<IfModule mod_deflate.c>
+    # Comprimir HTML, CSS, JavaScript, Text, XML y fuentes
+    AddOutputFilterByType DEFLATE application/javascript
+    AddOutputFilterByType DEFLATE application/rss+xml
+    AddOutputFilterByType DEFLATE application/vnd.ms-fontobject
+    AddOutputFilterByType DEFLATE application/x-font
+    AddOutputFilterByType DEFLATE application/x-font-opentype
+    AddOutputFilterByType DEFLATE application/x-font-otf
+    AddOutputFilterByType DEFLATE application/x-font-truetype
+    AddOutputFilterByType DEFLATE application/x-font-ttf
+    AddOutputFilterByType DEFLATE application/x-javascript
+    AddOutputFilterByType DEFLATE application/xhtml+xml
+    AddOutputFilterByType DEFLATE application/xml
+    AddOutputFilterByType DEFLATE font/opentype
+    AddOutputFilterByType DEFLATE font/otf
+    AddOutputFilterByType DEFLATE font/ttf
+    AddOutputFilterByType DEFLATE image/svg+xml
+    AddOutputFilterByType DEFLATE image/x-icon
+    AddOutputFilterByType DEFLATE text/css
+    AddOutputFilterByType DEFLATE text/html
+    AddOutputFilterByType DEFLATE text/javascript
+    AddOutputFilterByType DEFLATE text/plain
+    AddOutputFilterByType DEFLATE text/xml
+    AddOutputFilterByType DEFLATE application/json
+    
+    # Desactivar para imágenes ya comprimidas
+    SetEnvIfNoCase Request_URI \.(?:gif|jpe?g|png|webp|avif)$ no-gzip dont-vary
+    
+    # Desactivar para IE6
+    BrowserMatch ^Mozilla/4 gzip-only-text/html
+    BrowserMatch ^Mozilla/4\.0[678] no-gzip
+    BrowserMatch \bMSIE !no-gzip !gzip-only-text/html
+    
+    # Asegurar que el proxy también comprima
+    Header append Vary User-Agent
 </IfModule>
 
 # 

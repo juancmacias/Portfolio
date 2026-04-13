@@ -153,6 +153,7 @@ function get_telegram_config() {
             'chat_messages' => true,             // Mensajes en Chat RAG
             'contact_form' => true,              // Formularios de contacto
             'article_views' => false,            // Vistas de artículos (puede ser spam)
+            'page_visits' => false,              // ⚠️  Visitas a páginas (CUIDADO: puede generar muchas notificaciones)
             'errors' => true,                    // Errores del sistema
             'admin_login' => true                // Logins en admin panel
         ],
@@ -161,7 +162,8 @@ function get_telegram_config() {
         'rate_limit' => [
             'enabled' => true,
             'max_notifications_per_hour' => 20,
-            'cooldown_seconds' => 60             // Mínimo 60s entre notificaciones del mismo tipo
+            'cooldown_seconds' => 60,            // Mínimo 60s entre notificaciones del mismo tipo
+            'page_visit_cooldown_seconds' => 600 // 10 minutos entre notificaciones de visitas (para evitar spam)
         ],
         
         // Formato de notificaciones
