@@ -44,7 +44,20 @@ try {
         // Las tablas RAG no existen aún
     }
     
-    $stats = array_merge($stats, $ragStats);
+    // Estadísticas de Contacto
+    $contactStats = [
+        'contact_total' => 0,
+        'contact_new' => 0
+    ];
+    
+    try {
+        $contactStats['contact_total'] = $db->fetchOne("SELECT COUNT(*) as count FROM contact_submissions")['count'] ?? 0;
+        $contactStats['contact_new'] = $db->fetchOne("SELECT COUNT(*) as count FROM contact_submissions WHERE status = 'new'")['count'] ?? 0;
+    } catch (Exception $e) {
+        // La tabla contact_submissions no existe
+    }
+    
+    $stats = array_merge($stats, $ragStats, $contactStats);
     
 } catch (Exception $e) {
     $stats = [
@@ -55,7 +68,9 @@ try {
         'projects_active' => 0,
         'prompts_total' => 0,
         'documents_total' => 0,
-        'conversations_total' => 0
+        'conversations_total' => 0,
+        'contact_total' => 0,
+        'contact_new' => 0
     ];
 }
 ?>
@@ -132,6 +147,16 @@ try {
                 <h3><?php echo $stats['conversations_total']; ?></h3>
                 <p>🗨️ Conversaciones (30d)</p>
             </div>
+            <div class="stat-card" style="border-left: 4px solid #ff6b6b;">
+                <h3><?php echo $stats['contact_total']; ?></h3>
+                <p>📬 Mensajes Contacto</p>
+            </div>
+            <?php if ($stats['contact_new'] > 0): ?>
+            <div class="stat-card" style="border-left: 4px solid #ffa502; background: #fff3e0;">
+                <h3 style="color: #ffa502;"><?php echo $stats['contact_new']; ?></h3>
+                <p style="color: #ff9000; font-weight: bold;">🔔 Nuevos sin leer</p>
+            </div>
+            <?php endif; ?>
         </div>
 
         <!-- Acciones Rápidas -->
@@ -170,6 +195,17 @@ try {
                 <a href="rag/dashboard.php" class="btn">🎛️ Centro de Control RAG</a>
                 <a href="rag/prompts.php" class="btn btn-success">💬 Gestión de Prompts</a>
                 <a href="rag/documents.php" class="btn btn-info">📁 Subida de Documentos</a>
+            </div>
+
+            <div class="action-card" style="border-left: 4px solid #667eea;">
+                <h3>📬 Formularios de Contacto</h3>
+                <a href="contact-submissions.php" class="btn">📋 Ver Todos los Mensajes</a>
+                <?php if ($stats['contact_new'] > 0): ?>
+                <a href="contact-submissions.php?status=new" class="btn btn-danger" style="background: #ffa502;">
+                    🔔 Nuevos (<?php echo $stats['contact_new']; ?>)
+                </a>
+                <?php endif; ?>
+                <a href="contact-submissions.php?status=replied" class="btn btn-success">✉️ Respondidos</a>
             </div>
 
         </div>

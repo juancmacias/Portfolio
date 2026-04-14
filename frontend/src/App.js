@@ -12,7 +12,7 @@ import ArticleView from "./components/Articles/ArticleView";
 //import Usocookies from "./components/Politics/usocookies";
 import Politicas from "./components/Politics/politica";
 import Terminos from "./components/Politics/terminos";
-import Contact from "./components/Contact/Contact";
+import ContactPage from "./components/Contact/ContactPage";
 import ScheduleMeeting from "./components/Scheduling/ScheduleMeeting";
 import Analytics from "./components/Analytics";
 import ChatModal from "./components/Chat/ChatModal";
@@ -35,7 +35,7 @@ function AppContent({ theme, handleAction, load, chatModalOpen, setChatModalOpen
   // Hook de tracking de visitas (envía notificación a Telegram cada 10 min)
   usePageTracking({
     enabled: true,          // Habilitar tracking
-    onlyProduction: true,   // Solo en producción (no en localhost)
+    onlyProduction: true,   // Solo en producción (excluye localhost, perfil.in, frontend.pru)
     debug: false            // Debug mode (console.log)
   });
 
@@ -54,7 +54,7 @@ function AppContent({ theme, handleAction, load, chatModalOpen, setChatModalOpen
           <Route path="/article/:slug" element={<ArticleView />} />
           <Route path="/politics" element={<Politicas />} />
           <Route path="/terminos" element={<Terminos />} />
-          <Route path="/contacto" element={<Contact />} />
+          <Route path="/contacto" element={<ContactPage />} />
           <Route path="/agendar" element={<ScheduleMeeting />} />
           <Route path="*" element={<Navigate to="/"/>} />
         </Routes>

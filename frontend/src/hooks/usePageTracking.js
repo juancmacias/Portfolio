@@ -37,12 +37,14 @@ export const usePageTracking = (options = {}) => {
     }
 
     // Solo producción si está configurado así
-    const isProduction = window.location.hostname !== 'localhost' && 
-                        window.location.hostname !== '127.0.0.1' &&
-                        !window.location.hostname.includes('perfil.in');
+    // Considera producción todo excepto localhost, 127.0.0.1 y dominios locales
+    const isLocalhost = window.location.hostname === 'localhost' || 
+                       window.location.hostname === '127.0.0.1' ||
+                       window.location.hostname === 'perfil.in' ||
+                       window.location.hostname === 'frontend.pru';
     
-    if (onlyProduction && !isProduction) {
-      if (debug) console.log('📊 Page tracking: Only production mode, skipping');
+    if (onlyProduction && isLocalhost) {
+      if (debug) console.log('📊 Page tracking: Only production mode, skipping (localhost detected)');
       return;
     }
 

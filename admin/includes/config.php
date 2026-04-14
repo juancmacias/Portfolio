@@ -99,6 +99,7 @@ $routes = [
     'article-create' => '/pages/article-create.php',
     'article-edit' => '/pages/article-create.php',
     'article-view' => '/pages/article-view.php',
+    'contact-submissions' => '/pages/contact-submissions.php',
     'sitemap-manager' => '/pages/sitemap-manager.php',
     'test-search-engine-notification' => '/pages/test-search-engine-notification.php',
     'gsc-inspector' => '/pages/gsc-inspector.php',
@@ -153,6 +154,12 @@ $navigationMenu = [
                 'active' => ['article-create', 'article-edit']
             ]
         ]
+    ],
+    [
+        'title' => 'Contacto',
+        'url' => getRoute('contact-submissions'),
+        'icon' => '📬',
+        'active' => ['contact-submissions']
     ],
     [
         'title' => 'Herramientas SEO',

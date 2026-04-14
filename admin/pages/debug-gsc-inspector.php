@@ -99,7 +99,7 @@ if (class_exists('GoogleSearchConsoleInspector')) {
 // Paso 5: Verificar headers
 echo "<h2>5. Headers HTML</h2>";
 try {
-    require_once __DIR__ . '/../includes/layouts/header.php';
+    require_once __DIR__ . '/../includes/components/header.php';
     echo "✅ Header cargado correctamente<br>";
 } catch (Exception $e) {
     echo "❌ Error en header: " . $e->getMessage() . "<br>";

@@ -1,8 +1,0 @@
-[10-Apr-2026 20:04:07 Europe/Madrid] [CHAT-RAG] {"timestamp":"2026-04-10 20:04:07","level":"INFO","message":"Nueva consulta RAG","data":{"session_id":"chat_69d8f6724b15a1.31803307","message_length":21,"include_voice":false}}
-[10-Apr-2026 20:04:07 Europe/Madrid] [CHAT-RAG] {"timestamp":"2026-04-10 20:04:07","level":"INFO","message":"Iniciando b\u00fasqueda RAG","data":[]}
-[10-Apr-2026 20:04:07 Europe/Madrid] [CHAT-RAG] {"timestamp":"2026-04-10 20:04:07","level":"INFO","message":"B\u00fasqueda RAG completada","data":{"results_count":0,"max_score":0}}
-[10-Apr-2026 20:04:07 Europe/Madrid] [CHAT-RAG] {"timestamp":"2026-04-10 20:04:07","level":"INFO","message":"Construyendo prompt con contexto RAG","data":[]}
-[10-Apr-2026 20:04:07 Europe/Madrid] [CHAT-RAG] {"timestamp":"2026-04-10 20:04:07","level":"INFO","message":"Enviando a LLM","data":{"provider":"groq","model":"llama-3.1-8b-instant","prompt_length":4593,"rag_context_items":0}}
-[10-Apr-2026 20:04:07 Europe/Madrid] [CHAT-RAG] {"timestamp":"2026-04-10 20:04:07","level":"INFO","message":"Respuesta LLM generada","data":{"response_length":125,"tokens_used":1320}}
-[10-Apr-2026 20:04:07 Europe/Madrid] [CHAT-RAG] {"timestamp":"2026-04-10 20:04:07","level":"INFO","message":"Conversaci\u00f3n guardada en BD","data":{"session_id":"chat_69d8f6724b15a1.31803307","relevance_avg":0}}
-[10-Apr-2026 20:04:07 Europe/Madrid] [CHAT-RAG] {"timestamp":"2026-04-10 20:04:07","level":"INFO","message":"Respuesta API completada","data":{"session_id":"chat_69d8f6724b15a1.31803307","success":true,"processing_time":0.26503705978393555}}

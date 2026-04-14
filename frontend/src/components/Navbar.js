@@ -10,6 +10,7 @@ import {
   AiOutlineHome,
   AiOutlineFundProjectionScreen,
   AiOutlineUser,
+  AiOutlineMail,
 } from "react-icons/ai";
 
 import { CgFileDocument } from "react-icons/cg";
@@ -107,10 +108,10 @@ function NavBar({ onAction }) {
             <Nav.Item>
               <Nav.Link
                 as={Link}
-                to="/agendar"
+                to="/contacto"
                 onClick={() => updateExpanded(false)}
               >
-                 Agendar una reunión
+                <AiOutlineMail style={{ marginBottom: "2px" }} /> Contacto
               </Nav.Link>
             </Nav.Item>
 

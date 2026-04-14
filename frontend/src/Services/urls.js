@@ -9,6 +9,7 @@ const isLocal = () => {
   return hostname === 'localhost' || 
          hostname === '127.0.0.1' || 
          hostname === 'perfil.in' ||
+         hostname === 'frontend.pru' ||
          hostname.includes('.local') ||
          hostname.includes('.test') ||
          process.env.NODE_ENV === 'development';
