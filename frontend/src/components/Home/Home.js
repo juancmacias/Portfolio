@@ -48,6 +48,7 @@ function Home() {
                 aria-label="Juan Carlos Macías"
                 className="img-fluid"
                 style={{ maxHeight: "450px", borderRadius: "120px" }}
+                fetchpriority="high"
               />
             </Col>
           </Row>
