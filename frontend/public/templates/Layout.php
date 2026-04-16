@@ -77,6 +77,10 @@ function renderLayout($content, $initialState = [], $cssFiles = [], $jsFiles = [
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     
+    <!-- Google Fonts - Cargadas en paralelo con técnica de preload asíncrono -->
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Raleway:wght@500&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'" />
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Raleway:wght@500&display=swap" /></noscript>
+    
     <?php if (isset($initialState['route']) && $initialState['route'] === '/'): ?>
     <!-- Preload LCP image solo para home -->
     <link rel="preload" as="image" href="/Assets/b1.png" fetchpriority="high">
