@@ -112,7 +112,7 @@ function renderHome() {
     $baseUrl = getBaseUrl();
     $initialState = [
         'route'       => '/',
-        'title'       => 'Juan Carlos Macías | Ingeniero Full Stack de IA Generativa',
+        'title'       => 'Desarrollo web, IA Generativa, Automatizaciones | Madrid',
         'description' => 'Portfolio de Juan Carlos Macías - Desarrollador Full Stack especializado en Inteligencia Artificial.',
         'url'         => $baseUrl . '/',
         'ogImage'     => $baseUrl . '/Assets/avatar.png',
@@ -127,15 +127,15 @@ function renderHome() {
                 <img
                     src="/Assets/b1.png"
                     alt="Juan Carlos Macías"
-                    aria-label="Desarrollador Full Stack IA"
+                    aria-label="Desarrollo web, IA Generativa, Automatizaciones | Madrid"
                     class="img-fluid mb-4"
                     fetchpriority="high"
                     decoding="async"
                     width="450" height="450"
                     style="max-height:450px; border-radius:120px;"
                 >
-                <h1 class="heading">Juan Carlos Macías Salvador</h1>
-                <h2 class="heading-subtitle">Ingeniero Full Stack de IA Generativa</h2>
+                <h1 class="heading">Desarrollo web, IA Generativa, Automatizaciones | Madrid</h1>
+                <h2 class="heading-subtitle">Desarrollo web, IA Generativa, Automatizaciones</h2>
                 <p class="lead mt-4">
                     Desarrollador Full Stack especializado en Inteligencia Artificial,
                     con experiencia en React, PHP, Python y tecnologías de IA generativa.
