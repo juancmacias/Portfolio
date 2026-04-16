@@ -11,6 +11,32 @@ if (!$auth->isLoggedIn()) {
     exit;
 }
 
+// Obtener configuración de IA
+$aiConfig = ['default_provider' => 'groq', 'current_model' => 'desconocido'];
+try {
+    $configFile = __DIR__ . '/../config/config.local.php';
+    if (file_exists($configFile)) {
+        require_once $configFile;
+        $aiConfig = get_ai_config();
+        
+        // Determinar modelo actual según proveedor
+        if ($aiConfig['default_provider'] === 'openai' && !empty($aiConfig['api_keys']['github_models'])) {
+            $aiConfig['current_model'] = 'gpt-4o-mini (GitHub Models) 🆓';
+            $aiConfig['display_name'] = 'GitHub Models';
+        } elseif ($aiConfig['default_provider'] === 'groq') {
+            $aiConfig['current_model'] = 'llama-3.1-8b-instant';
+            $aiConfig['display_name'] = 'Groq';
+        } elseif ($aiConfig['default_provider'] === 'huggingface') {
+            $aiConfig['current_model'] = 'meta-llama/Llama-3.2-3B-Instruct';
+            $aiConfig['display_name'] = 'Hugging Face';
+        } else {
+            $aiConfig['display_name'] = ucfirst($aiConfig['default_provider']);
+        }
+    }
+} catch (Exception $e) {
+    error_log("Error cargando config IA: " . $e->getMessage());
+}
+
 $articleManager = new ArticleManager();
 $isEdit = !empty($_GET['id']);
 $article = null;
@@ -690,6 +716,13 @@ $pageTitle = $isEdit ? "Editar Artículo" : "Nuevo Artículo";
                 <!-- Generación con IA -->
                 <div class="sidebar-section">
                     <h3>🤖 Herramientas IA</h3>
+                    
+                    <!-- Indicador de proveedor activo -->
+                    <div style="background: #e3f2fd; padding: 10px; border-radius: 6px; margin-bottom: 15px; font-size: 12px; border-left: 3px solid #2196F3;">
+                        <strong>🔌 Proveedor:</strong> <?= htmlspecialchars($aiConfig['display_name'] ?? 'Desconocido') ?><br>
+                        <strong>📦 Modelo:</strong> <?= htmlspecialchars($aiConfig['current_model'] ?? 'desconocido') ?>
+                    </div>
+                    
                     <button type="button" class="btn btn-outline btn-block" onclick="generateWithAI('title', event)">
                         Generar Título
                     </button>

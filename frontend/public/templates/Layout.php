@@ -43,6 +43,7 @@ function renderLayout($content, $initialState = [], $cssFiles = [], $jsFiles = [
     <title><?php echo $title; ?></title>
     <meta name="description" content="<?php echo $description; ?>">
     <meta name="author" content="Juan Carlos Macías">
+    <meta name="robots" content="index, follow">
     
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
@@ -138,6 +139,98 @@ function renderLayout($content, $initialState = [], $cssFiles = [], $jsFiles = [
                 window.__INITIAL_STATE__ = {};
             }
         })();
+    </script>
+    
+    <!-- Structured Data - JSON-LD @graph dual (Organization + Person) -->
+    <script type="application/ld+json">
+<?php
+// JSON-LD generado dinámicamente para evitar problemas de encoding
+$jsonLd = [
+    '@context' => 'https://schema.org',
+    '@graph' => [
+        [
+            '@type' => 'Organization',
+            '@id' => 'https://www.juancarlosmacias.es/#organization',
+            'name' => 'Soluciones web, IA Generativa, Automatizaciones',
+            'alternateName' => 'Juan Carlos Macías - Desarrollo Full Stack e IA',
+            'description' => 'Desarrollo web full stack (React, PHP, Java) con IA Generativa. Creo automatizaciones inteligentes y aplicaciones escalables. Especialista en integración de modelos LLM y MLOps en Madrid.',
+            'url' => 'https://www.juancarlosmacias.es/',
+            'logo' => 'https://www.juancarlosmacias.es/Assets/Projects/portfolio.png',
+            'founder' => [
+                '@id' => 'https://www.juancarlosmacias.es/#person'
+            ],
+            'email' => 'juancmaciassalvador@gmail.com',
+            'telephone' => '+34618309775',
+            'address' => [
+                '@type' => 'PostalAddress',
+                'streetAddress' => 'Calle de Padre Oltra',
+                'addressLocality' => 'Madrid',
+                'addressRegion' => 'Comunidad de Madrid',
+                'postalCode' => '28019',
+                'addressCountry' => 'ES'
+            ],
+            'sameAs' => [
+                'https://www.linkedin.com/in/juancarlosmacias/',
+                'https://github.com/juancmacias',
+                'https://maps.app.goo.gl/eb43KR6oPFGrNgAn9',
+                'https://play.google.com/store/apps/dev?id=7098282899285176966',
+                'https://www.instagram.com/jcms_madrid/'
+            ],
+            'contactPoint' => [
+                '@type' => 'ContactPoint',
+                'telephone' => '+34618309775',
+                'email' => 'juancmaciassalvador@gmail.com',
+                'contactType' => 'customer service',
+                'areaServed' => ['ES'],
+                'availableLanguage' => ['es-ES']
+            ]
+        ],
+        [
+            '@type' => 'Person',
+            '@id' => 'https://www.juancarlosmacias.es/#person',
+            'name' => 'Juan Carlos Macías',
+            'alternateName' => 'jcmacias',
+            'description' => 'Desarrollo web full stack (React, PHP, Java) con IA Generativa. Creo automatizaciones inteligentes y aplicaciones escalables. Especialista en integración de modelos LLM y MLOps en Madrid.',
+            'url' => 'https://www.juancarlosmacias.es/',
+            'image' => 'https://www.juancarlosmacias.es/Assets/Projects/portfolio.png',
+            'email' => 'juancmaciassalvador@gmail.com',
+            'telephone' => '+34618309775',
+            'jobTitle' => 'Desarrollador Full Stack e Ingeniero en IA',
+            'knowsAbout' => [
+                'Desarrollo Web',
+                'React',
+                'Java',
+                'PHP',
+                'Python',
+                'Machine Learning',
+                'IA Generativa',
+                'LLMs',
+                'MLOps',
+                'Automatización'
+            ],
+            'address' => [
+                '@type' => 'PostalAddress',
+                'addressLocality' => 'Madrid',
+                'addressRegion' => 'Comunidad de Madrid',
+                'addressCountry' => 'ES'
+            ],
+            'sameAs' => [
+                'https://www.linkedin.com/in/juancarlosmacias/',
+                'https://github.com/juancmacias',
+                'https://www.instagram.com/jcms_madrid/',
+                'https://play.google.com/store/apps/dev?id=7098282899285176966'
+            ],
+            'mainEntityOfPage' => [
+                '@type' => 'CollectionPage',
+                '@id' => 'https://www.juancarlosmacias.es/project',
+                'name' => 'Portfolio de proyectos de desarrollo e inteligencia artificial',
+                'url' => 'https://www.juancarlosmacias.es/project'
+            ]
+        ]
+    ]
+];
+echo json_encode($jsonLd, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
+?>
     </script>
 </head>
 <body>

@@ -15,8 +15,8 @@ function Home() {
 
     <section>
       <MetaData
-         _title={'Portafolio de Juan Carlos Macías, creador de soluciones únicas | Desarrollo web jcms'}
-         _descr={'Página de Juan Carlos Macias, Tu aplicación única en web o móvil. Desarrollador Web y creador de contenido. Especializado en crear aplicaciones.'}
+         _title={'Soluciones web, IA Generativa, Automatizaciones | Juan Carlos Macías'}
+         _descr={'Desarrollo web full stack (React, PHP, Java) con IA Generativa. Creo automatizaciones inteligentes y aplicaciones escalables. Especialista en integración de modelos LLM y MLOps en Madrid.'}
          _url={urlApi}
          _img={`${urlApi}Assets/Projects/portfolio.png`}
       />

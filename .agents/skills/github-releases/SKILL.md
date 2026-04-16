@@ -78,11 +78,17 @@ gh release create v1.0.0 --title "Version 1.0.0" --notes "Release with binaries"
 
 #### Crear release con notas desde archivo
 
-Cuando las release notes son extensas:
+Cuando las release notes son extensas, es recomendable usar archivos dedicados.
+En este proyecto, los release notes se almacenan en la carpeta `releases/`:
 
 ```bash
-gh release create v1.0.0 --title "Version 1.0.0" --notes-file CHANGELOG.md
+gh release create v1.0.0 --title "Version 1.0.0" --notes-file releases/RELEASE_NOTES_v1.0.0.md
 ```
+
+**Estructura recomendada:**
+- Carpeta: `releases/`
+- Patrón de archivos: `RELEASE_NOTES_v{version}.md`
+- Ver `releases/README.md` para formato y convenciones
 
 ### 2. Listar Releases
 

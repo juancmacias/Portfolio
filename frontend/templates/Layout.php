@@ -14,11 +14,6 @@ function renderLayout($content, $initialState = [], $cssFiles = [], $jsFiles = [
     $ogImage = htmlspecialchars($initialState['ogImage'] ?? '/Assets/avatar.png', ENT_QUOTES, 'UTF-8');
     $url = htmlspecialchars($initialState['url'] ?? '', ENT_QUOTES, 'UTF-8');
     
-    // Detectar si es un artículo para cambiar el tipo Open Graph
-    $isArticle = isset($initialState['article']) && !empty($initialState['article']);
-    $ogType = $isArticle ? 'article' : 'website';
-    $article = $initialState['article'] ?? null;
-    
     // Archivos CSS por defecto
     $defaultCss = [
         '/static/css/main.css'
@@ -48,9 +43,10 @@ function renderLayout($content, $initialState = [], $cssFiles = [], $jsFiles = [
     <title><?php echo $title; ?></title>
     <meta name="description" content="<?php echo $description; ?>">
     <meta name="author" content="Juan Carlos Macías">
+    <meta name="robots" content="index, follow">
     
     <!-- Open Graph / Facebook -->
-    <meta property="og:type" content="<?php echo $ogType; ?>">
+    <meta property="og:type" content="website">
     <meta property="og:url" content="<?php echo $url; ?>">
     <meta property="og:title" content="<?php echo $title; ?>">
     <meta property="og:description" content="<?php echo $description; ?>">
@@ -59,30 +55,6 @@ function renderLayout($content, $initialState = [], $cssFiles = [], $jsFiles = [
     <meta property="og:image:height" content="630">
     <meta property="og:site_name" content="Juan Carlos Macías - Portfolio">
     <meta property="og:locale" content="es_ES">
-    
-    <?php if ($isArticle): ?>
-    <!-- Article-specific Open Graph tags -->
-    <?php if (!empty($article['published_at'])): ?>
-    <meta property="article:published_time" content="<?php echo date('c', strtotime($article['published_at'])); ?>">
-    <?php elseif (!empty($article['created_at'])): ?>
-    <meta property="article:published_time" content="<?php echo date('c', strtotime($article['created_at'])); ?>">
-    <?php endif; ?>
-    <?php if (!empty($article['updated_at'])): ?>
-    <meta property="article:modified_time" content="<?php echo date('c', strtotime($article['updated_at'])); ?>">
-    <?php endif; ?>
-    <meta property="article:author" content="Juan Carlos Macías">
-    <?php 
-    // Tags del artículo como categorías Open Graph
-    if (!empty($article['tags'])) {
-        $tags = is_string($article['tags']) ? json_decode($article['tags'], true) : $article['tags'];
-        if (is_array($tags)) {
-            foreach ($tags as $tag) {
-                echo '    <meta property="article:tag" content="' . htmlspecialchars($tag, ENT_QUOTES, 'UTF-8') . '">' . "\n";
-            }
-        }
-    }
-    ?>
-    <?php endif; ?>
     
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image">
@@ -98,9 +70,6 @@ function renderLayout($content, $initialState = [], $cssFiles = [], $jsFiles = [
     
     <!-- Favicon -->
     <link rel="icon" href="/Assets/favicon.ico" type="image/x-icon">
-    
-    <!-- RSS Feed -->
-    <link rel="alternate" type="application/rss+xml" title="Juan Carlos Macías - RSS Feed" href="/rss.php">
     
     <!-- Preconnect para optimización - establece conexiones DNS/TLS antes de descargar recursos -->
     <link rel="preconnect" href="https://cdn.jsdelivr.net">
@@ -170,6 +139,98 @@ function renderLayout($content, $initialState = [], $cssFiles = [], $jsFiles = [
                 window.__INITIAL_STATE__ = {};
             }
         })();
+    </script>
+    
+    <!-- Structured Data - JSON-LD @graph dual (Organization + Person) -->
+    <script type="application/ld+json">
+<?php
+// JSON-LD generado dinámicamente para evitar problemas de encoding
+$jsonLd = [
+    '@context' => 'https://schema.org',
+    '@graph' => [
+        [
+            '@type' => 'Organization',
+            '@id' => 'https://www.juancarlosmacias.es/#organization',
+            'name' => 'Soluciones web, IA Generativa, Automatizaciones',
+            'alternateName' => 'Juan Carlos Macías - Desarrollo Full Stack e IA',
+            'description' => 'Desarrollo web full stack (React, PHP, Java) con IA Generativa. Creo automatizaciones inteligentes y aplicaciones escalables. Especialista en integración de modelos LLM y MLOps en Madrid.',
+            'url' => 'https://www.juancarlosmacias.es/',
+            'logo' => 'https://www.juancarlosmacias.es/Assets/Projects/portfolio.png',
+            'founder' => [
+                '@id' => 'https://www.juancarlosmacias.es/#person'
+            ],
+            'email' => 'juancmaciassalvador@gmail.com',
+            'telephone' => '+34618309775',
+            'address' => [
+                '@type' => 'PostalAddress',
+                'streetAddress' => 'Calle de Padre Oltra',
+                'addressLocality' => 'Madrid',
+                'addressRegion' => 'Comunidad de Madrid',
+                'postalCode' => '28019',
+                'addressCountry' => 'ES'
+            ],
+            'sameAs' => [
+                'https://www.linkedin.com/in/juancarlosmacias/',
+                'https://github.com/juancmacias',
+                'https://maps.app.goo.gl/eb43KR6oPFGrNgAn9',
+                'https://play.google.com/store/apps/dev?id=7098282899285176966',
+                'https://www.instagram.com/jcms_madrid/'
+            ],
+            'contactPoint' => [
+                '@type' => 'ContactPoint',
+                'telephone' => '+34618309775',
+                'email' => 'juancmaciassalvador@gmail.com',
+                'contactType' => 'customer service',
+                'areaServed' => ['ES'],
+                'availableLanguage' => ['es-ES']
+            ]
+        ],
+        [
+            '@type' => 'Person',
+            '@id' => 'https://www.juancarlosmacias.es/#person',
+            'name' => 'Juan Carlos Macías',
+            'alternateName' => 'jcmacias',
+            'description' => 'Desarrollo web full stack (React, PHP, Java) con IA Generativa. Creo automatizaciones inteligentes y aplicaciones escalables. Especialista en integración de modelos LLM y MLOps en Madrid.',
+            'url' => 'https://www.juancarlosmacias.es/',
+            'image' => 'https://www.juancarlosmacias.es/Assets/Projects/portfolio.png',
+            'email' => 'juancmaciassalvador@gmail.com',
+            'telephone' => '+34618309775',
+            'jobTitle' => 'Desarrollador Full Stack e Ingeniero en IA',
+            'knowsAbout' => [
+                'Desarrollo Web',
+                'React',
+                'Java',
+                'PHP',
+                'Python',
+                'Machine Learning',
+                'IA Generativa',
+                'LLMs',
+                'MLOps',
+                'Automatización'
+            ],
+            'address' => [
+                '@type' => 'PostalAddress',
+                'addressLocality' => 'Madrid',
+                'addressRegion' => 'Comunidad de Madrid',
+                'addressCountry' => 'ES'
+            ],
+            'sameAs' => [
+                'https://www.linkedin.com/in/juancarlosmacias/',
+                'https://github.com/juancmacias',
+                'https://www.instagram.com/jcms_madrid/',
+                'https://play.google.com/store/apps/dev?id=7098282899285176966'
+            ],
+            'mainEntityOfPage' => [
+                '@type' => 'CollectionPage',
+                '@id' => 'https://www.juancarlosmacias.es/project',
+                'name' => 'Portfolio de proyectos de desarrollo e inteligencia artificial',
+                'url' => 'https://www.juancarlosmacias.es/project'
+            ]
+        ]
+    ]
+];
+echo json_encode($jsonLd, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
+?>
     </script>
 </head>
 <body>

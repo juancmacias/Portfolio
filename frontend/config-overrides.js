@@ -1,7 +1,10 @@
 /**
  * Configuración personalizada para react-app-rewired
  * Quita los hashes de los archivos del build para tener nombres fijos
+ * + Optimizaciones de webpack para reducir tamaño del bundle
  */
+
+const webpack = require('webpack');
 
 module.exports = function override(config, env) {
   // Solo aplicar en builds de producción
@@ -52,6 +55,39 @@ module.exports = function override(config, env) {
         return manifestFiles;
       };
     }
+
+    // ========== OPTIMIZACIONES DE TAMAÑO ==========
+
+    // 1. Desactivar source maps (reduce 13MB en producción)
+    config.devtool = false;
+
+    // 2. Configurar Terser para eliminar console.* en producción
+    const TerserPlugin = require('terser-webpack-plugin');
+    
+    config.optimization = {
+      ...config.optimization,
+      minimize: true,
+      minimizer: [
+        new TerserPlugin({
+          terserOptions: {
+            compress: {
+              // Eliminar todos los console.* (log, warn, error, info, debug, etc.)
+              drop_console: true,
+              // Eliminar también debugger statements
+              drop_debugger: true,
+              // Optimizaciones adicionales
+              pure_funcs: ['console.log', 'console.info', 'console.debug'],
+            },
+            format: {
+              // Eliminar comentarios
+              comments: false,
+            },
+          },
+          // Extraer comentarios de licencia a archivos separados
+          extractComments: false,
+        }),
+      ],
+    };
   }
 
   return config;

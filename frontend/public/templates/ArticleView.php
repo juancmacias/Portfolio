@@ -123,10 +123,10 @@ function renderArticleView($article) {
         }
     }
     
-    // Base URL de la API
-    $urlApi = 'http://www.frontend.pru/';
-    $articleUrl = $urlApi . 'article/' . $slug;
-    $defaultImage = $urlApi . 'Assets/Projects/portfolio.png';
+    // Base URL - usar función global para detectar entorno automáticamente
+    $baseUrl = getBaseUrl();
+    $articleUrl = $baseUrl . '/article/' . $slug;
+    $defaultImage = $baseUrl . '/Assets/Projects/portfolio.png';
     $imageUrl = $featuredImage ?: $defaultImage;
     
     ob_start();

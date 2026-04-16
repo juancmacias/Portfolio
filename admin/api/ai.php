@@ -42,6 +42,9 @@ try {
     // Crear instancia del generador de IA
     $aiGenerator = new AIContentGenerator();
     
+    // Log del proveedor configurado
+    error_log("AI API - Using default provider from config");
+    
     // Obtener datos
     $rawInput = file_get_contents('php://input');
     $input = json_decode($rawInput, true);

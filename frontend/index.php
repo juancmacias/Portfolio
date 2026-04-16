@@ -54,7 +54,56 @@ if (!defined('ADMIN_ACCESS')) {
 // ──────────────────────────────────────────────
 // Universal SSR: TODOS reciben HTML renderizado por PHP
 // ──────────────────────────────────────────────
-$templateDir = __DIR__ . '/public/templates';
+// Detectar ubicación de templates con fallback robusto
+// Producción: public_html/ | Desarrollo: frontend/ o frontend/build/
+$templateDir = null;
+$possibleTemplatePaths = [
+    // Producción: Hosting compartido con public_html/
+    __DIR__ . '/templates',                                    // public_html/templates/
+    __DIR__ . '/public/templates',                             // public_html/public/templates/
+    $_SERVER['DOCUMENT_ROOT'] . '/templates',                  // Document root directo
+    $_SERVER['DOCUMENT_ROOT'] . '/public/templates',           // Document root + public
+    
+    // Desarrollo: Rutas relativas desde build/
+    __DIR__ . '/../public/templates',                          // build/../public/templates/
+    dirname(__DIR__) . '/public/templates',                    // Alias equivalente
+    
+    // Fallback: Rutas absolutas típicas de hosting
+    '/home/*/public_html/templates',                           // Hosting compartido
+    '/home/*/public_html/public/templates',                    // Hosting con subcarpeta
+];
+
+foreach ($possibleTemplatePaths as $path) {
+    // Expandir comodines (wildcards) si existen
+    if (strpos($path, '*') !== false) {
+        $matches = glob($path);
+        if (!empty($matches)) {
+            $path = $matches[0]; // Usar la primera coincidencia
+        } else {
+            continue; // No hay coincidencias, siguiente
+        }
+    }
+    
+    if (file_exists($path . '/Layout.php') && file_exists($path . '/ArticleView.php')) {
+        $templateDir = $path;
+        break;
+    }
+}
+
+if (!$templateDir) {
+    // Log error detallado para diagnóstico
+    $paths = implode("\n", array_map(function($p) {
+        return $p . (file_exists($p) ? ' [DIR EXISTE]' : ' [NO EXISTE]');
+    }, $possibleTemplatePaths));
+    
+    error_log("ERROR CRÍTICO: Templates no encontrados.\n" . $paths);
+    error_log("__DIR__: " . __DIR__);
+    error_log("DOCUMENT_ROOT: " . ($_SERVER['DOCUMENT_ROOT'] ?? 'N/A'));
+    
+    http_response_code(500);
+    die("Error del servidor: Templates no encontrados. Contacte al administrador.");
+}
+
 require_once $templateDir . '/Layout.php';
 require_once $templateDir . '/ArticleView.php';
 
@@ -91,8 +140,8 @@ function renderHome() {
     $baseUrl = getBaseUrl();
     $initialState = [
         'route'       => '/',
-        'title'       => 'Juan Carlos Macías | Ingeniero Full Stack de IA Generativa',
-        'description' => 'Portfolio de Juan Carlos Macías - Desarrollador Full Stack especializado en Inteligencia Artificial.',
+        'title'       => 'Soluciones web, IA Generativa, Automatizaciones | Juan Carlos Macías',
+        'description' => 'Desarrollo web full stack (React, PHP, Java) con IA Generativa. Creo automatizaciones inteligentes y aplicaciones escalables. Especialista en integración de modelos LLM y MLOps en Madrid.',
         'url'         => $baseUrl . '/',
         'ogImage'     => $baseUrl . '/Assets/avatar.png',
         'isSSR'       => true,
@@ -134,6 +183,9 @@ function renderArticle($slug) {
     try {
         $dbPath = findDatabasePhp();
         if (!$dbPath) {
+            error_log("renderArticle ERROR: No se encontró database.php para slug '$slug'");
+            error_log("__DIR__: " . __DIR__);
+            error_log("DOCUMENT_ROOT: " . ($_SERVER['DOCUMENT_ROOT'] ?? 'N/A'));
             throw new Exception('No se encontró database.php en ninguna ruta conocida.');
         }
 
@@ -143,6 +195,13 @@ function renderArticle($slug) {
         }
         
         require_once $dbPath;
+        
+        // Verificar que la clase Database existe
+        if (!class_exists('Database')) {
+            error_log("renderArticle ERROR: Clase Database no existe después de require_once '$dbPath'");
+            throw new Exception('Clase Database no encontrada');
+        }
+        
         $db = Database::getInstance();
 
         $article = $db->fetchOne(
@@ -151,7 +210,14 @@ function renderArticle($slug) {
         );
 
         if (!$article) {
+            error_log("renderArticle INFO: Artículo con slug '$slug' no encontrado o no publicado");
             return serveSpaFallback();
+        }
+
+        // Verificar que la función renderArticleView existe
+        if (!function_exists('renderArticleView')) {
+            error_log("renderArticle ERROR: Función renderArticleView no existe. Template ArticleView.php no cargado?");
+            throw new Exception('Función renderArticleView no encontrada');
         }
 
         $initialState = [
@@ -170,6 +236,7 @@ function renderArticle($slug) {
 
     } catch (Exception $e) {
         error_log("SSR Error en artículo '$slug': " . $e->getMessage());
+        error_log("Stack trace: " . $e->getTraceAsString());
         return serveSpaFallback();
     }
 }
@@ -303,15 +370,16 @@ ITEM;
 /**
  * Helper reutilizable: localiza database.php probando varias rutas.
  * Detecta automáticamente el document root para mayor flexibilidad.
+ * Este archivo puede estar en frontend/ (dev) o en frontend/build/ (producción).
  */
 function findDatabasePhp(): ?string {
     // Detectar document root desde $_SERVER
     $docRoot = $_SERVER['DOCUMENT_ROOT'] ?? '';
     
     $candidates = [
-        // Rutas relativas desde build/
-        __DIR__ . '/../../admin/config/database.php',          // build/ → 2 niveles arriba
-        __DIR__ . '/../../../admin/config/database.php',       // 3 niveles
+        // Rutas relativas (funcionan tanto desde frontend/ como desde frontend/build/)
+        __DIR__ . '/../../admin/config/database.php',          // 2 niveles arriba
+        __DIR__ . '/../../../admin/config/database.php',       // 3 niveles (hosting anidado)
         dirname(dirname(dirname(__DIR__))) . '/admin/config/database.php',
         dirname(dirname(__DIR__)) . '/admin/config/database.php',
         __DIR__ . '/../admin/config/database.php',             // 1 nivel arriba
@@ -321,10 +389,10 @@ function findDatabasePhp(): ?string {
         $docRoot . '/Portfolio/admin/config/database.php',
         $docRoot . '/../admin/config/database.php',            // Un nivel arriba del docroot
         
-        // Rutas absolutas comunes Linux
+        // Rutas absolutas comunes Linux (hosting compartido)
         '/var/www/html/admin/config/database.php',
         '/var/www/Portfolio/admin/config/database.php',
-        '/home/*/public_html/admin/config/database.php',       // Hosting compartido
+        '/home/*/public_html/admin/config/database.php',
         
         // Rutas absolutas comunes Windows (desarrollo local)
         'E:/wwwserver/N_JCMS/Portfolio/admin/config/database.php',
